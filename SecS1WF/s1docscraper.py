@@ -173,6 +173,7 @@ def datapreprocess(data):
   data["No_of_shares"] = ""
   data["Price_per_share"] = ""
   data["Exchage"] = ""
+  data["Company_description"] = ""
   data = data.drop(["BusinessAddress"],axis = 1)
   data = correct_file_date(data)
   return data
