@@ -172,6 +172,7 @@ def datapreprocess(data):
   data["BusinessStreetAddress"] = streetadd
   data["No_of_shares"] = ""
   data["Price_per_share"] = ""
+  data["Exchage"] = ""
   data = data.drop(["BusinessAddress"],axis = 1)
   data = correct_file_date(data)
   return data
