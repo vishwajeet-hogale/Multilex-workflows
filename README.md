@@ -6,3 +6,8 @@
 - python -m luigi --module [file_name] [ClassName-Task] --local-scheduler
   - file_name : Enter the name of the file without .py extension
   - ClassName : Enter the name of the class
+
+## Workflows
+
+- LoggingWf : S1 data workflow
+- SecS1WF : Union of two daily log reports and automated mail
