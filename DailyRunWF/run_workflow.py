@@ -4,7 +4,7 @@ from Pipeline.Scraper import scraper
 from Pipeline.Prediction import predict
 from Pipeline.DataPreprocess import datapreprocess
 
-class Scraper(luigi):
+class Scraper(luigi.Task):
     # input_dir = luigi.Parameter(default="./Pipeline/Scraper/")
     output_dir = luigi.Parameter(default="./Output/")
     
@@ -24,7 +24,7 @@ class Predict(luigi.Task):
         predict.NERModel_lg(input_dir=self.output_dir[0:-1],output_dir=self.output_dir[0:-1])
 
 
-class DataPreprocess(luigi.Task):
+class Run_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
     dat = str(date.today().strftime("%Y-%m-%d"))
@@ -36,6 +36,12 @@ class DataPreprocess(luigi.Task):
     def run(self):
         datapreprocess.CleanedReport(self.file_name,input_dir=self.input_dir[0:-1],output_dir=self.output_dir[0:-1])
 
-class Run_workflow(luigi.Task):
-    def requires(self):
-        return [DataPreprocess()]
+# class Run_workflow(luigi.Task):
+#     run_data = luigi.Parameter(default="Morning")
+#     def requires(self):
+#         return [DataPreprocess()]
+#     def run(self):
+#         print(str(self.run_data) + " is successful!!!!!")
+
+
+# E: & cd luigi/DailyRunWF & python -m luigi --module run_workflow Run_workflow --local-scheduler

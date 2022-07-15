@@ -140,8 +140,8 @@ def NERModel_lg(input_dir, output_dir):
 #         logging.info("writing output artifact " + edi_preipo_report_fname + " to " + output_dir)
 #         df_final.to_csv(edi_preipo_report_fname,index=False)
 #         logging.info("completed writing output artifact " + edi_preipo_report_fname + " to " + output_dir)
-if __name__ == "__main__":
-    NERModel_lg("", "")    
+# if __name__ == "__main__":
+#     NERModel_lg("", "")    
 # logging.info("last line of multilex_NERModel_lg_xform")
 
 
