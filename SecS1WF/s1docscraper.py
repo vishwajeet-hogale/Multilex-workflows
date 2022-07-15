@@ -83,6 +83,8 @@ This function fetches all the basic data that is easily scrapable. The fields ar
 10. Mail Address
 11. Number of shares of common stock offered
 12. Price per share 
+13. Exchange 
+14. Business description
 
 Number of shares and price per share needs to be found. 
 

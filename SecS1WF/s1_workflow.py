@@ -22,7 +22,7 @@ class S1_workflow(luigi.Task):
     def run(self):
         dat = date.today()
         dat = str(dat.strftime("%Y-%m-%d"))
-        sendemail("sharikavallambatlapes@gmail.com","vishwajeethogale307@gmail.com","I have attached the S1 report to this email","S1 report for " + dat,self.output_dir+"S1DOC_Report_"+dat+".csv")
+        sendemail("maheshpanwar351@gmail.com","vishwajeethogale307@gmail.com","I have attached the S1 report to this email","S1 report for " + dat,self.output_dir+"S1DOC_Report_"+dat+".csv")
         # return luigi.LocalTarget(self.output_dir+"S1DOC_Report_"+dat+".csv")
     def requires(self):
         return [
