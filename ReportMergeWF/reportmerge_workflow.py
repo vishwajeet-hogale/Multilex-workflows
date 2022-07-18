@@ -13,6 +13,7 @@ class EveningFile_check(luigi.Task):
     def output(self):
         return luigi.LocalTarget(self.output_dir + "FinalReport_"+self.dat+"_1.csv")
 class Reportmerge_workflow(luigi.Task):
+    input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
     dat = str(date.today().strftime("%Y-%m-%d"))
     def output(self):
