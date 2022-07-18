@@ -44,15 +44,16 @@ def FilterFunction(final):
 def dropDuplicates2(df): #This function drops all the duplicates from a dataframe of all old data.
     df1 = df.drop_duplicates(subset=["text","link","title"])
     return df1
-def merge_reports(location):
+def merge_reports(input_dir,output_dir):
     cur_date = date.today()
     cur_date = str(cur_date.strftime("%Y-%m-%d"))
-    df = pd.read_csv(location+"FinalReport_"+cur_date+".csv")
-    # print(df.head())
-    df1 = pd.read_csv(location+"FinalReport_"+cur_date+"_1.csv")
+    print(input_dir+"FinalReport_"+cur_date+".csv")
+    df = pd.read_csv(input_dir+"FinalReport_"+cur_date+".csv")
+    print(df.head())
+    df1 = pd.read_csv(input_dir+"FinalReport_"+cur_date+"_1.csv")
     df = pd.concat([df,df1])
     df = dropDuplicates2(df)
     # df = FilterFunction(df)
-    file_name = "PREIPO_Final_Report_"+cur_date+".csv"
-    df.to_csv(location+file_name)
+    file_name = output_dir + "PREIPO_Final_Report_"+cur_date+".csv"
+    df.to_csv(file_name)
 # merge_reports("/home/prachi_multilex2/")

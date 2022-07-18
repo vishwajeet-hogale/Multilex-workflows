@@ -1,5 +1,5 @@
 import luigi 
-import merge_reports
+import ReportMergeWF.merge_reports as merge_reports
 from datetime import date
 
 class MorningFile_check(luigi.Task):
@@ -19,9 +19,9 @@ class Reportmerge_workflow(luigi.Task):
     def output(self):
         return luigi.LocalTarget(self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def run(self):
-        merge_reports.merge_reports(self.output_dir)
+        merge_reports.merge_reports(self.input_dir,self.output_dir)
     def requires(self):
-        return [MorningFile_check(),EveningFile_check()]
+        return [MorningFile_check(output_dir = self.input_dir),EveningFile_check(output_dir = self.input_dir)]
 
 
 # python -m luigi --module reportmerge_workflow Reportmerge_workflow --local-scheduler 

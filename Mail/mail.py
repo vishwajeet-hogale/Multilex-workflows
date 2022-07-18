@@ -59,7 +59,7 @@ def remove_duplicates(df):
 def sendemail(to,cc,body,subject,attachment_filepath):
     password = config('PASSWORD')
     fromaddr = config('EMAIL')
-    toaddr = to
+    toaddr = [to] + cc 
     
     # instance of MIMEMultipart
     msg = MIMEMultipart()
@@ -69,7 +69,7 @@ def sendemail(to,cc,body,subject,attachment_filepath):
     
     # storing the receivers email address 
     msg['To'] = to
-    msg["Cc"] = cc
+    # msg["Cc"] = cc
     # msg["body"] = body
     # storing the subject 
     msg['Subject'] = subject

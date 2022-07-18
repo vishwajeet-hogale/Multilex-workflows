@@ -20,6 +20,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from advertools import word_tokenize
+log_output_dir = "E:\\luigi\\DailyRunWF\Output\\"
 warnings.simplefilter("ignore", UserWarning)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
 logging.info("first line of multilex_scraper_xform")
@@ -9073,6 +9074,250 @@ def multilex_scraper(input_dir, output_dir):
         except:
             print("Headlinesoftoday not working")
             not_working_functions.append("Headlinesoftoday")
+    def africabusinessinsider():
+        try:
+            print("Africa business insider")
+            url = "https://africa.businessinsider.com/search?q=ipo"
+            domain_url = "https://africa.businessinsider.com/"
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            page = requests.get(url, headers=headers)
+            soup = BeautifulSoup(page.content, "html.parser")
+            # soup  # Debugging - if soup is working correctly
+
+            # Class names of the elements to be scraped
+            div_class = "link"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            title_h1_class = "article-headline"
+            date_time_class = ["detail-article-date", "date-type-publicationDate"]
+            para_div_class = ["article-body-text"]
+
+            links = []
+
+            for divtag in soup.find_all("div", {"class": div_class}):
+                for a in divtag.find_all("a", href=True):
+                    link = a["href"]  # Gets the link
+                    
+                    # Checking the link if it is a relative link
+                    if link[0] == '/':
+                        link = domain_url + link
+                    
+                    # Filtering advertaisment links
+                    link_start = domain_url 
+                    if link.startswith(link_start):
+                        links.append(link)
+            # Remove duplicates
+            links = list(set(links))
+            # links # Debugging - if link array is generated
+            
+            collection = []
+            err_logs = []
+            scrapper_name = "africabusinessinsider"
+
+            for link in links:
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err = scrapper_name + ": err: Failed to retrieve data from link: " + link + " and convert it to soup object"
+                    err_logs.append(err)
+                    continue
+
+                data = []
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("h1", {"class": title_h1_class})
+                    title_text = title_ele.text
+                    title_text = title_text.strip("\n")
+                    title_text = title_text.strip()
+                    data.append(title_text)
+                except:
+                    err = scrapper_name + ": err: Failed to find title in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+
+
+                # Adding the link to data
+                data.append(link)
+
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("time", {"class": date_time_class})
+                    date_text = date_ele.text
+                    date_text = date_text.strip("\n")
+                    date_text = date_text.strip()
+                    # date_text = (date_text.split('\n'))[-2]
+                    #date_text = date_text.replace(" Updated: ", "")
+                    data.append(date_text)  # The date_text could be further modified to represent a proper date format
+                except:
+                    err = scrapper_name + ": err: Failed to find date in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+                
+                # Adding the scraped date to data
+                cur_date = str(datetime.today())
+                data.append(cur_date)
+                
+
+                # Scraping the paragraph
+                try:
+                    para_ele = (l_soup.findAll("div", {"class": para_div_class}))[-1]
+                    para_text = para_ele.text
+                    para_text = para_text.strip("\n")
+                    para_text = para_text.strip()
+                    data.append(para_text)
+                except:
+                    err = scrapper_name + ": err: Failed to find paragraph in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+                # Adding data to a collection
+                collection.append(data)
+
+            df = pd.DataFrame(collection, columns =['title', 'link','publish_date','scraped_date','text'])
+            if df.empty:
+                err = scrapper_name + ": err: Empty dataframe"
+                err_logs.append(err)
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            return df
+        except:
+            print("Africa business Insider")
+            not_working_functions.append("Africa business insider")
+    def africanmarkets():
+        try:
+            print("African Markets")
+            url = "https://www.african-markets.com/en/search?searchword=ipo&ordering=newest&searchphrase=all&limit=0"
+            domain_url = "https://www.african-markets.com/"
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            page = requests.get(url, headers=headers)
+            soup = BeautifulSoup(page.content, "html.parser")
+            # soup  # Debugging - if soup is working correctly
+
+            # Class names of the elements to be scraped
+            dt_class = "result-title"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            title_div_class = "page-header"
+            date_time_itemprop = ["datePublished"]
+            para_div_itemprop = ["articleBody"]
+
+            links = []
+
+            for divtag in soup.find_all("dt", {"class": dt_class}):
+                for a in divtag.find_all("a", href=True):
+                    link = a["href"]  # Gets the link
+                    
+                    # Checking the link if it is a relative link
+                    if link[0] == '/':
+                        link = domain_url + link[1:]
+                    
+                    # Filtering advertaisment links
+                    link_start = domain_url 
+                    if link.startswith(link_start):
+                        links.append(link)
+            # Remove duplicates
+            links = list(set(links))
+            # links # Debugging - if link array is generated
+
+            collection = []
+            err_logs = []
+            scrapper_name = "africanmarkets"
+
+            for link in links:
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err = scrapper_name + ": err: Failed to retrieve data from link: " + link + " and convert it to soup object"
+                    err_logs.append(err)
+                    continue
+
+                data = []
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("div", {"class": title_div_class})
+                    title_text = title_ele.text
+                    title_text = title_text.strip("\n")
+                    title_text = title_text.strip()
+                    data.append(title_text)
+                except:
+                    err = scrapper_name + ": err: Failed to find title in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+
+
+                # Adding the link to data
+                data.append(link)
+
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("time", {"itemprop": date_time_itemprop})
+                    date_text = date_ele.text
+                    date_text = date_text.strip("\n")
+                    date_text = date_text.strip()
+                    date_text = date_text.split("Published:")[-1]
+                    # date_text = (date_text.split('\n'))[-2]
+                    #date_text = date_text.replace(" Updated: ", "")
+                    data.append(date_text)  # The date_text could be further modified to represent a proper date format
+                except:
+                    err = scrapper_name + ": err: Failed to find date in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+                
+                # Adding the scraped date to data
+                cur_date = str(datetime.today())
+                data.append(cur_date)
+                
+
+                # Scraping the paragraph
+                try:
+                    para_ele = (l_soup.findAll("div", {"itemprop": para_div_itemprop}))[-1]
+                    para_text = para_ele.text
+                    para_text = para_text.strip("\n")
+                    para_text = para_text.strip()
+                    data.append(para_text)
+                except:
+                    err = scrapper_name + ": err: Failed to find paragraph in page. Link: " + link
+                    err_logs.append(err)
+                    continue  # drops the complete data if there is an error
+                # Adding data to a collection
+                collection.append(data)
+
+            df = pd.DataFrame(collection, columns =['title', 'link','publish_date','scraped_date','text'])
+            if df.empty:
+                err = scrapper_name + ": err: Empty dataframe"
+                err_logs.append(err)
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("African markets",df)
+            return df
+        except:
+            print("African Markets not working")
+            not_working_functions.append("African markets")
     df1 = korea()
     df2 = proactive("ipo")
     df3 = Reuters("ipo")
@@ -9180,10 +9425,12 @@ def multilex_scraper(input_dir, output_dir):
     df105 = bankokpost()
     df106 = globalnewswire()
     df107 = headlinesoftoday()
+    df108 = africabusinessinsider()
+    df109 = africanmarkets()
     # df102 = kedgsel()
     # df67 = scmp()
     # df66 = phnompenhpost()
-    df_final_1 = [df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df94,df93,df92,df91,df90,df89,df88,df87,df86,df85,df84,df83,df81,df80,df79, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df31,df32, df34,df39, df40, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
+    df_final_1 = [df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df94,df93,df92,df91,df90,df89,df88,df87,df86,df85,df84,df83,df81,df80,df79, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df31,df32, df34,df39, df40, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
     # df_final_1 = [df85,df83,df80,df79,df7,df8,df18,df29,df32,df34,df58,df59,df62,df67, df68, df69, df70, df71,df76]
     # df_final_1 = [df102]
     df_final = pd.concat(df_final_1)
@@ -9202,9 +9449,9 @@ def multilex_scraper(input_dir, output_dir):
     final.to_csv(todays_report_filename,index=False)
     logfile = ""
     if(get_time_valid() < 16):
-        logfile = output_dir + "/logs.txt"
+        logfile = log_output_dir + "logs.txt"
     else:
-        logfile = output_dir + "/logs1.txt"
+        logfile = log_output_dir + "logs1.txt"
     textfile = open(logfile,"w")
     for i in not_working_functions:
         textfile.write(i+"\n")
