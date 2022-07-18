@@ -4,7 +4,7 @@ from LoggingWF.log_workflow import *
 from ReportMergeWF.reportmerge_workflow import *
 root = "E:\\luigi\\"
 class Log_Report_Mailing_workflow(luigi.Task):
-    input_dir = luigi.Parameter(root + "DailyRunWF\\")
+    input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "LoggingWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
     # def output(self):
