@@ -7,12 +7,17 @@ from DailyRunWF.Pipeline.DataPreprocess import datapreprocess
 class Scraper(luigi.Task):
     # input_dir = luigi.Parameter(default="./Pipeline/Scraper/")
     output_dir = luigi.Parameter(default="./Output/")
+    dat = str(date.today().strftime("%Y-%m-%d"))
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + "todays_report.csv")
     def run(self):
         scraper.multilex_scraper(self.output_dir[0:-1],self.output_dir[0:-1])
 
 class Predict(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + "EDI_PREIPO_report.csv")
     def requires(self):
         return [Scraper(output_dir = self.output_dir)]
     def run(self):

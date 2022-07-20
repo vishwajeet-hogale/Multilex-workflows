@@ -16,7 +16,7 @@ class Log_Report_Mailing_workflow(luigi.Task):
         return [Fetch_clean_log_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
 
 class Final_Report_Mailing_workflow(luigi.Task):
-    input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
+    input_dir = luigi.Parameter(root + "LoggingWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
     # def output(self):
