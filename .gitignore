@@ -1,4 +1,7 @@
 **/.env
 *.pkl
 **/.pkl
-**/Output
+**/.csv
+**/.xlsx
+*.csv
+*.xlsx
