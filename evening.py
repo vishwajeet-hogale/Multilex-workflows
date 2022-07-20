@@ -1,5 +1,6 @@
 import luigi
 from MailingWF import *
+from DailyRunWF.run_workflow import *
 from LoggingWF.log_workflow import *
 from ReportMergeWF.reportmerge_workflow import *
 root = "E:\\luigi\\"
@@ -29,3 +30,18 @@ class Final_Report_Mailing_workflow(luigi.Task):
 """
     Write Indata emailing Workflow here on success of Final_Report_mailing
 """
+class Part1EveningPipeline(luigi.Task):
+    input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
+    output_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
+    dat = str(date.today().strftime("%Y-%m-%d"))
+    file_name = "EDI_PREIPO_report.csv"
+    dat = str(date.today().strftime("%Y-%m-%d"))
+    def requires(self):
+        return [Predict(input_dir = self.output_dir,output_dir = self.output_dir)]
+    def run(self):
+        datapreprocess.CleanedReport(self.file_name,input_dir=self.input_dir[0:-1],output_dir=self.output_dir[0:-1])
+class Part2EveningPipeline(luigi.Task):
+    input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
+    output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
+    def requires(self):
+        return [Log_Report_Mailing_workflow(),Final_Report_Mailing_workflow()]

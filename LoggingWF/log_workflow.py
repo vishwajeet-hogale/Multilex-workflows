@@ -1,6 +1,8 @@
 import luigi 
 from Mail.mail import sendemail
-from datetime import date 
+from datetime import date
+from ReportMergeWF.reportmerge_workflow import *
+from ReportMergeWF.reportmerge_workflow import MorningFile_check 
 # class Get_date(luigi.Task):
 #     def run(self):
 #         return str(date.today().strftime("%Y-%m-%d"))
@@ -20,6 +22,8 @@ class Fetch_clean_log_workflow(luigi.Task):
         with open(self.output_dir + "log_report_"+self.dat+".txt","w") as f:
             for i in res:
                 f.write(i+"\n")
+    def requires(self):
+        return [EveningFile_check(output_dir = self.input_dir)]
 
 # class Log_workflow(luigi.Task):
 #     input_dir = luigi.Parameter(default="E:/MultilexDash/Pipeline/Scraper/")
