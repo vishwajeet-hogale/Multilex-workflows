@@ -8,7 +8,7 @@ class Uploaddatabase_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
     Current_Date = datetime.today()
-    Previous_Date = datetime.datetime.today() - datetime.timedelta(days=1)
+    Previous_Date = datetime.datetime.today() 
     prev_dat = str(Previous_Date.strftime("%Y-%m-%d"))
     def upload_file_database(self,input_dir,conn):
         df = pd.read_csv(input_dir + "PREIPO_Final_Report_"+self.prev_dat + ".csv")
