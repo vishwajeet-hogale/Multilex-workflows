@@ -16,7 +16,7 @@ class Log_Report_Mailing_workflow(luigi.Task):
         return [Fetch_clean_log_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
 
 class Final_Report_Mailing_workflow(luigi.Task):
-    input_dir = luigi.Parameter(root + "LoggingWF\\Output\\")
+    input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
     # def output(self):
@@ -35,7 +35,9 @@ class Part1EveningPipeline(luigi.Task):
     output_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
     file_name = "EDI_PREIPO_report.csv"
-    dat = str(date.today().strftime("%Y-%m-%d"))
+    file_name1 = "FinalReport_"+dat+"_1.csv"
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + self.file_name1)
     def requires(self):
         return [Predict(input_dir = self.output_dir,output_dir = self.output_dir)]
     def run(self):
@@ -43,5 +45,10 @@ class Part1EveningPipeline(luigi.Task):
 class Part2EveningPipeline(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
+    dat = str(date.today().strftime("%Y-%m-%d"))
+    def output(self):
+        return luigi.LocalTarget(self.input_dir + "FinalReport_"+self.dat+"_1.csv")
+    def run(self):
+        print("Evening Pipeline Successful!")
     def requires(self):
         return [Log_Report_Mailing_workflow(),Final_Report_Mailing_workflow()]
