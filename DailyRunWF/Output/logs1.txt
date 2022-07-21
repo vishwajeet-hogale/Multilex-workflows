@@ -1,15 +1,13 @@
-Google alert : err : Empty datframe
 Livemint : err : Empty datframe
 Moneycontrol : err : Empty datframe
 Google alert1 : err : Empty datframe
+Google Alert 2 : err : Empty datframe
 Google Alert 3 : err : Empty datframe
-Google Alert 4 : err : Empty datframe
 Google Alert 5 : err : Empty datframe
 IPO Monitor : err : Empty datframe
 RomaniaInsider
 Al Jazeera Qatar
 zdnet : err : Empty datframe
-Kngnet news
 kedg : err : Empty datframe
 Arab finance : err : Empty datframe
 Einnews : err : Empty datframe

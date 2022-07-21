@@ -8,8 +8,8 @@ class Log_Report_Mailing_workflow(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "LoggingWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
-    # def output(self):
-    #     return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
+    def output(self):
+        return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
     def run(self):
         sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com"],"Greetings Team,\n\nLog report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Log report for "+self.dat , self.output_dir + "log_report_"+self.dat+".txt")
     def requires(self):
@@ -47,7 +47,7 @@ class Part2EveningPipeline(luigi.Task):
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
     def output(self):
-        return luigi.LocalTarget(self.input_dir + "FinalReport_"+self.dat+"_1.csv")
+        return luigi.LocalTarget(self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def run(self):
         print("Evening Pipeline Successful!")
     def requires(self):
