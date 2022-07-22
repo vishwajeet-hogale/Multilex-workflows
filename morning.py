@@ -10,8 +10,8 @@ class MorningPipeline(luigi.Task):
     dat = str(date.today().strftime("%Y-%m-%d"))
     file_name = "FinalReport_"+dat+".csv"
     file_name1 = "EDI_PREIPO_report.csv"
-    # def output(self):
-    #     return luigi.LocalTarget(self.output_dir + self.file_name)
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + self.file_name)
     def requires(self):
         return Predict(input_dir = self.output_dir,output_dir = self.output_dir)
     def run(self):
