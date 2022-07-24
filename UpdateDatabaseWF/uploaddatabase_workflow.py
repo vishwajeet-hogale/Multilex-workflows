@@ -66,15 +66,6 @@ class Uploaddatabase_workflow(luigi.Task):
                 print(val)
         # print(err_rows)
         textfile.close()
-        
-        # sql = """DELETE t1 FROM preipo.Multilex t1
-        #         INNER  JOIN preipo.Multilex t2
-        #         WHERE t1.id < t2.id AND
-        #             t1.publish_date = t2.publish_date AND
-        #             t1.text = t2.text AND
-        #             t1.title = t2.title AND
-        #             t1.Companies = t2.Companies;"""
-        # cursor.execute(sql)
         cursor.close()
         conn.commit()
 
