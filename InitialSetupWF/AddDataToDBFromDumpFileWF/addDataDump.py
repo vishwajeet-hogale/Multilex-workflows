@@ -19,5 +19,5 @@ import db.py
 input_dir = "E:\\MultilexDash\\Backend\\"
 def uploadDump(input_dir,file_name="Cleaned_datadump.csv"):
     #write code here
-    pd.read_csv("E:\\MultilexDash\\Backend\\/Cleaned_datadump.csv")
+    pd.read_csv("E:\\MultilexDash\\Backend\\Cleaned_datadump.csv")
     apply.addfile( Cleaned_datadump.csv,type="csv")
