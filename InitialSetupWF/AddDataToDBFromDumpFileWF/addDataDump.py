@@ -19,4 +19,4 @@ from db import *
 input_dir = "E:\\MultilexDash\\Backend\\"
 def uploadDump(input_dir,file_name="Cleaned_datadump.csv"):
     #write code here
-    apply.addfile( input_dir + "Cleaned_datadump.csv",type="csv")
+    addfile( input_dir + "Cleaned_datadump.csv",type="csv")
