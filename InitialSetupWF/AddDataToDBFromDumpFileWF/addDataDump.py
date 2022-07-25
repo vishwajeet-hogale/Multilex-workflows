@@ -8,6 +8,8 @@ Functionality of the function :
     Note : 
     Function is already present to update the database in db.py 
 
+    Hint : 
+    Just call addfile function from db.py 
 
 ==================================================================================================================
 
