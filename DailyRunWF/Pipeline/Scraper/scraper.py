@@ -9405,7 +9405,7 @@ def multilex_scraper(input_dir, output_dir):
     df85 = vnexpress()
     df86 = jamaicaobserver()
     df87 = independent()
-    df88 = albaniandailynews()
+    # df88 = albaniandailynews()
     df89 = ewn()
     df90 = bloombergquint()
     df91 = ecns()
@@ -9430,7 +9430,7 @@ def multilex_scraper(input_dir, output_dir):
     # df102 = kedgsel()
     # df67 = scmp()
     # df66 = phnompenhpost()
-    df_final_1 = [df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df94,df93,df92,df91,df90,df89,df88,df87,df86,df85,df84,df83,df81,df80,df79, df1,df2,df3,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df31,df32, df34,df39, df40, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df77,df78]
+    df_final_1 = [df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df94,df93,df92,df91,df90,df89,df87,df86,df85,df84,df83,df81,df80,df79, df1,df2,df3,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df31,df32, df34,df39, df40, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df77,df78]
     # df_final_1 = [df85,df83,df80,df79,df7,df8,df18,df29,df32,df34,df58,df59,df62,df67, df68, df69, df70, df71,df76]
     # df_final_1 = [df102]
     df_final = pd.concat(df_final_1)
