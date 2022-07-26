@@ -10,11 +10,20 @@ from nltk import bigrams,trigrams,ngrams
 from advertools import word_tokenize
 TABLES = {}
 def setup_connection():
-    user = 'root'
-    DB_PASSWORD = 'Mjklop@0987'
+    # user = 'root'
+    # DB_PASSWORD = 'Mjklop@0987'
+    # DB_PORT = 3306
+    # passw = DB_PASSWORD
+    # host =  'localhost'
+    # port = DB_PORT
+    # database = 'preipo'
+    # conn = pymysql.connect(host=host,port=port,user=user,passwd=passw,db=database)
+    # return conn
+    user = 'admin'
+    DB_PASSWORD = 'HeyMultilex9087'
     DB_PORT = 3306
     passw = DB_PASSWORD
-    host =  'localhost'
+    host =  'multilex-db.csgyi8splofr.ap-south-1.rds.amazonaws.com'
     port = DB_PORT
     database = 'preipo'
     conn = pymysql.connect(host=host,port=port,user=user,passwd=passw,db=database)
@@ -137,7 +146,7 @@ def addfile(filename,type="csv"):
     err_rows = []
     for i,row in df.iterrows():
         # print(row["publish_date"])
-        try:
+        # try:
             # print(row)
             sql = "INSERT INTO preipo.Multilex(publish_date,scraped_date,title,text,Companies,Country,Listing,link,comments,`Update_news`,`Exchange`,`source_name`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             row["publish_date"] = str(row["publish_date"])
@@ -165,12 +174,13 @@ def addfile(filename,type="csv"):
                     row["publish_date"] = i
                     
             
-            source = str(get_source(row["link"]))
-            sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
+            
             try:
+                source = str(get_source(row["link"]))
+                sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
                 sid = cursor.fetchall()[0][0]
             except:
-                cursor.execute('''INSERT INTO preipo.News_source VALUES(%s)''',[str(source)])
+                cursor.execute('''INSERT INTO preipo.News_source(name) VALUES(%s)''',[str(source)])
                 sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
                 sid = cursor.fetchall()[0][0]
             # print(source + "--->" + str(sid))
@@ -182,8 +192,8 @@ def addfile(filename,type="csv"):
             """the connection is not autocommitted by default, so we 
             must commit to save our changes"""
             conn.commit()
-        except:
-            err_rows.append(str(i) + " " + str(row["publish_date"]) + "  " + str(row["Companies"]))
+        # except:
+        #     err_rows.append(str(i) + " " + str(row["publish_date"]) + "  " + str(row["Companies"]))
     textfile = open("error_rows.txt","w")
     for val,i in enumerate(err_rows):
         try:

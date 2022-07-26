@@ -8,6 +8,7 @@ class AddDataToDbWorkflow(luigi.Task):
     # def output(self):
     #     return luigi.LocalTarget(self.output_dir + "Output\\init_setup_success.txt")
     def run(self):
+        initial_setup()
         df = create_dataframe(self.input_dir)
         i_dir = self.input_dir + "Cleaned_datadump.csv"
         uploadDump(i_dir)

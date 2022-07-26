@@ -9711,7 +9711,7 @@ def multilex_scraper(input_dir, output_dir):
 
 # multilex_scraper("/home/prachi_multilex2", "/home/prachi_multilex2")       # uncomment this line to run this as a python script
 
-multilex_scraper( "", "")  
+# multilex_scraper( "", "")  
 logging.info("last line of scraper")
 
 
