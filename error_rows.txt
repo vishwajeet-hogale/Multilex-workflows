@@ -76,32 +76,34 @@
 1249 2022-07-04 00:00:00  Tekcapital
 1266 2022-07-08 00:00:00  Ascletis Files
 1284 2022-07-20 00:00:00  Sebit Chem
-1343 Date  Salik
-1348 Date  Amwaj
-1364 Date  OQ SAOC 
-1390 Date   Arohan Financial Services
-1391 Date  Alamar Foods
-1413 Date  Saudi Networkers Services Co.
-1440 2022-06-27 00:00:00  Uzbekneftegaz
-1504 2022-06-29 00:00:00   Opdenergy 
-1505 2022-06-29 00:00:00  Broadware
-1512 2022-06-29 00:00:00  Volkswagen
-1520 2022-06-29 00:00:00   Soosan Industries
-1528 Date  Alessa
-1529 Date  De Nora
-1562 March 4, 2022, 11:12 PM  Blue Owl Capital Inc
-1580 Mon, March 7, 2022, 6:16 PM  Muvi Cinemas
-1687 Mar 20th, 2022  RF Aquisition Corp
-1848 Date  Paradeep Phosphates
-1887 Date   Amwaj International
-1893 Date  Ladun Investment Co
-1894 Date  Elegant Centers Co.
-1912 Date  Marafiq
-1913 Date  Rawabi Energy Co
-1944 Date  Naqi Water Co. 
-1973 Date  Utico
-1975 Date  Dubai Airports 
-2019    Linmon Media 
-2028 21st apr  Klarna
+1298 2022-07-25 00:00:00  NNPCL
+1300 2022-07-25 00:00:00  Gujarat Polysol Chemicals, PKH Ventures
+1349 Date  Salik
+1354 Date  Amwaj
+1370 Date  OQ SAOC 
+1396 Date   Arohan Financial Services
+1397 Date  Alamar Foods
+1419 Date  Saudi Networkers Services Co.
+1446 2022-06-27 00:00:00  Uzbekneftegaz
+1510 2022-06-29 00:00:00   Opdenergy 
+1511 2022-06-29 00:00:00  Broadware
+1518 2022-06-29 00:00:00  Volkswagen
+1526 2022-06-29 00:00:00   Soosan Industries
+1534 Date  Alessa
+1535 Date  De Nora
+1568 March 4, 2022, 11:12 PM  Blue Owl Capital Inc
+1586 Mon, March 7, 2022, 6:16 PM  Muvi Cinemas
+1693 Mar 20th, 2022  RF Aquisition Corp
+1854 Date  Paradeep Phosphates
+1893 Date   Amwaj International
+1899 Date  Ladun Investment Co
+1900 Date  Elegant Centers Co.
+1918 Date  Marafiq
+1919 Date  Rawabi Energy Co
+1950 Date  Naqi Water Co. 
+1979 Date  Utico
+1981 Date  Dubai Airports 
+2025    Linmon Media 
+2034 21st apr  Klarna
 2022-05-07 2022-05-07  CHAOZHUO AVIATION
 2022-05-09 2022-05-09  SHANGHAI BIDE PHARMACEUTICAL TECHNOLOGY CO., LTD., SHENYANG FUCHUANG PRECISION EQUIPMENT CO., LTD., 
