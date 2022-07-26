@@ -15,8 +15,8 @@ Functionality of the function :
 
 """
 import pandas as pd
-from db import *
+from  Database.db import *
 input_dir = "E:\\MultilexDash\\Backend\\"
 def uploadDump(input_dir,file_name="Cleaned_datadump.csv"):
     #write code here
-    addfile( input_dir + "Cleaned_datadump.csv",type="csv")
+    addfile( input_dir,type="csv")
