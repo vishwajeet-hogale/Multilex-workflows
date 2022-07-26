@@ -1,6 +1,6 @@
 import luigi 
 from datetime import date
-from UpdateDatabaseWF.db import *
+from Database.db import *
 import re
 import pandas as pd
 root = "E:\\luigi\\"
@@ -75,14 +75,17 @@ class Uploaddatabase_workflow(luigi.Task):
         self.upload_file_database(self.input_dir)
         # conn.close()
         print("Database updated!")
-        with open(self.output_dir + self.cur_dat+".txt","w") as f:
+        with open(self.output_dir + self.cur_dat+"_uploaddb.txt","w") as f:
             f.write("Success")
-    # def output(self):
-    #     return luigi.LocalTarget(self.input_dir +  self.cur_dat +".txt")
+    def output(self):
+        return luigi.LocalTarget(self.input_dir +  self.cur_dat +"_uploaddb.txt")
 
 class removeduplicate_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
+    cur_dat = str(date.today().strftime("%Y-%m-%d"))
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + self.cur_dat + "_removedup.txt")
     def run(self):
         conn =setup_connection()
         cursor = conn.cursor()
@@ -96,5 +99,7 @@ class removeduplicate_workflow(luigi.Task):
         cursor.execute(sql)
         conn.commit()
         print("Database updated!")
+        with open(self.output_dir + self.cur_dat+"_removedup.txt","w") as f:
+            f.write("Success")
     def requires(self):
         return [Uploaddatabase_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
