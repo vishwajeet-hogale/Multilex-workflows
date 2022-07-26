@@ -1,26 +1,47 @@
-FTC
+reuters : err : Empty datframe
+Google Alert
 Google alert : err : Empty datframe
+Live mint
 Livemint : err : Empty datframe
-Moneycontrol : err : Empty datframe
+Kontan
+Kontan : err : Empty datframe
+AZ
+Xinhuanet
+AFR
+Moneycontrol
+Cnbc
+Cnbc : err : Empty datframe
+Swedish
+Google alert 1
 Google alert1 : err : Empty datframe
+Google Alert2
 Google Alert 2 : err : Empty datframe
+Google Alert 3
 Google Alert 3 : err : Empty datframe
+Google alert 5
 Google Alert 5 : err : Empty datframe
+IPOMonitor
+IPO Monitor : err : Empty datframe
+Global legal
+Seenews
+Seenews : err : Empty datframe
 RomaniaInsider
-Al Jazeera Qatar
-zdnet : err : Empty datframe
-kedg : err : Empty datframe
-Arab finance : err : Empty datframe
-aljarida
+RomaniaInsider : err : Empty datframe
+Spacemoney
+Spacemoney : err : Empty datframe
+Chinatoday
+Arabnews : err : Empty datframe
+Kngnet news : err : Empty datframe
+WealthX : err : Empty datframe
+Prnewswire
 Einnews : err : Empty datframe
-Livemint India  : err : Empty datframe
-Guardian Bahamas : err : Empty datframe
-Otempo brazil : err : Empty datframe
-Elicudadona Chile : err : Empty datframe
-Liputan : err : Empty datframe
-Millenio Mexico : err : Empty datframe
-Netherlands parool
+Livemint India
+Azernews
+Supchina
+Romania Insider Dominic Rep
+CNBC Barbados
 Hungary : err : Empty datframe
+jauns : err : Empty datframe
 Pulse
 vnexpress
 Albania daily news : err : Empty datframe
