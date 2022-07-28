@@ -48,7 +48,7 @@ def check_text(df,text):
 def remove_duplicates_from_todays_file(input_dir, output_dir):
     # Create File input and output names
     input_file_template = "PREIPO_Final_Report_{date}.csv"
-    output_file_template = "PREIPO_Final_Report_{date}_2.csv"
+    output_file_template = "PREIPO_Final_Report_{date}.csv"
     input_file = input_dir + input_file_template
     output_file = output_dir + output_file_template
     no_of_days = 3
