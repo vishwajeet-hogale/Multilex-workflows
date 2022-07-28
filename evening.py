@@ -1,4 +1,5 @@
 import luigi
+import os
 from MailingWF import *
 from DailyRunWF.run_workflow import *
 from LoggingWF.log_workflow import *
