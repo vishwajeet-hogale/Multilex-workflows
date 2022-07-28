@@ -30,10 +30,10 @@ input_dir = "E:\\luigi\\ReportMergeWF\\Output\\"
 output_dir = "E:\\luigi\\RemovePastThreeDaysDuplicatesWF\\Output\\"
 #
 input_file_template = "PREIPO_Final_Report_{date}.csv"
-output_file_template = "PREIPO_Final_Report_{date}.csv"
+output_file_template = "PREIPO_Final_Report_{date}_2.csv"
 #
 no_of_days = 3
-curr_date = date.today()
+curr_date = date.today() -timedelta(days=1)
 
 
 # remove duplicate Function
@@ -45,7 +45,7 @@ def remove_duplicates_from_todays_file(input_dir, output_dir):
     df_list = []
     #
     # Adds todays data and then prev data
-    for i in range(no_of_days + 1):
+    for i in range(1,no_of_days + 1):
 
         # Reading csv file and adding df to df_list
         file = input_file.format(date=(curr_date - timedelta(days=i)))
@@ -57,14 +57,14 @@ def remove_duplicates_from_todays_file(input_dir, output_dir):
     #
     # Droping Duplicates by keeping today data and resetting index
     new_df = df_concat.drop_duplicates(subset=["text", "title"]).reset_index(drop=True)
-    #
+    
     # Writing data to output_file
     new_df.to_csv(output_file.format(date=curr_date),index=False)
 
 
 # For testing this file run this file with terminal in the RemovePastThreeDaysDuplicate folder
 if __name__ == "__main__":
-    curr_date =  datetime.strptime("25-07-2022", "%d-%m-%Y").date()
-    input_dir = ".\\testIO\\input\\"
-    output_dir = ".\\testIO\\output\\"
+    # curr_date =  str(date.today().strftime("%Y-%m-%d"))
+    # input_dir = ".\\testIO\\input\\"
+    # output_dir = ".\\testIO\\output\\"
     remove_duplicates_from_todays_file(input_dir, output_dir)
