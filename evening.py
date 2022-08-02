@@ -53,13 +53,13 @@ class Part2EveningPipeline(luigi.Task):
         return luigi.LocalTarget(self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def run(self):
         print("Evening Pipeline Successful!")
-        # if os.path.isfile(self.output_dir + "todays_report.csv"):
-        #     os.remove(self.output_dir + "todays_report.csv")
-        # if os.path.isfile(self.output_dir + self.file_name1):
-        #     os.remove(self.output_dir + self.file_name1)
-    def requires(self):
         if os.path.isfile(self.output_dir + "todays_report.csv"):
             os.remove(self.output_dir + "todays_report.csv")
         if os.path.isfile(self.output_dir + self.file_name1):
             os.remove(self.output_dir + self.file_name1)
+    def requires(self):
+        # if os.path.isfile(self.output_dir + "todays_report.csv"):
+        #     os.remove(self.output_dir + "todays_report.csv")
+        # if os.path.isfile(self.output_dir + self.file_name1):
+        #     os.remove(self.output_dir + self.file_name1)
         return [Log_Report_Mailing_workflow(),Final_Report_Mailing_workflow()]

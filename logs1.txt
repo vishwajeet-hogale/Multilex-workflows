@@ -1,4 +1,3 @@
-FTC
 Google alert : err : Empty datframe
 Livemint : err : Empty datframe
 Moneycontrol : err : Empty datframe
@@ -17,10 +16,9 @@ Livemint India  : err : Empty datframe
 Guardian Bahamas : err : Empty datframe
 Otempo brazil : err : Empty datframe
 Elicudadona Chile : err : Empty datframe
-Lastampa Italy
-Liputan : err : Empty datframe
 Millenio Mexico : err : Empty datframe
 Netherlands parool
+Oman shabiba
 Hungary : err : Empty datframe
 Pulse
 vnexpress
