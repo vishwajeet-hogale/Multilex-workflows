@@ -1,3 +1,4 @@
+FTC
 Google alert : err : Empty datframe
 Livemint : err : Empty datframe
 Moneycontrol : err : Empty datframe
@@ -23,9 +24,7 @@ Hungary : err : Empty datframe
 Pulse
 vnexpress
 Albania daily news : err : Empty datframe
-energy voice : err : Empty datframe
 Euro news europe
 Thefreepressjournal
-Star : err : Empty datframe
 Fr : err : Empty datframe
 Gobal Capital : err : Empty datframe

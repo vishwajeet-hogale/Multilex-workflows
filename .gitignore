@@ -80,7 +80,7 @@ docs/_build/
 
 # PyBuilder
 target/
-
+LoggingWF/Output/*.txt
 # Jupyter Notebook
 .ipynb_checkpoints
 
