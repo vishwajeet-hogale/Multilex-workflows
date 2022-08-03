@@ -2,6 +2,10 @@ from datetime import date, datetime
 from encodings.utf_8 import encode
 import pymysql
 import pandas as pd
+<<<<<<< Updated upstream
+=======
+from soupsieve import select
+>>>>>>> Stashed changes
 from sqlalchemy import create_engine
 # from decouple import os.environ.get 
 import re
@@ -416,4 +420,34 @@ if __name__ == "__main__":
     # adddatatomultilextable("../Cleaned_datadump.csv")
     # df = pd.read_csv("../Cleaned_datadump.csv")
     # clean_df(df)
+<<<<<<< Updated upstream
     find_frequent_phrases()
+=======
+    find_frequent_phrases()
+    
+select * from preipo.Multilex where publish_date<= '{cur_date}'
+
+import pandas as pd
+import glob
+import os
+
+joined_files = os.path.join("/home", "*.csv")
+joined_list = glob.glob(joined_files)
+df = pd.concat(map(pd.read_csv, joined_list), ignore_index=True)
+max(publish_date) from preipo.Multilex where publish_date<= '{cur_date}'
+
+
+
+import pymysql
+dbcon=pymysql.connect("hostname","username","password","database")
+try:
+    sql_query=pd.read_sql_query(select * from preipo.Multilex where publish_date<= '{cur_date}')
+   
+    joined_files = os.path.join("/home", "*.csv")
+    joined_list = glob.glob(joined_files)
+    df = pd.concat(map(pd.read_csv, joined_list), ignore_index=True)
+
+    max(publish_date) from preipo.Multilex where publish_date<= '{cur_date}',dbcon
+
+Df=pd.DataFrame(sql_query)
+>>>>>>> Stashed changes
