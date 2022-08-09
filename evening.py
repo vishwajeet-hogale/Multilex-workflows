@@ -24,7 +24,11 @@ class Final_Report_Mailing_workflow(luigi.Task):
     # def output(self):
     #     return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
     def run(self):
-        remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\")
+        try:
+
+            remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\")
+        except:
+            print("Last three days files not present")
         sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Report for "+self.dat , self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def requires(self):
         return [Reportmerge_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
