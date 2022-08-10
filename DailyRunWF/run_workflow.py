@@ -11,6 +11,7 @@ class Scraper(luigi.Task):
     def output(self):
         return luigi.LocalTarget(self.output_dir + "todays_report.csv")
     def run(self):
+        
         scraper.multilex_scraper(self.output_dir[0:-1],self.output_dir[0:-1])
 
 class Predict(luigi.Task):

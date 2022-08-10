@@ -11,18 +11,21 @@ Al Jazeera Qatar
 zdnet : err : Empty datframe
 kedg : err : Empty datframe
 Arab finance : err : Empty datframe
+Vccircle : err : Empty datframe
 Einnews : err : Empty datframe
 Livemint India  : err : Empty datframe
 Guardian Bahamas : err : Empty datframe
 Otempo brazil : err : Empty datframe
 Elicudadona Chile : err : Empty datframe
+Liputan : err : Empty datframe
 Millenio Mexico : err : Empty datframe
 Netherlands parool
-Oman shabiba
 Hungary : err : Empty datframe
 Pulse
 vnexpress
 Albania daily news : err : Empty datframe
+energy voice
 Euro news europe
 Thefreepressjournal
+Star : err : Empty datframe
 Fr : err : Empty datframe

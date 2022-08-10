@@ -21,14 +21,14 @@ class Final_Report_Mailing_workflow(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
-    # def output(self):
-    #     return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
+    def output(self):
+        return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
     def run(self):
         try:
 
-            remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\")
+            remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\",1)
         except:
-            print("Last three days files not present")
+            print("Days parameter passed needs to be tuned!")
         sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Report for "+self.dat , self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def requires(self):
         return [Reportmerge_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
@@ -49,6 +49,10 @@ class Part1EveningPipeline(luigi.Task):
         return [Predict(input_dir = self.output_dir,output_dir = self.output_dir)]
     def run(self):
         datapreprocess.CleanedReport(self.file_name,input_dir=self.input_dir[0:-1],output_dir=self.output_dir[0:-1])
+        if os.path.isfile(self.output_dir + "todays_report.csv"):
+            os.remove(self.output_dir + "todays_report.csv")
+        if os.path.isfile(self.output_dir + "EDI_PREIPO_REPORT.csv"):
+            os.remove(self.output_dir + "EDI_PREIPO_REPORT.csv")
 class Part2EveningPipeline(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")

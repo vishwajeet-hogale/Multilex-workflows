@@ -45,13 +45,13 @@ def check_text(df,text):
     except:
         return -1
 # remove duplicate Function
-def remove_duplicates_from_todays_file(input_dir, output_dir):
+def remove_duplicates_from_todays_file(input_dir, output_dir,days=1):
     # Create File input and output names
     input_file_template = "PREIPO_Final_Report_{date}.csv"
     output_file_template = "PREIPO_Final_Report_{date}.csv"
     input_file = input_dir + input_file_template
     output_file = output_dir + output_file_template
-    no_of_days = 3
+    no_of_days = days
     curr_date = date.today()
     # To store dataframes including todays and find todays date
     df_list = []
