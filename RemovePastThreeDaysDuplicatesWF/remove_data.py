@@ -73,7 +73,7 @@ def remove_duplicates_from_todays_file(input_dir, output_dir,days=1):
     new_df = pd.DataFrame(collection,columns=["Unnamed: 0","publish_date","scraped_date","title","text","Companies","Country","link","Comments","update"])
     # Droping Duplicates by keeping today data and resetting index
     new_df = new_df.drop_duplicates(subset=["text", "title"]).reset_index(drop=True)
-    
+    ### new data that you filetered based on data field
     # Writing data to output_file
     new_df.to_csv(output_file.format(date=curr_date),index=False)
     

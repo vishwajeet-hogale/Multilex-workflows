@@ -11,6 +11,6 @@ class NightPipeline(luigi.Task):
         return luigi.LocalTarget(self.input_dir +  self.dat +".txt")
     def run(self):
         sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Report for "+self.dat , self.input_dir + "PREIPO_Final_Report_"+self.dat+".xlsx")
-        
+        # add to CFS
     def requires(self):
         return removeduplicate_workflow(input_dir = self.input_dir,output_dir = self.output_dir)

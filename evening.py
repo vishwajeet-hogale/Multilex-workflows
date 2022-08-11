@@ -26,7 +26,7 @@ class Final_Report_Mailing_workflow(luigi.Task):
     def run(self):
         try:
 
-            remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\",1)
+            remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\",2)
         except:
             print("Days parameter passed needs to be tuned!")
         sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Report for "+self.dat , self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
@@ -53,10 +53,11 @@ class Part1EveningPipeline(luigi.Task):
             os.remove(self.output_dir + "todays_report.csv")
         if os.path.isfile(self.output_dir + "EDI_PREIPO_REPORT.csv"):
             os.remove(self.output_dir + "EDI_PREIPO_REPORT.csv")
-class Part2EveningPipeline(luigi.Task):
+class Part2EveningPipeline_new(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "ReportMergeWF\\Output\\")
     dat = str(date.today().strftime("%Y-%m-%d"))
+    file_name1 = "EDI_PREIPO_report.csv"
     def output(self):
         return luigi.LocalTarget(self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def run(self):
@@ -66,8 +67,8 @@ class Part2EveningPipeline(luigi.Task):
         if os.path.isfile(self.output_dir + self.file_name1):
             os.remove(self.output_dir + self.file_name1)
     def requires(self):
-        # if os.path.isfile(self.output_dir + "todays_report.csv"):
-        #     os.remove(self.output_dir + "todays_report.csv")
-        # if os.path.isfile(self.output_dir + self.file_name1):
-        #     os.remove(self.output_dir + self.file_name1)
+       
         return [Log_Report_Mailing_workflow(),Final_Report_Mailing_workflow()]
+
+# Note : 
+# in case there is value error : Just cahnge the name of the pipeline 

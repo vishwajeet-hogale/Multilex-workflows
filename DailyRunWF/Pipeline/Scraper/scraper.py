@@ -9562,7 +9562,7 @@ def multilex_scraper(input_dir, output_dir):
         except:
             print("Dominican today not working")
             not_working_functions.append("Dominicantoday")
-
+    
     df1 = korea()
     df2 = proactive("ipo")
     df3 = Reuters("ipo")
