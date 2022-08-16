@@ -7,14 +7,12 @@ Google Alert 4 : err : Empty datframe
 Google Alert 5 : err : Empty datframe
 IPO Monitor : err : Empty datframe
 RomaniaInsider
-Chinatoday : err : Empty datframe
 Al Jazeera Qatar
 zdnet : err : Empty datframe
-Kngnet news
 kedg : err : Empty datframe
 Arab finance : err : Empty datframe
 Vccircle : err : Empty datframe
-aljarida
+Einnews : err : Empty datframe
 Livemint India  : err : Empty datframe
 Guardian Bahamas : err : Empty datframe
 Otempo brazil : err : Empty datframe
@@ -25,8 +23,6 @@ Netherlands parool
 Hungary : err : Empty datframe
 Pulse
 vnexpress
-Albania daily news : err : Empty datframe
 Euro news europe
 Thefreepressjournal
-Star : err : Empty datframe
 Fr : err : Empty datframe
