@@ -2,7 +2,7 @@ import luigi
 from DailyRunWF.run_workflow import *
 from DailyRunWF.Pipeline.DataPreprocess import datapreprocess
 import os
-root = "E:\\luigi\\"
+root = "C:\\Multilex-workflows\\"
 class MorningPipeline(luigi.Task):
     input_dir = luigi.Parameter(default=root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(default=root + "DailyRunWF\\Output\\")

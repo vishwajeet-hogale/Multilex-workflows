@@ -134,5 +134,5 @@ def run_feature12(df,to,cc,body,subject):
     sendemail(to,cc,body,subject,"PREIPO_Final_Report"+curdate + ".csv")
 
 if __name__ == "__main__":
-  sendemail("sharikavallambatlapes@gmail.com","vishwajeethogale307@gmail.com","Today's report","Report for 20th June","Cleaned_csv.csv")
+  sendemail("sharikavallambatlapes@gmail.com","191381679manasaab@gmail.com","Today's report","Report for 20th June","Cleaned_csv.csv")
     

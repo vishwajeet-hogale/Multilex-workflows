@@ -3,7 +3,7 @@ from datetime import date
 from Database.db import *
 import re
 import pandas as pd
-root = "E:\\luigi\\"
+root = "C:\Multilex-workflows\\"
 class Uploaddatabase_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")

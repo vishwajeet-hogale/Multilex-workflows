@@ -26,9 +26,9 @@ curr_date   : finds todays date
 import pandas as pd
 from datetime import date, datetime, timedelta
 # from Database.db import *
-input_dir = "E:\\luigi\\ReportMergeWF\\Output\\"
+input_dir = "C:\\Multilex-workflows\\ReportMergeWF\\Output\\"
 # input_dir = "E:\\luigi\\DailyRunWF\\Output\\"
-output_dir = "E:\\luigi\\RemovePastThreeDaysDuplicatesWF\\Output\\"
+output_dir = "C:\\Multilex-workflows\\RemovePastThreeDaysDuplicatesWF\\Output\\"
 #
 
 #

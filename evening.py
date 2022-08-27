@@ -5,7 +5,7 @@ from DailyRunWF.run_workflow import *
 from LoggingWF.log_workflow import *
 from ReportMergeWF.reportmerge_workflow import *
 from RemovePastThreeDaysDuplicatesWF.remove_data import remove_duplicates_from_todays_file
-root = "E:\\luigi\\"
+root = "C:\\Multilex-workflows\\"
 class Log_Report_Mailing_workflow(luigi.Task):
     input_dir = luigi.Parameter(root + "DailyRunWF\\Output\\")
     output_dir = luigi.Parameter(root + "LoggingWF\\Output\\")
@@ -13,7 +13,7 @@ class Log_Report_Mailing_workflow(luigi.Task):
     def output(self):
         return luigi.LocalTarget(self.output_dir+"log_report_"+self.dat+".txt")
     def run(self):
-        sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com"],"Greetings Team,\n\nLog report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Log report for "+self.dat , self.output_dir + "log_report_"+self.dat+".txt")
+        sendemail("sharikavallambatlapes@gmail.com",["191381679manasaab@gmail.com"],"Greetings Team,\n\nLog report is attcahed to this email.\nRegards,\nSai Manasa Nadimpalli","Log report for "+self.dat , self.output_dir + "log_report_"+self.dat+".txt")
     def requires(self):
         return [Fetch_clean_log_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
 
@@ -29,7 +29,7 @@ class Final_Report_Mailing_workflow(luigi.Task):
             remove_duplicates_from_todays_file(root + "ReportMergeWF\\Output\\",root + "ReportMergeWF\\Output\\",2)
         except:
             print("Days parameter passed needs to be tuned!")
-        sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nVishwajeet Hogale","Report for "+self.dat , self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
+        sendemail("sharikavallambatlapes@gmail.com",["191381679manasaab@gmail.com","sharikavallambatla@gmail.com"],"Greetings Team,\n\nThe final report is attcahed to this email.\nRegards,\nSai Manasa Nadimpalli","Report for "+self.dat , self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
     def requires(self):
         return [Reportmerge_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]
 
