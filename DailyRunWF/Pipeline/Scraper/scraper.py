@@ -14,11 +14,14 @@ from newspaper import Article
 import importlib.util
 import warnings
 import pytz
+import lxml
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options
+
 from advertools import word_tokenize
 warnings.simplefilter("ignore", UserWarning)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
@@ -2992,7 +2995,7 @@ def multilex_scraper(input_dir, output_dir):
                 def get_links(urls):
 
                     links = [] 
-                    page=requests.get(urls)
+                    page=requests.get(urls, timeout=10)
                     #   print(page)
                     soup=BeautifulSoup(page.content,'html')
                     divs = soup.find_all('li')
@@ -5769,7 +5772,7 @@ def multilex_scraper(input_dir, output_dir):
             domain_url = "https://www.elciudadano.com/"
             title,links,text,pub_date,scraped_date = [],[],[],[],[]
             try:
-                page = requests.get(url)
+                page = requests.get(url,timeout=10)
                 soup = BeautifulSoup(page.content,"html.parser")
                 # print(soup)
                 
@@ -11111,6 +11114,8 @@ def multilex_scraper(input_dir, output_dir):
         except:
             print("detroitnews not working")
             not_working_functions.append("detroitnews")
+
+
     def koreajoongangdailyjoins():
         try:
             print("koreajoongangdailyjoins")
@@ -11143,11 +11148,11 @@ def multilex_scraper(input_dir, output_dir):
             for divtag in soup.find_all("div", {"class": div_class}):
                 for a in divtag.find_all("a", href=True):
                     link = a["href"]  # Gets the link
-                    
+
                     # Checking the link if it is a relative link
                     if link[0] == '/':
                         link = domain_url + link
-                    
+
                     # Filtering advertaisment links
                     link_start = domain_url 
                     if link.startswith(link_start):
@@ -11172,7 +11177,7 @@ def multilex_scraper(input_dir, output_dir):
                 data = []
                 # Scraping the heading
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
-                
+
                 try:
                     title_ele = l_soup.find("h1", {"class": title_h1_class})
                     title_text = title_ele.text
@@ -11199,11 +11204,11 @@ def multilex_scraper(input_dir, output_dir):
                     err = scrapper_name + ": err: Failed to find date in page. Link: " + link
                     err_logs.append(err)
                     continue  # drops the complete data if there is an error
-                
+
                 # Adding the scraped date to data
                 cur_date = str(datetime.today())
                 data.append(cur_date)
-                
+
 
                 # Scraping the paragraph
                 try:
@@ -11230,6 +11235,8 @@ def multilex_scraper(input_dir, output_dir):
         except:
             print("koreajoongangdailyjoins not working")
             not_working_functions.append("koreajoongangdailyjoins")
+    
+
     def upstreamonline():
         try:
             print("upstreamonline")
@@ -11262,11 +11269,11 @@ def multilex_scraper(input_dir, output_dir):
             for divtag in soup.find_all("div", {"class": div_class}):
                 for a in divtag.find_all("a", href=True):
                     link = a["href"]  # Gets the link
-                    
+
                     # Checking the link if it is a relative link
                     if link[0] == '/':
                         link = domain_url + link
-                    
+
                     # Filtering advertaisment links
                     link_start = domain_url 
                     if link.startswith(link_start):
@@ -11291,7 +11298,7 @@ def multilex_scraper(input_dir, output_dir):
                 data = []
                 # Scraping the heading
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
-                
+
                 try:
                     title_ele = l_soup.find("h1", {"class": title_h1_class})
                     title_text = title_ele.text
@@ -11318,11 +11325,11 @@ def multilex_scraper(input_dir, output_dir):
                     err = scrapper_name + ": err: Failed to find date in page. Link: " + link
                     err_logs.append(err)
                     continue  # drops the complete data if there is an error
-                
+
                 # Adding the scraped date to data
                 cur_date = str(datetime.today())
                 data.append(cur_date)
-                
+
 
                 # Scraping the paragraph
                 try:
@@ -11348,9 +11355,508 @@ def multilex_scraper(input_dir, output_dir):
             return df
         except:
             print("upstreamonline not working")
-            not_working_functions.append("upstreamonline")
+            not_working_functions.append("upstreamonline") 
+
+    def businessstandard():
+        try:
+            print("Business Standard IPO")
+            err_logs = []
+            title,links,text,pub_date,scraped_date = [],[],[],[],[]
+
+            test_url = "https://www.business-standard.com/search?q=ipo"
+            domain_url = "https://www.business-standard.com"
+            options = Options()
+            options.headless = True
+            driver = webdriver.Firefox(options=options)
+            driver.get(test_url)
+            time.sleep(2)
+            html = driver.page_source
+            driver.quit()
+            sp=BeautifulSoup(html, 'lxml')
+            all_ul = sp.find_all('ul',{"class":"listing"})
+            #print(all_ul)
+            for ul1 in all_ul:
+                        h2_all=ul1.find_all("h2")
+                        for h2 in h2_all:
+                            a_all=h2.find_all("a")
+                            link=""
+                            for a1 in a_all:
+                                if((a1['href']!=None) and (a1.text != None)):
+                                    #get news link
+                                    #print("\n\n inside ..................................\n\n")
+                                    link=domain_url +a1['href']
+                                    links.append(link)
+
+                                    #print(link)
+                            
+                                    today = date.today()
+                    
+                                    try:
+                                            page1 = requests.get(link)
+                                            soup1 = BeautifulSoup(page1.content,"html.parser")
+                                            #print(soup)
+                                            #get news details
+
+                                    except:
+                                            err = "Businessstandard : err : Couldn't fetch url " + link 
+                                            print("inside_except")
+                                            err_logs.append(err)
+                                            continue
+                                            #news tile
+                                            
+                                    title1=""
+                                    if(soup1.find("h1" , {"class" : "headline"}).text !=None):
+                                        title1=soup1.find("h1" , {"class" : "headline"}).text
+
+                                    
+                                    #print("title:",title1) 
+                                    title1=title1.strip()
+                                    title.append(title1)
+                                                            
+                                    #news content
+                                    text2=[]
+                                    text3=""
+                                    if (soup1.find("div" , {"class" : "story-content"})!=None):
+                                        articlebody=soup1.find("div" , {"class" : "story-content"})
+                                        if(articlebody.find("span",{"class":"p-content"})!=None):
+                                            span_class=articlebody.find("span",{"class":"p-content"})
+                                            
+                                            p_all =span_class.find_all("p")
+                                            if(p_all !=None):
+                                                for p in p_all:
+                                                    if(p.text!=None):                                                
+                                                        text1 = p.text
+                                                        text1=text1.strip()
+                                                        text3=text3+text1
+                                                       
+                                            #print(text1)
+                                    
+                                    text.append(text3)
+                                    
+                                
+                                    #news publish date 
+                                    pubDate1=""
+                                    nd=soup1.find("div" , {"class" : "pubDate"})
+                                    if(nd!=None) :
+                                        pubDate1=nd.text
+                                        
+                                    elif(soup1.find('div',{"class":"publish-date"})!=None):
+                                        pubDate1=soup1.find('div',{"class":"publish-date"}).h4.i.text
+                                    pubDate1=pubDate1.strip()
+                                    pubDate1 =pubDate1[17:]
+                                
+                                    pub_date.append(pubDate1)
+                                    #print(pubDate1)
+                                    
+
+                                    #Scrapped date 
+                                    scraped_date.append(str(today))
+            
+            df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scraped_date,"title":title})
         
+            #df=pd.DataFrame({'Title': title,'link':links,'news body':text,'pubdate':pub_date,'Scrape date':scraped_date})
+            #print(df)
+            if df.empty:
+                err = "businessstandard : err: Empty dataframe"
+                err_logs.append(err)
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Business Standard",df)
+            return df
+        
+                                            
+        except:
+            print(" Business Standard not working")
+            not_working_functions.append("Business  Standard")
+              
     
+    def straitimes():
+        try:
+            print("Strait Times IPO")
+            err_logs = []
+            title,links,text,pub_date,scraped_date = [],[],[],[],[]
+
+            test_url = "https://www.straitstimes.com/search?searchkey=ipo"
+            domain_url = "https://www.straitstimes.com/"
+            options = Options()
+            options.headless = True
+
+            driver = webdriver.Firefox(options=options)
+
+            driver.get(test_url)
+            time.sleep(2)
+
+            html = driver.page_source
+            driver.quit()
+            
+            sp=BeautifulSoup(html, 'lxml')
+            all_divs = sp.find_all('div',{"class":"queryly_item_row"})            
+            
+            if (all_divs!=None): 
+                for div1 in all_divs:
+                    if(div1!=None):
+                        date1=div1.find("div",{"class":"queryly_item_description"})
+                        
+                        #chck news publish date  from front page
+                        utext_main=""
+                        if (date1 != None):
+                            utext_main=date1.text
+                            utext_main=utext_main.lstrip()
+                            #print(utext_main)
+                            if(len(utext_main)>=12):
+                                temp1_month_year=utext_main[0:3]+" "+utext_main[8:12]
+                                #print(temp1_month_year)
+                                
+                                currentMonth = datetime.now().month
+                                currentYear = datetime.now().year
+                                monthdict={1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+                                currentMonthandYear=str(monthdict[currentMonth])+" "+str(currentYear)
+                                #print("\n\n...........\n\n")
+
+                                #print("temp1_month_year "+temp1_month_year)
+                                #print("currentMonthandYear " +currentMonthandYear)
+                                if(temp1_month_year==currentMonthandYear):
+                                    #print("Matched....the news belong to current month, proceed with new fetch details")
+                                    #pub_date.append(utext_main) 
+                                    
+                                    a_all=div1.find_all("a")
+                                    if(a_all!=None):
+                                        link=""
+                                        for a1 in a_all:
+                                            if((a1['href']!=None)):
+                                                link=a1['href']
+                                                links.append(link)
+                                                #print("\n")
+                                                #print(link)
+
+                                                today = date.today()
+                                
+                                                try:
+                                                        
+                                                        headers = {
+                                                            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                                                            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                                                            'sec-fetch-site': 'none',
+                                                            'sec-fetch-mode': 'navigate',
+                                                            'sec-fetch-user': '?1',
+                                                            'sec-fetch-dest': 'document',
+                                                            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                                                        }
+                                                        page = requests.get(link, headers=headers)
+                                                        soup1 = BeautifulSoup(page.content, "html.parser")
+                                                        #print(sp1)
+                                                        
+
+                                                except:
+                                                        err = "Straitimes : err : Couldn't fetch url " + link 
+                                                        print("inside_except")
+                                                        err_logs.append(err)
+                                                        continue
+                                                
+                                                #news tile
+                                                        
+                                                        
+                                                title1=""
+                                                if(soup1.find("h1" , {"class" : "headline"}).text !=None):
+                                                    title1=soup1.find("h1" , {"class" : "headline"}).text
+                                                    title1 =title1.replace("\n", "")
+                                                    title1=title1.strip()
+                                            
+                                                
+                                                #print("title:",title1) 
+                                                title.append(title1)
+                                                
+                                                #news content
+                                                text1=""
+                                                if (soup1.find("div" , {"class" : "ds-field-item"})!=None):
+                                                    articlebody=soup1.find("div" , {"class" : "ds-field-item"})
+                                                    p_all =articlebody.find_all("p")
+                                                    if(p_all !=None):
+                                                        for p in p_all:
+                                                            if(p.text!=None):                                                
+                                                                text1 = text1 + p.text
+                                                                #text2.append(text1)
+                                                        
+                                                #print(text1)
+                                                text.append(text1)
+                                                
+                                            
+                                                #news publish date 
+                                                pubDate1=""
+                                                nd=soup1.find("div" , {"class" : "group-story-postdate"})
+                                                if(nd!=None):
+                                                    div_postdate=nd.find("div" , {"class" : "story-postdate"})
+                                                    if (div_postdate != None):
+                                                        pubDate1=div_postdate.text
+                                                        pubDate1 =pubDate1.lstrip()
+                                                #print("pubDate1",pubDate1)
+                                                pub_date.append(pubDate1)
+                                                        
+                                            
+                                                
+
+                                                #Scrapped date 
+                                                scraped_date.append(str(today))
+    
+            
+                                
+            df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scraped_date,"title":title})
+
+            #df=pd.DataFrame({'Title': title,'link':links,'news body':text,'pubdate':pub_date,'Scrape date':scraped_date})
+            #print(df)
+            if df.empty:
+                err = "Strait times : err: Empty dataframe"
+                err_logs.append(err)
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Strait times ",df)
+            return df
+                    
+        except:
+            print(" Strait times not working")
+            not_working_functions.append("Strait times")
+            
+    def sumatrabinis():
+        
+        def pageDetails(soup,err_logs,url):
+            #flag to check if ,new publish date belongs to current month
+            flag =0
+            all_ul = soup.find_all("ul",{"class":"list-news"})
+            print(len(all_ul))
+            list_count=0
+            for ul in all_ul:
+                listitem=ul.find_all("li")
+                print(len(listitem))
+                for i in listitem:
+                        list_count+=1
+                        date1=i.find("div",{"class":"date"})
+                        #chck news publish date  from front page
+                        utext_main=""
+                        if (date1 != None):
+                            utext_main=date1.text
+                            utext_main=utext_main.lstrip()
+                            print(utext_main)
+                            temp1_month_year=utext_main[3:7]+" "+utext_main[8:12]
+                            #print(temp1_month_year)
+                            currentMonth = datetime.now().month
+                            currentYear = datetime.now().year
+                            monthdict={1:"Januari",2:"Februari",3:"Maret",4:"April",5:"Mei",6:"Juni",7:"Juli",8:"Agustus",9:"September",10:"Oktober",11:"November",12:"Desember"}
+                            currentMonthandYear=str(monthdict[currentMonth])+" "+str(currentYear)
+                            print("\n\n...........\n\n")
+
+                            print("temp1_month_year "+temp1_month_year)
+                            print("currentMonthandYear " +currentMonthandYear)
+                            if(temp1_month_year==currentMonthandYear):
+                                print("Matched....the news belong to current month, proceed with new fetch details")
+                                pub_date.append(utext_main) 
+                                newDetails(i,err_logs)
+                            else:
+                                flag=1
+                                print("inside else break")
+                                break
+
+                #print("go to next page when news are still from current month and first page listitems are read)
+                if ((list_count ==10) and (flag==0) ) :
+                    page11 = requests.get(url)
+                    soup11 = BeautifulSoup(page11.content,"html.parser") 
+                    pageobj=soup11.find('ul',{"class":"pages"})
+                    print("Inside pageobj......")
+                    #print(pageobj)
+
+                    if(pageobj!=None):
+                        pageobj2=pageobj.find('a',{"rel":"next"})
+                        print("Inside pageob2.....")
+                        if(pageobj2!=None):
+                            url2=pageobj2['href']
+                            print("Inside pageobj3.......")
+                            #print("url",url2)
+                            if (url2!=None):
+                                #print("url",url2)
+                                pageDetails(soup11,err_logs,url2)
+        
+        def newDetails(i,err_logs):
+            if(i.find('h2')!=None):
+                link=i.h2.a['href']
+                today = date.today()
+                try:
+                    page1 = requests.get(link)
+                    soup1 = BeautifulSoup(page1.content,"html.parser")                       
+                except:
+                    err = "Sumatra Bisnis : err : Couldn't fetch url " + link 
+                    print("inside_except")
+                    err_logs.append(err)
+                    #continue
+
+                #print(link)
+
+                if(link!=None):
+                    links.append(link)
+
+
+                    #news tile
+                    title1=""
+                    if(soup1.find("h1" , {"class" : "title-only"}) !=None):
+                        title1=soup1.find("h1" , {"class" : "title-only"}).text
+                    
+                    elif(soup1.find("h1",{"class":"title-premium"})!=None):
+                        title1=soup1.find("h1",{"class":"title-premium"}).text
+                        
+                    title.append(title1)
+                    print(title1)
+                    
+                    #news content
+                    if(soup1.find("div" , {"class" : "description"})!=None):
+                        articlebody=soup1.find("div" , {"class" : "description"})
+                    elif(soup1.find("div" , {"itemprop" : "articleBody"})!=None):
+                        articlebody=soup1.find("div" , {"itemprop" : "articleBody"})
+                    text2=[]
+                    if(articlebody!=None):
+                        p_all =articlebody.find_all("p")
+                        
+                        if(p_all!=None):                               
+                            for p in p_all:
+                                text1=p.text
+                                if(text1!=None):
+                                    text2.append(text1)
+                        text.append(text2)
+                    #print(text2)
+                    
+
+                    #Scrapped date                      
+                    scraped_date.append(str(today))
+                    #print(today)      
+        
+        title,links,text,pub_date,scraped_date = [],[],[],[],[]
+        try:
+            print("Sumatra")
+
+            
+            url="https://search.bisnis.com/?q=ipo"
+            domain_url = "https://sumatra.bisnis.com"
+            err_logs = [] 
+            try:
+                page = requests.get(url)
+                soup = BeautifulSoup(page.content,"html.parser")
+                
+            except:
+                err = "Sumatra bisnis : err : Couldn't fetch " + url 
+                err_logs.append(err)
+                return 
+            
+            # for each page call the page details function
+            pageDetails(soup,err_logs,url)
+            
+            
+            #Adding to excel sheet 
+            df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scraped_date,"title":title})
+             
+            #df=pd.DataFrame({'Title':title,'Link':links,'Text':text,'Publish Date':pub_date,'Scraping Date':scraped_date})
+            if df.empty:
+                err = "Sumatra Bisnis : err: Empty dataframe"
+                err_logs.append(err)
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Sumatra bisnis",df)
+            
+            return df
+            
+              
+                
+        except:
+            print(" Sumatra bisnis not working")
+            not_working_functions.append("Sumatra Bisnis")
+    
+    def techstory():
+        
+        import traceback
+        titles,links,text,pub_date,scrape_date=[],[],[],[],[]
+        err_logs=[]
+        url="https://techstory.in/?s=ipo"
+
+        try:
+            
+            html=requests.get(url)
+            soup1=BeautifulSoup(html.content,"html.parser")
+            articles=soup1.find_all('article')
+        
+            # to get the news details that are published in the current month       
+                            
+            if (articles!= None):
+                for article in articles:
+                    publishdatecheck=article.find('time')
+                    publishdateold=publishdatecheck.text.strip()
+                    if (len(publishdateold) ==15):
+                        publishdateold=publishdateold[0:3]+" "+publishdateold[11:15]
+                    elif (len(publishdateold)==14):
+                        publishdateold=publishdateold[0:3]+" "+publishdateold[10:14]
+                    #print(currentmonthandyear)
+                    currentMonth = datetime.now().month
+                    currentYear = datetime.now().year
+                    monthdict={1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+                    currentmonthandyear=str(monthdict[currentMonth])+" "+str(currentYear)
+                    
+                    
+                    if(publishdateold==currentmonthandyear):
+
+                        h2find=article.find('h2',{"class":"cb-post-title"})
+                        #print(h2find)
+                        if (h2find !=None):
+                            a=h2find.find('a')
+                            href=a['href']
+                            links.append(href)
+                            if (href!=None):
+                            
+                                html1=requests.get(href).text
+                            
+                                soup2=BeautifulSoup(html1,'lxml')
+                                #get news title
+                                
+                                title=soup2.find('h1',{"class":"entry-title cb-entry-title entry-title cb-title"})
+                                titletext=""
+                                if(title!=None):
+                                    titletext=title.text
+                                titles.append(titletext)
+                                #print(titletext)
+                                
+                                # News Content
+                                text1=soup2.find('span',{"class":"cb-itemprop"})
+                                paragraph_main=""
+                                if (text1 !=None) :
+                                    ptagsfind=text1.find_all('p')
+                                    if (ptagsfind!=None):
+                                        for p in ptagsfind:
+                                            paragraph_main=paragraph_main+p.text
+                                text.append(paragraph_main)
+                                
+                                # Publish Date
+                                publish_date=""
+                                datefind=soup2.find('time',{"class":"updated"})
+                                if (datefind!=None):
+                                    publish_date=datefind.text
+                                pub_date.append(publish_date)
+                                #Scrape date 
+
+                                today=date.today()
+                                scrape_date.append(today)
+                    
+                    df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scrape_date,"title":titles})
+
+                    #df=pd.DataFrame({'Title': titles,'link':links,'news body':text,'pubdate':pub_date,'Scrape date':scrape_date})
+                    if df.empty:
+                        err = "techstory : err: Empty dataframe"
+                        err_logs.append(err)
+                    df = df.drop_duplicates(subset=["link"])
+                    df = FilterFunction(df)
+                    emptydataframe("Techstory",df)
+                    return df
+
+
+
+
+        except:
+            print("Techstory Not Working")  
+            not_working_functions.append("Techstory ")  
+         
     df1 = korea()
     df2 = proactive("ipo")
     df3 = Reuters("ipo")
@@ -11381,7 +11887,7 @@ def multilex_scraper(input_dir, output_dir):
     df28 = Seenews()
     df29 = Bisnis()
     df30 = RomaniaNew()
-    df31 = RomaniaInsider()
+    #df31 = RomaniaInsider() not working 6th Sept 2022 
     df32 = SpaceMoney()
     # df33 = Carteira()
     df34 = Kontan1() ##
@@ -11389,8 +11895,8 @@ def multilex_scraper(input_dir, output_dir):
     # df36 = franchdailynews()
     # df37 = norway()
     # df38 = localde()
-    df39 = chinatoday()
-    df40 = aljazeera()
+    #df39 = chinatoday() # chinatoday not working - 6 Sept 2022
+    #df40 = aljazeera() not working 6th Sept 2022
     df41 = Koreatimes()
     df42 = zdnet()
     df43 = arabNews()
@@ -11429,13 +11935,13 @@ def multilex_scraper(input_dir, output_dir):
     df76 = aif()
     df77 = monitor()
     df78 = thesun()
-    df79 = parool()
+    #df79 = parool() not working 6th Sept 2022
     df80 = shabiba()
     df81 = koreannewsgazette()
     df82 = hungary()
     df83 = jauns()
-    df84 = pulse()
-    df85 = vnexpress()
+    #df84 = pulse() not working 6th Sept 2022
+    #df85 = vnexpress()  not working 6th Sept 2022
     df86 = jamaicaobserver()
     df87 = independent()
     df88 = albaniandailynews()
@@ -11443,8 +11949,8 @@ def multilex_scraper(input_dir, output_dir):
     df90 = bloombergquint()
     df91 = ecns()
     df92 = energy_voice()
-    df93 = euroNews()
-    df94 = theFreePressJournal()
+    #df93 = euroNews()  not working 6th Sept 2022
+    #df94 = theFreePressJournal() not working 6th Sept 2022
     # df95 = aylien()
     df96 = dw()
     df97 = star()
@@ -11477,10 +11983,21 @@ def multilex_scraper(input_dir, output_dir):
     df124 = detroitnews()
     df125 = koreajoongangdailyjoins()
     df126 = upstreamonline()
+
+
+    df134=businessstandard()
+    df135=straitimes()
+    df136=sumatrabinis()
+    df137=techstory()
+
+    
     # df102 = kedgsel()
     # df67 = scmp()
     # df66 = phnompenhpost()
-    df_final_1 = [df126,df125,df124,df123,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df94,df93,df92,df91,df90,df89,df88,df87,df86,df85,df84,df83,df81,df80,df79, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df31,df32, df34,df39, df40, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
+    #df_final_1 = [df137,df12,df121,df122]
+    df_final_1 = [df137,df136,df135,df134,df126,df125,df124,df123,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
+    #df_final_1 = [df124,df123,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
+
     # df_final_1 = [df85,df83,df80,df79,df7,df8,df18,df29,df32,df34,df58,df59,df62,df67, df68, df69, df70, df71,df76]
     # df_final_1 = [df102]
     df_final = pd.concat(df_final_1)
@@ -11516,7 +12033,3 @@ def multilex_scraper(input_dir, output_dir):
 
 # multilex_scraper( "", "")  
 logging.info("last line of scraper")
-
-
-
-
