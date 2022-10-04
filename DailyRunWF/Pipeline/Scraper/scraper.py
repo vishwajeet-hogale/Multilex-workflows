@@ -13331,7 +13331,7 @@ def multilex_scraper(input_dir, output_dir):
 
             collection = []
             err_logs = []
-            scrapper_name = "defenseworld"
+            scrapper_name = "investmentweek"
 
             for link in links:
                 try:
@@ -13398,11 +13398,11 @@ def multilex_scraper(input_dir, output_dir):
             # print(df) # For debugging. To check if df is created
             # print(err_logs) # For debugging - to check if any errors occoured
             df = FilterFunction(df)
-            emptydataframe("defenseworld",df)
+            emptydataframe("investmentweek",df)
             return df
         except:
-            print("defenseworld not working")
-            not_working_functions.append("defenseworld")
+            print("investmentweek not working")
+            not_working_functions.append("investmentweek")
 
     df1 = korea()
     df2 = proactive("ipo")
