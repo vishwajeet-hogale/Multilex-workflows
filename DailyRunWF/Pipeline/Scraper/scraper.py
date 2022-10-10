@@ -345,7 +345,7 @@ def multilex_scraper(input_dir, output_dir):
                 
                 key_6_gram = ['an b initial public offering b', 'standards the thomson reuters trust principles', 'b initial public offering b ipo', 'its b initial public offering b', 'sebagai ungkapan terimakasih atas perhatian anda', 'ungkapan terimakasih atas perhatian anda tersedia', 'terimakasih atas perhatian anda tersedia voucer', 'atas perhatian anda tersedia voucer gratis', 'perhatian anda tersedia voucer gratis senilai', 'anda tersedia voucer gratis senilai donasi', 'tersedia voucer gratis senilai donasi yang', 'voucer gratis senilai donasi yang bisa', 'gratis senilai donasi yang bisa digunakan', 'senilai donasi yang bisa digunakan berbelanja', 'donasi yang bisa digunakan berbelanja di', 'b initial public offering b b', 'b initial public offering b of', 'initial public offering b b ipo', 'public offering b b ipo b', 'the b initial public offering b',"Will Hold An Initial Public Offering","On Its Potential Initial Public Offering"]
                 key_7_gram = ['sebagai ungkapan terimakasih atas perhatian anda tersedia', 'ungkapan terimakasih atas perhatian anda tersedia voucer', 'terimakasih atas perhatian anda tersedia voucer gratis', 'atas perhatian anda tersedia voucer gratis senilai', 'perhatian anda tersedia voucer gratis senilai donasi', 'anda tersedia voucer gratis senilai donasi yang', 'tersedia voucer gratis senilai donasi yang bisa', 'voucer gratis senilai donasi yang bisa digunakan', 'gratis senilai donasi yang bisa digunakan berbelanja', 'senilai donasi yang bisa digunakan berbelanja di', 'b initial public offering b b ipo', 'initial public offering b b ipo b', 'for an b initial public offering b', 'an b initial public offering b ipo', 'dapat voucer gratis sebagai ungkapan terimakasih atas', 'voucer gratis sebagai ungkapan terimakasih atas perhatian', 'gratis sebagai ungkapan terimakasih atas perhatian anda', 'donasi yang bisa digunakan berbelanja di dukungan', 'yang bisa digunakan berbelanja di dukungan anda', 'bisa digunakan berbelanja di dukungan anda akan',"Raise Funds Through An Initial Public Offering"]
-                key_8_gram = ["Has Filed For An B Initial Public Offering"]
+                key_8_gram = ["Has Filed For An B Initial Public Offering","Has Filed For An Initial Public Offering"]
                 title,link,published_date,scraped_date,text=[],[],[],[],[]
                 for i,row in final.iterrows():
                     cases = [0]*8
@@ -9674,6 +9674,7 @@ def multilex_scraper(input_dir, output_dir):
     df109 = africanmarkets()
     df110 = globalcapital()
     df111 = dominicantoday()
+    
     # df102 = kedgsel()
     # df67 = scmp()
     # df66 = phnompenhpost()
