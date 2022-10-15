@@ -14159,6 +14159,103 @@ def multilex_scraper(input_dir, output_dir):
                 columns=['title', 'link', 'publish_date', 'scraped_date'])
             return df1
 
+    def bing_search():
+        try:
+            keywords = ["ipo", "listing", "planned"]
+
+            site = "https://www.bing.com/news/search?q="
+            for i in range(len(keywords)):
+                if i == 0:
+                    site += "%22"+keywords[i]+"%22"
+                else:
+                    site += "+%22"+keywords[i]+"%22"
+
+            hdr = {'User-Agent': 'Mozilla/5.0'}
+            req = rs(site, headers=hdr)
+            page = urlopen(req)
+            soup = BeautifulSoup(page, "html.parser")
+
+            x = soup.find("div", id="newsFilterV5")
+            x = x.ul.li.ul
+            for i in x.find_all("li"):
+                if str(i.text) == "Past 24 hours":
+                    y = i.a.get('href')
+
+            time.sleep(0.4)
+
+            site = "https://www.bing.com"+y
+            hdr = {'User-Agent': 'Mozilla/5.0'}
+            req = rs(site, headers=hdr)
+            page = urlopen(req)
+            soup = BeautifulSoup(page, "html.parser")
+
+            err_logs = []
+            list_of_titles = []
+            list_of_text = []
+            list_of_links = []
+            list_of_published_dates = []
+            scraped_time = []
+
+            for i in soup.find_all("div", class_="news-card newsitem cardcommon b_cards2"):
+                try:
+
+                    current_time = datetime.now()
+
+                    name = i.find("div", class_="t_t").a.text
+
+                    text = i.find("div", class_="snippet").text
+
+                    link = i.find("div", class_="t_t").a.get('href')
+
+                    m = -1
+                    x = i.find_all("span")
+                    a = ""
+                    while (True):
+                        r = str(x[m].text)
+                        for j in r:
+                            if j.isdigit():
+                                a += j
+                        if len(a) > 0:
+                            break
+                        else:
+                            m -= 1
+                    n = int(a)
+                    past_time = current_time - timedelta(hours=n)
+                    published = past_time.strftime('%d-%m-%Y')
+
+                    list_of_titles.append(name)
+                    list_of_text.append(text)
+                    list_of_links.append(link)
+                    list_of_published_dates.append(published)
+                    scraped_time.append(current_time)
+
+                except:
+                    err_logs.append(i)
+
+            scrapedData = {}
+
+            scrapedData["title"] = list_of_titles
+            scrapedData["link"] = list_of_links
+            scrapedData["publish_date"] = list_of_published_dates
+            scrapedData["scraped_date"] = scraped_time
+            scrapedData["text"] = list_of_text
+            bing_search = pd.DataFrame(scrapedData)
+
+            if bing_search.empty:
+                err = "Bing Search: err: Empty dataframe"
+                err_logs.append(err)
+
+            df = FilterFunction(bing_search)
+            emptydataframe("bing_search", df)
+            # df  = link_correction(df)
+            return df
+        except:
+            not_working_functions.append("IPO Bing_search")
+            print("Bing Search not working")
+            df1 = pd.DataFrame(
+                columns=['title', 'link', 'publish_date', 'scraped_date'])
+            return df1
+
     df1 = korea()
     df2 = proactive("ipo")
     df3 = Reuters("ipo")
@@ -14307,12 +14404,13 @@ def multilex_scraper(input_dir, output_dir):
     df146 = mercomindia()
     df147 = koreanewsgazette()
     df148 = google_search()
+    df149 = bing_search()
 
     # df102 = kedgsel()
     # df67 = scmp()
     # df66 = phnompenhpost()
     #df_final_1 = [df137,df12,df121,df122]
-    df_final_1 = [df148, df147, df146, df145, df143, df142, df141, df140, df139, df137, df136, df135, df133, df134, df132, df131, df130, df129, df128, df127, df126, df125, df124, df122, df121, df120, df119, df118, df117, df116, df115, df114, df113, df112, df111, df110, df109, df108, df107, df106, df105, df104, df103, df102, df101, df100, df46, df19, df99, df98, df97, df96, df92, df91, df90, df89, df88,
+    df_final_1 = [df149, df148, df147, df146, df145, df143, df142, df141, df140, df139, df137, df136, df135, df133, df134, df132, df131, df130, df129, df128, df127, df126, df125, df124, df122, df121, df120, df119, df118, df117, df116, df115, df114, df113, df112, df111, df110, df109, df108, df107, df106, df105, df104, df103, df102, df101, df100, df46, df19, df99, df98, df97, df96, df92, df91, df90, df89, df88,
                   df87, df86, df83, df81, df80, df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15, df17, df18, df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df32, df34, df41, df42, df43, df44, df47, df48, df49, df50, df52, df53, df54, df55, df57, df58, df59, df60, df61,  df62, df63, df64, df65, df67, df68, df69, df70, df71, df72, df73,  df74, df75, df76, df77, df78]
     #df_final_1 = [df124,df123,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
 
