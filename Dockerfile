@@ -1,6 +1,7 @@
 FROM ubuntu 
 RUN apt-get update 
-RUN apt-get get install python3.8
+RUN apt install -y python3 && apt-get -y install python3-pip
 WORKDIR /multilex 
 COPY . /multilex/
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
+CMD [ "luigi","--module morning MorningPipeline "]

@@ -233,114 +233,13 @@ def multilex_scraper(input_dir, output_dir):
         return [str(i).lower() for i in li]
     def tokenize_no_words(text_list,val):
         return set(word_tokenize(text_list,val)[0])
-    # def FilterFunction(final):
-    #         try:
-    #             if(final.empty):
-    #                 return final
-    #             key_1_gram = [ 'IPO','IPO','IPO ','SPACs','ipo','pre-IPO','pre-ipo','PRE-IPO','pre-IPO','spac','shares','pre ipo']
-    #             key_2_gram = ["listed on","go public","plan to","going public","offering shares","initial public","public offering","have listed","files for"]
-    #             key_3_gram = ["offer its shares","to the public","going to list","files for ipo","filed for ipo"]
-    #             title,link,published_date,scraped_date,text=[],[],[],[],[]
-    #             for i,row in final.iterrows():
-    #                 cases = [0]*3
-    #                 article = str(str(row["title"]) + " " + str(row["text"])).lower()
-    #                 # print(article + "\n\n\n\n")
-    #                 text_list = [article]
-    #                 key_1_gram = [str(i).lower() for i in key_1_gram]
-    #                 key_2_gram = [str(i).lower() for i in key_2_gram]
-    #                 key_3_gram = [i.lower() for i in key_3_gram]
-    #                 res_1_gram = set(word_tokenize(text_list,1)[0])
-    #                 res_2_gram = set(word_tokenize(text_list,2)[0])
-    #                 res_3_gram = set(word_tokenize(text_list,3)[0])
-    #                 if(len(res_1_gram.intersection(key_1_gram))>0):
-    #                     cases[0] = 1
-    #                 if(len(res_2_gram.intersection(key_2_gram))>0):
-    #                     cases[1] = 1
-    #                 if(len(res_3_gram.intersection(key_3_gram))):
-    #                     cases[2] = 1
-    #                 if(cases[0] and ( cases[1] or cases[2])):
-    #                     title.append(final['title'][i])
-    #                     link.append(final['link'][i])
-    #                     published_date.append(final['publish_date'][i])
-    #                     scraped_date.append(final['scraped_date'][i])
-    #                     text.append(final['text'][i])
-    #                 cases = [0]*3
-    #             final = pd.DataFrame(list(zip(title,link,published_date,scraped_date,text)), 
-    #                     columns =['title','link','publish_date','scraped_date','text'])
-    #             final = final[~final['title'].isin(["private placement", "reverse merger", "blank check merger"])]
-    #             final = final[~final['text'].isin(["private placement", "reverse merger", "blank check merger"])]
-    #             final.to_csv("Newshab.csv")
-    #             return final
-    #         except:
-    #             print("Issue in Filter Function")
-    # def FilterFunction(final):
-    #         try:
-    #             if(final.empty):
-    #                 return final
-    #             key_1_gram = [ 'IPO','IPO','IPO ','SPACs','ipo','pre-IPO','pre-ipo','PRE-IPO','pre-IPO','spac','shares','pre ipo']
-    #             key_2_gram = ["listed on","go public","plan to","going public","offering shares","initial public","public offering","have listed","files for"]
-    #             key_3_gram = ["offer its shares","to the public","going to list","files for ipo","filed for ipo"]
-    #             key_4_gram = ["The Initial Public Offering","Its Initial Public Offering ","Has Set Its Ipo","Targeting A 2023 Ipo"]
-    #             key_5_gram = ["Planning An Initial Public Offering","Files A Prospectus For Ipo","Considering An Initial Public Offering",]
-                
-    #             key_6_gram = ["Will Hold An Initial Public Offering","On Its Potential Initial Public Offering"]
-    #             key_7_gram = ["Raise Funds Through An Initial Public Offering"]
-    #             key_8_gram = ["Has Filed For An B Initial Public Offering"]
-    #             title,link,published_date,scraped_date,text=[],[],[],[],[]
-    #             for i,row in final.iterrows():
-    #                 cases = [0]*8
-    #                 article = str(str(row["title"]) + " " + str(row["text"])).lower()
-    #                 # print(article + "\n\n\n\n")
-    #                 text_list = [article]
-    #                 key_1_gram = conver_to_lower(key_1_gram)
-    #                 key_2_gram = conver_to_lower(key_2_gram)
-    #                 key_3_gram = conver_to_lower(key_3_gram)
-    #                 res_1_gram = tokenize_no_words(text_list,1)
-    #                 res_2_gram = tokenize_no_words(text_list,2)
-    #                 res_3_gram = tokenize_no_words(text_list,3)
-    #                 res_4_gram = tokenize_no_words(text_list,4)
-    #                 res_5_gram = tokenize_no_words(text_list,5)
-    #                 res_6_gram = tokenize_no_words(text_list,6)
-    #                 res_7_gram = tokenize_no_words(text_list,7)
-    #                 res_8_gram = tokenize_no_words(text_list,8)
-    #                 if(len(res_1_gram.intersection(key_1_gram))>0):
-    #                     cases[0] = 1
-    #                 if(len(res_2_gram.intersection(key_2_gram))>0):
-    #                     cases[1] = 1
-    #                 if(len(res_3_gram.intersection(key_3_gram))):
-    #                     cases[2] = 1
-    #                 if(len(res_4_gram.intersection(key_4_gram))):
-    #                     cases[3] = 1
-    #                 if(len(res_5_gram.intersection(key_5_gram))):
-    #                     cases[4] = 1
-    #                 if(len(res_6_gram.intersection(key_6_gram))):
-    #                     cases[5] = 1
-    #                 if(len(res_7_gram.intersection(key_7_gram))):
-    #                     cases[6] = 1
-    #                 if(len(res_8_gram.intersection(key_8_gram))):
-    #                     cases[7] = 1
-    #                 if(cases[0] and ( cases[1] or cases[2] or cases[3]or cases[4]or cases[5]or cases[6]or cases[7])):
-    #                         title.append(final['title'][i])
-    #                         link.append(final['link'][i])
-    #                         published_date.append(final['publish_date'][i])
-    #                         scraped_date.append(final['scraped_date'][i])
-    #                         text.append(final['text'][i])
-    #                 cases = [0]*8
-    #             final = pd.DataFrame(list(zip(title,link,published_date,scraped_date,text)), 
-    #                     columns =['title','link','publish_date','scraped_date','text'])
-    #             final = final[~final['title'].isin(["private placement", "reverse merger", "blank check merger"])]
-    #             final = final[~final['text'].isin(["private placement", "reverse merger", "blank check merger"])]
-    #             final.to_csv("Newshab.csv")
-    #             return final
-    #         except:
-    #             print("Issue in Filter Function")
     def FilterFunction(final):
             try:
                 if(final.empty):
                     return final
                 key_1_gram = [ 'IPO','IPO','IPO ','SPACs','ipo','pre-IPO','pre-ipo','PRE-IPO','pre-IPO','spac','shares','pre ipo']
-                key_2_gram = ['offering ipo',"listed on","go public","plan to","going public","offering shares","initial public","public offering","have listed","files for"]
-                key_3_gram = ["an initial public","offer its shares","to the public","going to list","files for ipo","filed for ipo","initial public offering","public offering ipo"]
+                key_2_gram = ['offering ipo',"listed on","go public","plan to","going public","offering shares","initial public","public offering","have listed","files for","ipos shelved","ipo shelved"]
+                key_3_gram = ["an initial public","offer its shares","to the public","going to list","files for ipo","filed for ipo","initial public offering","public offering ipo","ipos lined up","worth of ipos"]
                 key_4_gram = ["an initial public offering","the initial public offering","its initial public offering","initial public offering b","b initial public offering","The Initial Public Offering","Its Initial Public Offering ","Has Set Its Ipo","Targeting A 2023 Ipo"]
                 key_5_gram = ["initial public offering b b'","an b initial public offering","Planning An Initial Public Offering","Files A Prospectus For Ipo","Considering An Initial Public Offering",]
                 
