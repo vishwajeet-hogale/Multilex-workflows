@@ -262,25 +262,30 @@ def multilex_scraper(input_dir, output_dir):
     def tokenize_no_words(text_list, val):
         return set(word_tokenize(text_list, val)[0])
     def FilterFunction(final):
+        
         try:
+            
             if (final.empty):
                 return final
+            final["title"] = final["title"].str.replace(' b ',' ')
+            final["text"] = final["text"].str.replace(' b ',' ')
+            final["title"] = final["title"].str.replace(' B ',' ')
+            final["text"] = final["text"].str.replace(' B ',' ')
             key_1_gram = ['IPO', 'IPO', 'IPO ', 'SPACs', 'ipo', 'pre-IPO',
                           'pre-ipo', 'PRE-IPO', 'pre-IPO', 'spac', 'shares', 'pre ipo']
             key_2_gram = ['offering ipo', "listed on", "go public", "plan to", "going public",
                           "offering shares", "initial public", "public offering", "have listed", "files for"]
             key_3_gram = ["an initial public", "offer its shares", "to the public", "going to list",
                           "files for ipo", "filed for ipo", "initial public offering", "public offering ipo"]
-            key_4_gram = ["an initial public offering", "the initial public offering", "its initial public offering", "initial public offering b",
-                          "b initial public offering", "The Initial Public Offering", "Its Initial Public Offering ", "Has Set Its Ipo", "Targeting A 2023 Ipo"]
-            key_5_gram = ["initial public offering b b'", "an b initial public offering",
-                          "Planning An Initial Public Offering", "Files A Prospectus For Ipo", "Considering An Initial Public Offering", ]
+            key_4_gram = ["an initial public offering", "the initial public offering", "its initial public offering","initial public offering ipo", 
+                          "The Initial Public Offering", "Its Initial Public Offering ", "Has Set Its Ipo", "Targeting A 2023 Ipo"]
+            key_5_gram = ["Planning An Initial Public Offering", "Files A Prospectus For Ipo", "Considering An Initial Public Offering",'for an initial public offering']
 
-            key_6_gram = ['an b initial public offering b', 'standards the thomson reuters trust principles', 'b initial public offering b ipo', 'its b initial public offering b', 'sebagai ungkapan terimakasih atas perhatian anda', 'ungkapan terimakasih atas perhatian anda tersedia', 'terimakasih atas perhatian anda tersedia voucer', 'atas perhatian anda tersedia voucer gratis', 'perhatian anda tersedia voucer gratis senilai', 'anda tersedia voucer gratis senilai donasi',
+            key_6_gram = [ 'sebagai ungkapan terimakasih atas perhatian anda', 'ungkapan terimakasih atas perhatian anda tersedia', 'terimakasih atas perhatian anda tersedia voucer', 'atas perhatian anda tersedia voucer gratis', 'perhatian anda tersedia voucer gratis senilai', 'anda tersedia voucer gratis senilai donasi',
                           'tersedia voucer gratis senilai donasi yang', 'voucer gratis senilai donasi yang bisa', 'gratis senilai donasi yang bisa digunakan', 'senilai donasi yang bisa digunakan berbelanja', 'donasi yang bisa digunakan berbelanja di', 'b initial public offering b b', 'b initial public offering b of', 'initial public offering b b ipo', 'public offering b b ipo b', 'the b initial public offering b', "Will Hold An Initial Public Offering", "On Its Potential Initial Public Offering"]
-            key_7_gram = ['sebagai ungkapan terimakasih atas perhatian anda tersedia', 'ungkapan terimakasih atas perhatian anda tersedia voucer', 'terimakasih atas perhatian anda tersedia voucer gratis', 'atas perhatian anda tersedia voucer gratis senilai', 'perhatian anda tersedia voucer gratis senilai donasi', 'anda tersedia voucer gratis senilai donasi yang', 'tersedia voucer gratis senilai donasi yang bisa', 'voucer gratis senilai donasi yang bisa digunakan', 'gratis senilai donasi yang bisa digunakan berbelanja', 'senilai donasi yang bisa digunakan berbelanja di',
-                          'b initial public offering b b ipo', 'initial public offering b b ipo b', 'for an b initial public offering b', 'an b initial public offering b ipo', 'dapat voucer gratis sebagai ungkapan terimakasih atas', 'voucer gratis sebagai ungkapan terimakasih atas perhatian', 'gratis sebagai ungkapan terimakasih atas perhatian anda', 'donasi yang bisa digunakan berbelanja di dukungan', 'yang bisa digunakan berbelanja di dukungan anda', 'bisa digunakan berbelanja di dukungan anda akan', "Raise Funds Through An Initial Public Offering"]
-            key_8_gram = ["Has Filed For An B Initial Public Offering"]
+            key_7_gram = ["Has Filed For An Initial Public Offering",'sebagai ungkapan terimakasih atas perhatian anda tersedia', 'ungkapan terimakasih atas perhatian anda tersedia voucer', 'terimakasih atas perhatian anda tersedia voucer gratis', 'atas perhatian anda tersedia voucer gratis senilai', 'perhatian anda tersedia voucer gratis senilai donasi', 'anda tersedia voucer gratis senilai donasi yang', 'tersedia voucer gratis senilai donasi yang bisa', 'voucer gratis senilai donasi yang bisa digunakan', 'gratis senilai donasi yang bisa digunakan berbelanja', 'senilai donasi yang bisa digunakan berbelanja di'
+                          , 'dapat voucer gratis sebagai ungkapan terimakasih atas', 'voucer gratis sebagai ungkapan terimakasih atas perhatian', 'gratis sebagai ungkapan terimakasih atas perhatian anda', 'donasi yang bisa digunakan berbelanja di dukungan', 'yang bisa digunakan berbelanja di dukungan anda', 'bisa digunakan berbelanja di dukungan anda akan', "Raise Funds Through An Initial Public Offering"]
+            key_8_gram = []
             title, link, published_date, scraped_date, text = [], [], [], [], []
             for i, row in final.iterrows():
                 cases = [0]*8
@@ -291,6 +296,12 @@ def multilex_scraper(input_dir, output_dir):
                 key_1_gram = conver_to_lower(key_1_gram)
                 key_2_gram = conver_to_lower(key_2_gram)
                 key_3_gram = conver_to_lower(key_3_gram)
+                key_4_gram = conver_to_lower(key_3_gram)
+                key_5_gram = conver_to_lower(key_3_gram)
+                key_6_gram = conver_to_lower(key_3_gram)
+                key_7_gram = conver_to_lower(key_3_gram)
+                # key_8_gram = conver_to_lower(key_3_gram)
+
                 res_1_gram = tokenize_no_words(text_list, 1)
                 res_2_gram = tokenize_no_words(text_list, 2)
                 res_3_gram = tokenize_no_words(text_list, 3)
@@ -298,7 +309,7 @@ def multilex_scraper(input_dir, output_dir):
                 res_5_gram = tokenize_no_words(text_list, 5)
                 res_6_gram = tokenize_no_words(text_list, 6)
                 res_7_gram = tokenize_no_words(text_list, 7)
-                res_8_gram = tokenize_no_words(text_list, 8)
+                # res_8_gram = tokenize_no_words(text_list, 8)
                 if (len(res_1_gram.intersection(key_1_gram)) > 0):
                     cases[0] = 1
                 if (len(res_2_gram.intersection(key_2_gram)) > 0):
@@ -313,9 +324,9 @@ def multilex_scraper(input_dir, output_dir):
                     cases[5] = 1
                 if (len(res_7_gram.intersection(key_7_gram))):
                     cases[6] = 1
-                if (len(res_8_gram.intersection(key_8_gram))):
-                    cases[7] = 1
-                if (cases[0] and (cases[1] or cases[2] or cases[3] or cases[4] or cases[5] or cases[6] or cases[7])):
+                # if (len(res_8_gram.intersection(key_8_gram))):
+                #     cases[7] = 1
+                if (cases[0] and (cases[1] or cases[2] or cases[3] or cases[4] or cases[5] or cases[6] )):
                     title.append(final['title'][i])
                     link.append(final['link'][i])
                     published_date.append(final['publish_date'][i])
