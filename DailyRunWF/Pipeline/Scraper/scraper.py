@@ -263,8 +263,7 @@ def multilex_scraper(input_dir, output_dir):
         return set(word_tokenize(text_list, val)[0])
     def FilterFunction(final):
         
-        try:
-            
+        try:            
             if (final.empty):
                 return final
             final["title"] = final["title"].str.replace(' b ',' ')
