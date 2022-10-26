@@ -338,7 +338,7 @@ def multilex_scraper(input_dir, output_dir):
                 ["private placement", "reverse merger", "blank check merger"])]
             final = final[~final['text'].isin(
                 ["private placement", "reverse merger", "blank check merger"])]
-            final.to_csv("Newshab.csv")
+            # final.to_csv("Newshab.csv")
             return final
         except:
             print("Issue in Filter Function")
