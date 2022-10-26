@@ -1,19 +1,20 @@
 import luigi 
-import datetime
-from db import *
+from datetime import date
+from Database.db import *
 import re
 import pandas as pd
-
+root = "E:\\luigi\\"
 class Uploaddatabase_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
-    Current_Date = datetime.today()
-    Previous_Date = datetime.datetime.today() 
-    prev_dat = str(Previous_Date.strftime("%Y-%m-%d"))
-    def upload_file_database(self,input_dir,conn):
-        df = pd.read_csv(input_dir + "PREIPO_Final_Report_"+self.prev_dat + ".csv")
+    Current_Date = date.today()
+    Previous_Date = date.today() 
+    cur_dat = str(Previous_Date.strftime("%Y-%m-%d"))
+    def upload_file_database(self,input_dir):
+        df = pd.read_excel( input_dir+ "PREIPO_Final_Report_"+ self.cur_dat + ".xlsx")
+        conn =setup_connection()
         cursor = conn.cursor()
-        sql = "INSERT INTO preipo.Multilex(publish_date,scraped_date,title,text,Companies,Country,Listing,link,comments,`Update_news`,`Exchange`,`source_name`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO preipo.Multilex(publish_date,scraped_date,title,text,Companies,Country,link,Comments,Update_news,source_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         err_rows = []
         for i,row in df.iterrows():
             try:
@@ -40,18 +41,19 @@ class Uploaddatabase_workflow(luigi.Task):
                         i = re.findall(r'\d{1,2}-\d{1,2}-\d{4}',row["publish_date"])[0]
                         i = "-".join(i.split("-")[::-1])
                         row["publish_date"] = i
-                source = str(get_source(row["link"]))
-                sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
+                
                 try:
+                    source = str(get_source(row["link"]))
+                    sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
                     sid = cursor.fetchall()[0][0]
                 except:
-                    cursor.execute('''INSERT INTO preipo.News_source VALUES(%s)''',[str(source)])
+                    cursor.execute('''INSERT INTO preipo.News_source(name) VALUES(%s)''',[str(source)])
                     sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
                     sid = cursor.fetchall()[0][0]
                 # print(source + "--->" + str(sid))
                 print(str(row["publish_date"]) + "--> " + str(row["scraped_date"]) )
                 data = [str(row["publish_date"]),str(row["scraped_date"]),str(row["title"]),
-                str(row["text"]),str(row["Companies"]),str(row["Country"]),str(row["Listing"]),str(row["link"]),str(row["Comments"]),str(row["update"]),str(row["Exchange"]),sid]
+                str(row["text"]),str(row["Companies"]),str(row["Country"]),str(row["link"]),str(row["Comments"]),str(row["update"]),sid]
                 cursor.execute(sql,data)
             except:
                 err_rows.append(str(i) + " " + str(row["publish_date"]) + "  " + str(row["Companies"]))
@@ -65,14 +67,25 @@ class Uploaddatabase_workflow(luigi.Task):
         # print(err_rows)
         textfile.close()
         cursor.close()
+        conn.commit()
+
+        
     def run(self):
-        conn = setup_connection()
-        self.upload_file_database(self.input_dir,conn)
-        conn.close()
+        # conn = setup_connection()
+        self.upload_file_database(self.input_dir)
+        # conn.close()
+        print("Database updated!")
+        with open(self.output_dir + self.cur_dat+"_uploaddb.txt","w") as f:
+            f.write("Success")
+    def output(self):
+        return luigi.LocalTarget(self.input_dir +  self.cur_dat +"_uploaddb.txt")
 
 class removeduplicate_workflow(luigi.Task):
     input_dir = luigi.Parameter(default="./Output/")
     output_dir = luigi.Parameter(default="./Output/")
+    cur_dat = str(date.today().strftime("%Y-%m-%d"))
+    def output(self):
+        return luigi.LocalTarget(self.output_dir + self.cur_dat + "_removedup.txt")
     def run(self):
         conn =setup_connection()
         cursor = conn.cursor()
@@ -85,5 +98,8 @@ class removeduplicate_workflow(luigi.Task):
                     t1.Companies = t2.Companies;"""
         cursor.execute(sql)
         conn.commit()
+        print("Database updated!")
+        with open(self.output_dir + self.cur_dat+"_removedup.txt","w") as f:
+            f.write("Success")
     def requires(self):
         return [Uploaddatabase_workflow(input_dir=self.input_dir,output_dir=self.output_dir)]

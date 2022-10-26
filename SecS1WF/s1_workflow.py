@@ -26,5 +26,4 @@ class S1_workflow(luigi.Task):
         # return luigi.LocalTarget(self.output_dir+"S1DOC_Report_"+dat+".csv")
     def requires(self):
         return [
-            Fetch_Data(output_dir = self.output_dir)
-        ]
+            Fetch_Data(output_dir = self.output_dir)]
