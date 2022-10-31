@@ -15,13 +15,7 @@ import importlib.util
 import warnings
 import pytz
 import lxml
-from selenium import webdriver
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options
-
 from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
 
@@ -16399,3 +16393,6 @@ def multilex_scraper(input_dir, output_dir):
 
 # multilex_scraper( "", "")
 logging.info("last line of scraper")
+
+if __name__ == "__main__":
+    multilex_scraper("","")
