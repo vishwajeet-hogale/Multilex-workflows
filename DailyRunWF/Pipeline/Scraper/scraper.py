@@ -272,11 +272,11 @@ def multilex_scraper(input_dir, output_dir):
             final["text"] = final["text"].str.replace(' B ',' ')
             key_1_gram = ['IPO', 'IPO', 'IPO ', 'SPACs', 'ipo', 'pre-IPO',
                           'pre-ipo', 'PRE-IPO', 'pre-IPO', 'spac', 'shares', 'pre ipo']
-            key_2_gram = ['offering ipo', "listed on", "go public", "plan to", "going public",
+            key_2_gram = ['IPO Calendar','Shelves IPO','Halts IPO','IPO Pipeline','Withdraws IPO','Eyes IPO','IPO-Bound','IPO Registration','Red Herring','Pre-Initial Public','Pre-IPO announcement','IPOs scheduled','IPO scheduled','offering ipo', "listed on", "go public", "plan to", "going public",
                           "offering shares", "initial public", "public offering", "have listed", "files for"]
-            key_3_gram = ["an initial public", "offer its shares", "to the public", "going to list",
+            key_3_gram = ['Begins IPO Process','Set to IPO','IPO open for','Open for subscription','Prices IPO','Expected IPO Filings','Files for IPO','Upcoming IPO',"an initial public", "offer its shares", "to the public", "going to list",
                           "files for ipo", "filed for ipo", "initial public offering", "public offering ipo"]
-            key_4_gram = ["an initial public offering", "the initial public offering", "its initial public offering","initial public offering ipo", 
+            key_4_gram = ['Gets nod for IPO','Fixed a price band','Sets IPO Price Band','Planning to go public','Preparing to go public','IPO to be launched',"an initial public offering", "the initial public offering", "its initial public offering","initial public offering ipo", 
                           "The Initial Public Offering", "Its Initial Public Offering ", "Has Set Its Ipo", "Targeting A 2023 Ipo"]
             key_5_gram = ["Planning An Initial Public Offering", "Files A Prospectus For Ipo", "Considering An Initial Public Offering",'for an initial public offering']
 
