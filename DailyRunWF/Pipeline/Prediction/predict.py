@@ -1,16 +1,9 @@
-from pathlib import Path
+import os
+import pandas as pd
+import spacy
+from datetime import date
 # from simpletransformers.question_answering import QuestionAnsweringModel, QuestionAnsweringArgs
 def NERModel_lg(input_dir, output_dir):
-        import os
-        print(os.getcwd())
-        import pandas as pd
-        import spacy
-        from datetime import datetime ,date
-        import pyshorteners
-        cur_date = str(date.today())
-
-        # download the spacy model.  TODO: switch to en_core_web_lg
-#         spacy_model='en_core_web_sm'
         spacy_model='en_core_web_sm'
         nlp1 = spacy.load(spacy_model)
         input_file_fullpath = os.path.join(input_dir,'todays_report.csv')

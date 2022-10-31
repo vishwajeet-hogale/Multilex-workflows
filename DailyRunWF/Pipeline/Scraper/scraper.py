@@ -8,14 +8,11 @@ import time
 import os
 import pandas as pd
 from bs4 import BeautifulSoup
-from datetime import datetime, date
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 from newspaper import Article
 import importlib.util
 import warnings
 import pytz
-import lxml
-from bs4 import BeautifulSoup
 from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
 
@@ -16385,9 +16382,6 @@ def multilex_scraper(input_dir, output_dir):
     final.to_csv(todays_report_filename, index=False)
     logging.info("completed writing output artifact " +
                  todays_report_filename + " to " + output_dir)
-
-  # # final =final.loc[public_date == scrap_date]
-
 # multilex_scraper("/home/prachi_multilex2", "/home/prachi_multilex2")       # uncomment this line to run this as a python script
 
 
