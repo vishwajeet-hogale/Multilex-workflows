@@ -15,7 +15,7 @@ class MorningPipeline(luigi.Task):
     def requires(self):
         return Predict(input_dir = self.output_dir,output_dir = self.output_dir)
     def run(self):
-        datapreprocess.CleanedReport(self.file_name1,input_dir=self.output_dir[0:-1],output_dir=self.output_dir[0:-1])
+        datapreprocess.cleanedReport(self.file_name1,input_dir=self.output_dir[0:-1],output_dir=self.output_dir[0:-1])
         if os.path.isfile(self.output_dir + "todays_report.csv"):
             os.remove(self.output_dir + "todays_report.csv")
         if os.path.isfile(self.output_dir + self.file_name1):
