@@ -1,8 +1,4 @@
-# import logging
-# logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
-# logging.info("first line of multilex_NERModel_lg_xform")
 from pathlib import Path
-import os
 # from simpletransformers.question_answering import QuestionAnsweringModel, QuestionAnsweringArgs
 def NERModel_lg(input_dir, output_dir):
         import os
@@ -16,23 +12,13 @@ def NERModel_lg(input_dir, output_dir):
         # download the spacy model.  TODO: switch to en_core_web_lg
 #         spacy_model='en_core_web_sm'
         spacy_model='en_core_web_sm'
-        # download_spacy_model(spacy_model)
-        # load the module.  
         nlp1 = spacy.load(spacy_model)
-        #nlp1 = spacy.load('en_core_web_lg')
-        # read from <input_dir>/infinstor/todays_report.csv
-#         input_file_fullpath = os.path.join(input_dir, 'infinstor','todays_report.csv')
         input_file_fullpath = os.path.join(input_dir,'todays_report.csv')
-        # logging.info("reading input artifact " + input_file_fullpath)
         data = pd.read_csv(input_file_fullpath)
-        # logging.info("completed reading input artifact " + input_file_fullpath)
-        # data.drop('companies', inplace=True, axis=1)
         data = data[['text','publish_date','scraped_date','title','link']]
         text = data['text']
         title = data['title']
-
-        # data.dropna(inplace=True)
-        lst1 =[];
+        lst1 =[]
         for i in text:
                 lst_1 =[]
                 i = str(i)
@@ -40,8 +26,8 @@ def NERModel_lg(input_dir, output_dir):
                 doc = nlp1(i)
                 for element in doc.ents:
         #             print(element.label_)
-                    if element.label_ == 'ORG':
-                        lst_1.append(element)
+                        if element.label_ == 'ORG':
+                                lst_1.append(element)
                 lst1.append(lst_1)     
 
         lst2=[]
@@ -59,8 +45,6 @@ def NERModel_lg(input_dir, output_dir):
         dff = [data,df]
         df_final = pd.concat(dff,axis=1)
         df_final.to_csv('EDI_PREIPO_report.csv',index=False)
-
-
         df = pd.read_csv('EDI_PREIPO_report.csv')
         df["Companies"] = df['companies_1'].str.cat(df['companies_2'],sep=",")
 #         df_final["Companies"] = df_final.companies_1.str.cat(df_final.companies_2)
@@ -140,8 +124,8 @@ def NERModel_lg(input_dir, output_dir):
 #         logging.info("writing output artifact " + edi_preipo_report_fname + " to " + output_dir)
 #         df_final.to_csv(edi_preipo_report_fname,index=False)
 #         logging.info("completed writing output artifact " + edi_preipo_report_fname + " to " + output_dir)
-# if __name__ == "__main__":
-#     NERModel_lg("", "")    
-# logging.info("last line of multilex_NERModel_lg_xform")
+if __name__ == "__main__":
+    NERModel_lg("", "")    
+
 
 
