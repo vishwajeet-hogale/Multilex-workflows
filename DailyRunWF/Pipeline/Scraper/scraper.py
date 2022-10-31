@@ -17,11 +17,6 @@ import pytz
 import lxml
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options
-
 from advertools import word_tokenize
 warnings.simplefilter("ignore", UserWarning)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
@@ -11351,151 +11346,151 @@ def multilex_scraper(input_dir, output_dir):
     #         not_working_functions.append("Business  Standard")
               
     
-    def straitimes():
-        try:
-            print("Strait Times IPO")
-            err_logs = []
-            title,links,text,pub_date,scraped_date = [],[],[],[],[]
+    # def straitimes():
+    #     try:
+    #         print("Strait Times IPO")
+    #         err_logs = []
+    #         title,links,text,pub_date,scraped_date = [],[],[],[],[]
 
-            test_url = "https://www.straitstimes.com/search?searchkey=ipo"
-            domain_url = "https://www.straitstimes.com/"
-            options = Options()
-            options.headless = True
+    #         test_url = "https://www.straitstimes.com/search?searchkey=ipo"
+    #         domain_url = "https://www.straitstimes.com/"
+    #         options = Options()
+    #         options.headless = True
 
-            driver = webdriver.Firefox(options=options)
+    #         driver = webdriver.Firefox(options=options)
 
-            driver.get(test_url)
-            time.sleep(2)
+    #         driver.get(test_url)
+    #         time.sleep(2)
 
-            html = driver.page_source
-            driver.quit()
+    #         html = driver.page_source
+    #         driver.quit()
             
-            sp=BeautifulSoup(html, 'lxml')
-            all_divs = sp.find_all('div',{"class":"queryly_item_row"})            
+    #         sp=BeautifulSoup(html, 'lxml')
+    #         all_divs = sp.find_all('div',{"class":"queryly_item_row"})            
             
-            if (all_divs!=None): 
-                for div1 in all_divs:
-                    if(div1!=None):
-                        date1=div1.find("div",{"class":"queryly_item_description"})
+    #         if (all_divs!=None): 
+    #             for div1 in all_divs:
+    #                 if(div1!=None):
+    #                     date1=div1.find("div",{"class":"queryly_item_description"})
                         
-                        #chck news publish date  from front page
-                        utext_main=""
-                        if (date1 != None):
-                            utext_main=date1.text
-                            utext_main=utext_main.lstrip()
-                            #print(utext_main)
-                            if(len(utext_main)>=12):
-                                temp1_month_year=utext_main[0:3]+" "+utext_main[8:12]
-                                #print(temp1_month_year)
+    #                     #chck news publish date  from front page
+    #                     utext_main=""
+    #                     if (date1 != None):
+    #                         utext_main=date1.text
+    #                         utext_main=utext_main.lstrip()
+    #                         #print(utext_main)
+    #                         if(len(utext_main)>=12):
+    #                             temp1_month_year=utext_main[0:3]+" "+utext_main[8:12]
+    #                             #print(temp1_month_year)
                                 
-                                currentMonth = datetime.now().month
-                                currentYear = datetime.now().year
-                                monthdict={1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
-                                currentMonthandYear=str(monthdict[currentMonth])+" "+str(currentYear)
-                                #print("\n\n...........\n\n")
+    #                             currentMonth = datetime.now().month
+    #                             currentYear = datetime.now().year
+    #                             monthdict={1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+    #                             currentMonthandYear=str(monthdict[currentMonth])+" "+str(currentYear)
+    #                             #print("\n\n...........\n\n")
 
-                                #print("temp1_month_year "+temp1_month_year)
-                                #print("currentMonthandYear " +currentMonthandYear)
-                                if(temp1_month_year==currentMonthandYear):
-                                    #print("Matched....the news belong to current month, proceed with new fetch details")
-                                    #pub_date.append(utext_main) 
+    #                             #print("temp1_month_year "+temp1_month_year)
+    #                             #print("currentMonthandYear " +currentMonthandYear)
+    #                             if(temp1_month_year==currentMonthandYear):
+    #                                 #print("Matched....the news belong to current month, proceed with new fetch details")
+    #                                 #pub_date.append(utext_main) 
                                     
-                                    a_all=div1.find_all("a")
-                                    if(a_all!=None):
-                                        link=""
-                                        for a1 in a_all:
-                                            if((a1['href']!=None)):
-                                                link=a1['href']
-                                                links.append(link)
-                                                #print("\n")
-                                                #print(link)
+    #                                 a_all=div1.find_all("a")
+    #                                 if(a_all!=None):
+    #                                     link=""
+    #                                     for a1 in a_all:
+    #                                         if((a1['href']!=None)):
+    #                                             link=a1['href']
+    #                                             links.append(link)
+    #                                             #print("\n")
+    #                                             #print(link)
 
-                                                today = date.today()
+    #                                             today = date.today()
                                 
-                                                try:
+    #                                             try:
                                                         
-                                                        headers = {
-                                                            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                                                            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                                                            'sec-fetch-site': 'none',
-                                                            'sec-fetch-mode': 'navigate',
-                                                            'sec-fetch-user': '?1',
-                                                            'sec-fetch-dest': 'document',
-                                                            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-                                                        }
-                                                        page = requests.get(link, headers=headers)
-                                                        soup1 = BeautifulSoup(page.content, "html.parser")
-                                                        #print(sp1)
+    #                                                     headers = {
+    #                                                         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+    #                                                         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    #                                                         'sec-fetch-site': 'none',
+    #                                                         'sec-fetch-mode': 'navigate',
+    #                                                         'sec-fetch-user': '?1',
+    #                                                         'sec-fetch-dest': 'document',
+    #                                                         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    #                                                     }
+    #                                                     page = requests.get(link, headers=headers)
+    #                                                     soup1 = BeautifulSoup(page.content, "html.parser")
+    #                                                     #print(sp1)
                                                         
 
-                                                except:
-                                                        err = "Straitimes : err : Couldn't fetch url " + link 
-                                                        print("inside_except")
-                                                        err_logs.append(err)
-                                                        continue
+    #                                             except:
+    #                                                     err = "Straitimes : err : Couldn't fetch url " + link 
+    #                                                     print("inside_except")
+    #                                                     err_logs.append(err)
+    #                                                     continue
                                                 
-                                                #news tile
+    #                                             #news tile
                                                         
                                                         
-                                                title1=""
-                                                if(soup1.find("h1" , {"class" : "headline"}).text !=None):
-                                                    title1=soup1.find("h1" , {"class" : "headline"}).text
-                                                    title1 =title1.replace("\n", "")
-                                                    title1=title1.strip()
+    #                                             title1=""
+    #                                             if(soup1.find("h1" , {"class" : "headline"}).text !=None):
+    #                                                 title1=soup1.find("h1" , {"class" : "headline"}).text
+    #                                                 title1 =title1.replace("\n", "")
+    #                                                 title1=title1.strip()
                                             
                                                 
-                                                #print("title:",title1) 
-                                                title.append(title1)
+    #                                             #print("title:",title1) 
+    #                                             title.append(title1)
                                                 
-                                                #news content
-                                                text1=""
-                                                if (soup1.find("div" , {"class" : "ds-field-item"})!=None):
-                                                    articlebody=soup1.find("div" , {"class" : "ds-field-item"})
-                                                    p_all =articlebody.find_all("p")
-                                                    if(p_all !=None):
-                                                        for p in p_all:
-                                                            if(p.text!=None):                                                
-                                                                text1 = text1 + p.text
-                                                                #text2.append(text1)
+    #                                             #news content
+    #                                             text1=""
+    #                                             if (soup1.find("div" , {"class" : "ds-field-item"})!=None):
+    #                                                 articlebody=soup1.find("div" , {"class" : "ds-field-item"})
+    #                                                 p_all =articlebody.find_all("p")
+    #                                                 if(p_all !=None):
+    #                                                     for p in p_all:
+    #                                                         if(p.text!=None):                                                
+    #                                                             text1 = text1 + p.text
+    #                                                             #text2.append(text1)
                                                         
-                                                #print(text1)
-                                                text.append(text1)
+    #                                             #print(text1)
+    #                                             text.append(text1)
                                                 
                                             
-                                                #news publish date 
-                                                pubDate1=""
-                                                nd=soup1.find("div" , {"class" : "group-story-postdate"})
-                                                if(nd!=None):
-                                                    div_postdate=nd.find("div" , {"class" : "story-postdate"})
-                                                    if (div_postdate != None):
-                                                        pubDate1=div_postdate.text
-                                                        pubDate1 =pubDate1.lstrip()
-                                                #print("pubDate1",pubDate1)
-                                                pub_date.append(pubDate1)
+    #                                             #news publish date 
+    #                                             pubDate1=""
+    #                                             nd=soup1.find("div" , {"class" : "group-story-postdate"})
+    #                                             if(nd!=None):
+    #                                                 div_postdate=nd.find("div" , {"class" : "story-postdate"})
+    #                                                 if (div_postdate != None):
+    #                                                     pubDate1=div_postdate.text
+    #                                                     pubDate1 =pubDate1.lstrip()
+    #                                             #print("pubDate1",pubDate1)
+    #                                             pub_date.append(pubDate1)
                                                         
                                             
                                                 
 
-                                                #Scrapped date 
-                                                scraped_date.append(str(today))
+    #                                             #Scrapped date 
+    #                                             scraped_date.append(str(today))
     
             
                                 
-            df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scraped_date,"title":title})
+    #         df = pd.DataFrame({"text" : text , "link":links,"publish_date":pub_date,"scraped_date":scraped_date,"title":title})
 
-            #df=pd.DataFrame({'Title': title,'link':links,'news body':text,'pubdate':pub_date,'Scrape date':scraped_date})
-            #print(df)
-            if df.empty:
-                err = "Strait times : err: Empty dataframe"
-                err_logs.append(err)
-            df = df.drop_duplicates(subset=["link"])
-            df = FilterFunction(df)
-            emptydataframe("Strait times ",df)
-            return df
+    #         #df=pd.DataFrame({'Title': title,'link':links,'news body':text,'pubdate':pub_date,'Scrape date':scraped_date})
+    #         #print(df)
+    #         if df.empty:
+    #             err = "Strait times : err: Empty dataframe"
+    #             err_logs.append(err)
+    #         df = df.drop_duplicates(subset=["link"])
+    #         df = FilterFunction(df)
+    #         emptydataframe("Strait times ",df)
+    #         return df
                     
-        except:
-            print(" Strait times not working")
-            not_working_functions.append("Strait times")
+    #     except:
+    #         print(" Strait times not working")
+    #         not_working_functions.append("Strait times")
             
     def sumatrabinis():
         
@@ -13657,7 +13652,7 @@ def multilex_scraper(input_dir, output_dir):
 
 
     # df134 = businessstandard()  #Selenium used
-    df135 = straitimes()
+    # df135 = straitimes()  #selenium issue
     df136 = sumatrabinis()
     df137 = techstory()
 
@@ -13676,7 +13671,7 @@ def multilex_scraper(input_dir, output_dir):
     # df67 = scmp()
     # df66 = phnompenhpost()
     #df_final_1 = [df137,df12,df121,df122]
-    df_final_1 = [df147,df146,df145,df143,df142,df141,df140,df139,df137,df136,df135,df133,df132,df131,df130,df129,df128,df127,df126,df125,df124,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
+    df_final_1 = [df147,df146,df145,df143,df142,df141,df140,df139,df137,df136,df133,df132,df131,df130,df129,df128,df127,df126,df125,df124,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
     #df_final_1 = [df124,df123,df122,df121,df120,df119,df118,df117,df116,df115,df114,df113,df112,df111,df110,df109,df108,df107,df106,df105,df104,df103,df102,df101,df100,df46,df19,df99,df98,df97,df96,df92,df91,df90,df89,df88,df87,df86,df83,df81,df80, df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11, df12,df13,df14,df15, df17,df18,df21,df22 ,df23,df24,df25,df26, df27, df28, df29,df30,df32, df34, df41,df42,df43,df44,df47,df48,df49,df50,df52,df53,df54,df55,df57, df58, df59, df60,df61,  df62,df63,df64,df65,df67, df68, df69, df70, df71, df72,df73,  df74, df75, df76, df77,df78]
 
     # df_final_1 = [df85,df83,df80,df79,df7,df8,df18,df29,df32,df34,df58,df59,df62,df67, df68, df69, df70, df71,df76]
