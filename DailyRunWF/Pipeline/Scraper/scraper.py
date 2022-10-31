@@ -15,7 +15,6 @@ import importlib.util
 import warnings
 import pytz
 import lxml
-from selenium import webdriver
 from bs4 import BeautifulSoup
 from advertools import word_tokenize
 warnings.simplefilter("ignore", UserWarning)
