@@ -16378,10 +16378,10 @@ def multilex_scraper(input_dir, output_dir):
     # final = FilterFunction(final)
     final.to_csv(todays_report_filename, index=False)
     logfile = ""
-    if (get_time_valid() < 16):
-        logfile = "logs.txt"
+    if(get_time_valid() < 16):
+        logfile = input_dir + "/logs.txt"
     else:
-        logfile = "logs1.txt"
+        logfile = input_dir + "/logs1.txt"
     textfile = open(logfile, "w")
     for i in not_working_functions:
         textfile.write(i+"\n")
