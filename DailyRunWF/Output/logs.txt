@@ -4,10 +4,13 @@ German
 Japan : err : Empty datframe
 Romania : err : Empty datframe
 Google alert1 : err : Empty datframe
+Google Alert 3 : err : Empty datframe
+Google Alert 4 : err : Empty datframe
 Google Alert 5 : err : Empty datframe
 IPO Monitor : err : Empty datframe
 zdnet : err : Empty datframe
 kedg : err : Empty datframe
+economic_times
 interfax : err : Empty datframe
 Vccircle : err : Empty datframe
 zawya : err : Empty datframe
@@ -26,8 +29,6 @@ DW : err : Empty datframe
 Star : err : Empty datframe
 Hundustanbusinessline : err : Empty datframe
 Fr : err : Empty datframe
-Astanatimes : err : Empty datframe
-Bankokpost : err : Empty datframe
 Headlines of today : err : Empty datframe
 Gobal Capital : err : Empty datframe
 businesstoday : err : Empty datframe
