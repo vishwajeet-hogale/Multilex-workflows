@@ -66,6 +66,7 @@ class Part2EveningPipeline_new(luigi.Task):
             os.remove(self.output_dir + "todays_report.csv")
         if os.path.isfile(self.output_dir + self.file_name1):
             os.remove(self.output_dir + self.file_name1)
+        
     def requires(self):
        
         return [Log_Report_Mailing_workflow(),Final_Report_Mailing_workflow()]
