@@ -91,5 +91,5 @@ def generate_final_file(df):
 
 #company_info("ABB E-mobility")
 if __name__ == "__main__":
-        df = pd.read_excel("FinalFile.xlsx")
+        df = pd.read_excel("PREIPO_2022-12-20.xlsx")
         print(generate_final_file(df))
