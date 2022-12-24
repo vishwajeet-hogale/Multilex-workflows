@@ -1,0 +1,33 @@
+8 Date  Medicube
+11 2022-11-17 00:00:00  West Resource Ventures
+12 Date  Toubani Resources, Richmond Vanadium Technology, Patriot Battery Metals, etc. and much more
+13 Date   Vinfast
+18 Date  Indiafirst Life Insurance 
+20 2022-10-21 00:00:00  Love, Bonito
+29 Date  Taaleem
+36 2022-10-03 00:00:00  J. Molner AS (Molner)
+42 2022-10-10 00:00:00  Kaynes Technology
+45 Date  KazMunayGas
+46 2022-10-06 00:00:00  Eco Detection
+49 2022-10-06 00:00:00  Eni
+71 2022-11-16 00:00:00  Sai Silks
+73 Date  Byd
+85 2022-09-29 00:00:00  Agilitee
+88 2022-09-30 00:00:00   Abraj Energy 
+94 2022-10-04 00:00:00  Betagro
+97 2022-10-04 00:00:00  Mobileye
+104 Date  Nightingale Intelligent Systems, Inc. (ASX:NGL),  Omega Oil & Gas Ltd (ASX:OMA), Conrad Asia Energy 
+123 2022-10-13 00:00:00  Base Food
+136 2022-10-17 00:00:00  i-Tail Corporation Public Company Limited (ITC)
+141 Date  Blibli
+142 2022-10-18 00:00:00  Plaza Wires
+144 2022-10-18 00:00:00  Mobileye
+157 2022-10-26 00:00:00  Global Health
+170 Date  NoonTalk Media
+174 Date  
+BMC Medical 
+175 Date  PharmaResources
+178 2022-10-31 00:00:00  Versa Networks
+179 2022-10-31 00:00:00  Technopack Polymers
+183 Date   K Bank
+192 Date  Taiton Resources

@@ -20,10 +20,10 @@ def setup_connection():
     # conn = pymysql.connect(host=host,port=port,user=user,passwd=passw,db=database)
     # return conn
     user = 'admin'
-    DB_PASSWORD = 'HeyMultilex9087'
-    DB_PORT = 3306
+    DB_PASSWORD = 'HeyMultilex12345'
+    DB_PORT = 3307
     passw = DB_PASSWORD
-    host =  'multilex-db.csgyi8splofr.ap-south-1.rds.amazonaws.com'
+    host =  'multilex-tech.cvk1q8ffpz2u.ap-south-1.rds.amazonaws.com'
     port = DB_PORT
     database = 'preipo'
     conn = pymysql.connect(host=host,port=port,user=user,passwd=passw,db=database)
@@ -279,107 +279,83 @@ def clean_df(df):
     # print(df1)
     return df1
 
-
-def adddatatomultilextable(filename):
-    df =pd.read_csv(filename) #fix this 
-    df = df.iloc[: , 1:]
-    # print(preipo)
+def adddatatomultilextable(input_dir,filename,start_col,end_col):
+    df =pd.read_excel(input_dir + filename) #fix this 
+    df = df.iloc[: , start_col:end_col]
+    print(df)
     cur_date = date.today()
     cur_date = cur_date.strftime("%Y-%m-%d")
     df = df.fillna(" ")
     df = df.drop_duplicates(subset=["title","text","link"])
-    df = clean_df(df)
-    df['publish_date'] = pd.to_datetime(df['publish_date'], format="%d-%m-%Y")
-    # latest_date = get_latest_publish_date_in_db()
-    # df = df[df['publish_date']>latest_date and df['publish_date']<=cur_date]
+    df["Listing"] = ""
+    df["Exchange"] = ""
+    
     print(df)
     # print(df)
     conn = setup_connection()
-    # TABLES['Multilex'] = (
-    # """CREATE TABLE Multilex (
-    #                 `id` INT NOT NULL AUTO_INCREMENT, 
-    #                 `publish_date` DATE NOT NULL,
-    #                 `scraped_date` VARCHAR(100) NOT NULL,
-    #                 `title` VARCHAR(200) NOT NULL,
-    #                 `text` VARCHAR(5000),
-    #                 `Companies` VARCHAR(100) NOT NULL,
-    #                 `Country` VARCHAR(50) NOT NULL,
-    #                 `Listing` VARCHAR(500),
-    #                 `link` VARCHAR(500),
-    #                 `Comments` VARCHAR(500),
-    #                 `Update_news` VARCHAR(500),
-    #                 `Exchange` VARCHAR(500),
-    #                 `source_name` int,
-    #                 PRIMARY KEY (`id`),
-    #                 FOREIGN KEY (`source_name`) REFERENCES News_source (`id`)
-    #                 ON UPDATE CASCADE) ENGINE=InnoDB""")
-    # cursor = conn.cursor()
-    # cursor.execute('DROP TABLE IF EXISTS Multilex;')
-    # print('Creating table....')
-    # cursor.execute(TABLES["Multilex"])
-    # print("Multilex table is created....")
+    cursor = conn.cursor()
   
-    # err_rows = []
-    # for i,row in df.iterrows():
-    #     # print(row["publish_date"])
-    #     try:
-    #         # print(row)
-    #         sql = "INSERT INTO preipo.Multilex(publish_date,scraped_date,title,text,Companies,Country,Listing,link,comments,`Update_news`,`Exchange`,`source_name`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    #         row["publish_date"] = str(row["publish_date"])
-    #         if(len(str(row["text"]))>5000):
-    #             row["text"] = row["text"][0:5000]
-    #         if(len(str(row["Companies"]))>100):
-    #             row["Companies"] = row["Companies"][0:100]
-    #         if(row["publish_date"]) == "Date":
-    #             # print(1)
-    #             if(len(re.findall(r'\d{1,2}/\d{1,2}/\d{4}',row["scraped_date"]))):
-    #                   i = re.findall(r'\d{1,2}/\d{1,2}/\d{4}',row["scraped_date"])[0]
-    #                   i = i.split("/")
-    #                   temp = i[0]
-    #                   i[0] = i[1]
-    #                   i[1] = temp
-    #                   i[2] = "20"+str(i[2])
-    #                   row["publish_date"] = "-".join(i)
+    err_rows = []
+    for i,row in df.iterrows():
+        # print(row["publish_date"])
+        try:
+            # print(row)
+            sql = "INSERT INTO preipo.Multilex(publish_date,scraped_date,title,text,Companies,Country,Listing,link,comments,`Update_news`,`Exchange`,`source_name`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            row["publish_date"] = str(row["publish_date"])
+            if(len(str(row["text"]))>5000):
+                row["text"] = row["text"][0:5000]
+            if(len(str(row["Companies"]))>100):
+                row["Companies"] = row["Companies"][0:100]
+            if(row["publish_date"]) == "Date":
+                # print(1)
+                if(len(re.findall(r'\d{1,2}/\d{1,2}/\d{4}',row["scraped_date"]))):
+                      i = re.findall(r'\d{1,2}/\d{1,2}/\d{4}',row["scraped_date"])[0]
+                      i = i.split("/")
+                      temp = i[0]
+                      i[0] = i[1]
+                      i[1] = temp
+                      i[2] = "20"+str(i[2])
+                      row["publish_date"] = "-".join(i)
                       
-    #             elif(len(re.findall(r'\d{4}-\d{1,2}-\d{1,2}',row["scraped_date"]))):
-    #                   i = re.findall(r'\d{4}-\d{1,2}-\d{1,2}',row["scraped_date"])[0]
-    #                   row["publish_date"] = i
-    #         if(len(re.findall(r'\d{1,2}-\d{1,2}-\d{4}',row["publish_date"]))):
-    #                 i = re.findall(r'\d{1,2}-\d{1,2}-\d{4}',row["publish_date"])[0]
-    #                 i = "-".join(i.split("-")[::-1])
-    #                 row["publish_date"] = i
+                elif(len(re.findall(r'\d{4}-\d{1,2}-\d{1,2}',row["scraped_date"]))):
+                      i = re.findall(r'\d{4}-\d{1,2}-\d{1,2}',row["scraped_date"])[0]
+                      row["publish_date"] = i
+            if(len(re.findall(r'\d{1,2}-\d{1,2}-\d{4}',row["publish_date"]))):
+                    i = re.findall(r'\d{1,2}-\d{1,2}-\d{4}',row["publish_date"])[0]
+                    i = "-".join(i.split("-")[::-1])
+                    row["publish_date"] = i
                     
             
-    #         source = str(get_source(row["link"]))
-    #         sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
-    #         try:
-    #             sid = cursor.fetchall()[0][0]
-    #         except:
-    #             cursor.execute('''INSERT INTO preipo.News_source VALUES(%s)''',[str(source)])
-    #             sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
-    #             sid = cursor.fetchall()[0][0]
-    #         # print(source + "--->" + str(sid))
-    #         print(str(row["publish_date"]) + "--> " + str(row["scraped_date"]) )
-    #         data = [str(row["publish_date"]),str(row["scraped_date"]),str(row["title"]),
-    #         str(row["text"]),str(row["Companies"]),str(row["Country"]),str(row["Listing"]),str(row["link"]),str(row["Comments"]),str(row["update"]),str(row["Exchange"]),sid]
-    #         cursor.execute(sql,data)
-    #         print("Record inserted")
-    #         """the connection is not autocommitted by default, so we 
-    #         must commit to save our changes"""
-    #         conn.commit()
-    #     except:
-    #         err_rows.append(str(i) + " " + str(row["publish_date"]) + "  " + str(row["Companies"]))
-    # textfile = open("error_rows.txt","w")
-    # for val,i in enumerate(err_rows):
-    #     try:
-    #         textfile.write(str(i))
-    #         textfile.write("\n")
-    #     except:
-    #         print(val)
-    # # print(err_rows)
-    # textfile.close()
-    # cursor.close()
-    # conn.close()
+            source = str(get_source(row["link"]))
+            sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
+            try:
+                sid = cursor.fetchall()[0][0]
+            except:
+                cursor.execute('''INSERT INTO preipo.News_source VALUES(%s)''',[str(source)])
+                sid = cursor.execute("select id from preipo.News_source where name = %s",[source])
+                sid = cursor.fetchall()[0][0]
+            # print(source + "--->" + str(sid))
+            print(str(row["publish_date"]) + "--> " + str(row["scraped_date"]) )
+            data = [str(row["publish_date"]),str(row["scraped_date"]),str(row["title"]),
+            str(row["text"]),str(row["Companies"]),str(row["Country"]),str(row["Listing"]),str(row["link"]),str(row["Comments"]),str(row["update"]),str(row["Exchange"]),sid]
+            cursor.execute(sql,data)
+            print("Record inserted")
+            """the connection is not autocommitted by default, so we 
+            must commit to save our changes"""
+            conn.commit()
+        except:
+            err_rows.append(str(i) + " " + str(row["publish_date"]) + "  " + str(row["Companies"]))
+    textfile = open("error_rows.txt","w")
+    for val,i in enumerate(err_rows):
+        try:
+            textfile.write(str(i))
+            textfile.write("\n")
+        except:
+            print(val)
+    # print(err_rows)
+    textfile.close()
+    cursor.close()
+    conn.close()
 
 def find_frequent_phrases():
     conn = setup_connection()

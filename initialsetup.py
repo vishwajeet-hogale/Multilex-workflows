@@ -2,7 +2,7 @@ import luigi
 from InitialSetupWF.AddDataToDBFromDumpFileWF.addDataToDb_workflow import AddDataToDbWorkflow
 from Database.db import *
 class InitialSetupWorkflow(luigi.Task):
-    input_dir = luigi.Parameter('E:\\luigi\\')
+    input_dir = luigi.Parameter('E:\\luigi\\InitialSetupWF\\AddDataToDBFromDumpFileWF\\')
     output_dir = luigi.Parameter('E:\\luigi\\')
     def output(self):
         return luigi.LocalTarget(self.output_dir + "Output\\init_setup_success.txt")
