@@ -1,3 +1,14 @@
+#                                      Importing modules
+
+
+
+
+
+
+
+
+
+
 from newspaper import Article
 import requests
 import nltk
@@ -20,6 +31,17 @@ import warnings
 import pytz
 from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
+
+
+
+
+
+#                      Header functions
+
+
+
+
+
 
 
 warnings.simplefilter("ignore", UserWarning)
@@ -342,3 +364,75 @@ def multilex_scraper(input_dir, output_dir):
     def log_errors(err_logs):
         for i in err_logs:
             print(i)
+
+
+
+
+
+#                                      Korean_Websites
+
+
+
+            
+    def korea():
+        try:
+            print("Korea")
+            err_logs = []
+            url = "http://www.koreaherald.com/search/index.php?kr=0&q=IPO"
+            domain_url = "http://www.koreaherald.com/"
+            title, links, text, pub_date, scraped_date = [], [], [], [], []
+            try:
+                page = requests.get(url)
+                soup = BeautifulSoup(page.content, "html.parser")
+
+
+            except:
+                err = "Korea : err : Couldn't fetch " + url
+                err_logs.append(err)
+                return
+            for a in soup.find_all('ul', {'class': 'main_sec_li'}):
+                for l in a.find_all('a', href=True):
+                    links.append(domain_url + l["href"])
+
+            final_links = []
+            today = date.today()
+            
+            for link in links:
+                try:
+                    article = Article(link)
+                    article.download()
+                    article.parse()
+                    article.nlp()
+                except:
+                    err = "Korea : err : Couldn't fetch url " + link
+                    err_logs.append(err)
+
+                    continue
+                pub_date.append(article.publish_date)
+                # Title of article
+                title.append(article.title)
+                # Text of article
+                text.append(article.text)
+                # print(text)
+                # Scrapped date
+                scraped_date.append(str(today))
+                # Working links
+                final_links.append(link)
+            
+            df = pd.DataFrame({"text": text, "link": final_links,
+                              "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+            
+            if df.empty:
+                err = "Korea : err: Empty dataframe"
+                err_logs.append(err)
+            
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Korea", df)
+            
+            return df
+        except:
+            print("Korea not working")
+            not_working_functions.append('Korea')
+        
+        
