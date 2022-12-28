@@ -12,7 +12,7 @@
 from newspaper import Article
 import requests
 import nltk
-nltk.download('punkt')
+#nltk.download('punkt')
 
 import logging
 from requests_html import HTMLSession
@@ -149,9 +149,6 @@ def multilex_scraper(input_dir, output_dir):
             if len(re.findall("\d{1,2}/\d{1,2}/\d{4}", i)):
                 hi = re.findall("\d{1,2}/\d{1,2}/\d{4}", i)
                 l1 = hi[0].split("/")
-                temp = l1[0]
-                l1[0] = l1[1]
-                l1[1] = temp
                 i = "-".join(l1)
                 return i
             elif (re.findall("\d{1,2}/\w{3}/\d{4}", i)):
@@ -246,11 +243,12 @@ def multilex_scraper(input_dir, output_dir):
             df2 = df_final[df_final["publish_date"] == "Date"]
             df_final = df_final[df_final["publish_date"] != "Date"]
             df_final['publish_date'] = pd.to_datetime(
-                df_final['publish_date'], format="%d-%m-%Y", errors='coerce', utc=True).dt.strftime("%d/%b/%Y" " " "%H:%M:%S")
+                df_final['publish_date'], format="%d-%m-%Y", errors='coerce', utc=True).dt.strftime("%d/%m/%Y" " " "%H:%M:%S")
             one_year_from_now = datetime.now()
             date_formated = one_year_from_now.strftime(
-                "%d/%b/%Y" " " "%H:%M:%S")
+                "%d/%m/%Y" " " "%H:%M:%S")
             df_final['scraped_date'] = date_formated
+            
 
             public_date = pd.to_datetime(
                 df_final['publish_date'], errors='coerce', utc=True).dt.strftime('%d-%m-%Y')
@@ -365,11 +363,14 @@ def multilex_scraper(input_dir, output_dir):
         for i in err_logs:
             print(i)
 
+    
+    def date_correction_for_newspaper3k(date):
+        return str(date.strftime("%d/%m/%Y"))
 
 
 
 
-#                                      Korean_Websites
+    #                                      Korean_Websites
 
 
 
@@ -408,15 +409,16 @@ def multilex_scraper(input_dir, output_dir):
                     err_logs.append(err)
 
                     continue
-                pub_date.append(article.publish_date)
-                # Title of article
+                published=date_correction_for_newspaper3k(article.publish_date)
+                print(published)
+                pub_date.append(published)
+
                 title.append(article.title)
-                # Text of article
+
                 text.append(article.text)
-                # print(text)
-                # Scrapped date
+
                 scraped_date.append(str(today))
-                # Working links
+
                 final_links.append(link)
             
             df = pd.DataFrame({"text": text, "link": final_links,
@@ -434,5 +436,55 @@ def multilex_scraper(input_dir, output_dir):
         except:
             print("Korea not working")
             not_working_functions.append('Korea')
+            
+            
+            
+            
+            
+            
+            
+            
+    #                                  Final
+    
+    
+    
+    
+    
+    
+    
+    df1=korea()
+    
+    df_final_1 = [df1]
+    
+    df_final = pd.concat(df_final_1)
+
+    todays_report_filename = os.path.join(output_dir, 'todays_report.csv')
+    todays_report_filename1 = os.path.join(output_dir, 'todays_report1.csv')
+    df_final.to_csv(todays_report_filename1, index=False)
+    final = correct_navigable_string(df_final)
+    # final = FilterFunction(final)
+    final.to_csv(todays_report_filename, index=False)
+    logfile = ""
+    if(get_time_valid() < 16):
+        logfile = input_dir + "/logs.txt"
+    else:
+        logfile = input_dir + "/logs1.txt"
+    textfile = open(logfile, "w")
+    for i in not_working_functions:
+        textfile.write(i+"\n")
+    textfile.close()
+    logging.info("writing output artifact " +
+                 todays_report_filename + " to " + output_dir)
+    final.to_csv(todays_report_filename, index=False)
+    logging.info("completed writing output artifact " +
+                 todays_report_filename + " to " + output_dir)
+# multilex_scraper("/home/prachi_multilex2", "/home/prachi_multilex2")       # uncomment this line to run this as a python script
+
+
+# multilex_scraper( "", "")
+logging.info("last line of scraper")
+
+if __name__ == "__main__":
+    multilex_scraper("","")
         
         
