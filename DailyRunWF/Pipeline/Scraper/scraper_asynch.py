@@ -411,6 +411,7 @@ def multilex_scraper(input_dir, output_dir):
                         err_logs.append(err)
                         
                     published=date_correction_for_newspaper3k(article.publish_date)
+                    print(published)
                     pub_date.append(published)
 
                     title.append(article.title)
@@ -443,7 +444,7 @@ def multilex_scraper(input_dir, output_dir):
             df = FilterFunction(df)
             emptydataframe("Korea", df)
             
-            df_final.append()
+            return df
         except:
             print("Korea not working")
             not_working_functions.append('Korea')
