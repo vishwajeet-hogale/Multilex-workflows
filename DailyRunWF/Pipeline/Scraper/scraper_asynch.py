@@ -12,8 +12,7 @@
 from newspaper import Article
 import requests
 import nltk
-#nltk.download('punkt')
-import multiprocessing
+#nltk.download('punkt')                         # Please uncomment if you're running this program for first time
 import threading
 
 import logging
@@ -444,7 +443,7 @@ def multilex_scraper(input_dir, output_dir):
             df = FilterFunction(df)
             emptydataframe("Korea", df)
             
-            return df
+            df_final.append()
         except:
             print("Korea not working")
             not_working_functions.append('Korea')
@@ -582,6 +581,10 @@ def multilex_scraper(input_dir, output_dir):
             print("Proactive investors not working")
             
             
+    
+    
+    
+    
             
             
     #                                  Final
@@ -590,12 +593,15 @@ def multilex_scraper(input_dir, output_dir):
     
     
     
-    
-    
     df1=korea()
     df2=proactive("ipo")
     
+    
     df_final_1 = [df1, df2]
+    
+    
+    
+       
     
     df_final = pd.concat(df_final_1)
 
