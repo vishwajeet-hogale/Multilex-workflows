@@ -13,6 +13,8 @@ from newspaper import Article
 import requests
 import nltk
 #nltk.download('punkt')
+import multiprocessing
+import threading
 
 import logging
 from requests_html import HTMLSession
@@ -277,6 +279,7 @@ def multilex_scraper(input_dir, output_dir):
 
     def tokenize_no_words(text_list, val):
         return set(word_tokenize(text_list, val)[0])
+    
     def FilterFunction(final):
         
         try:            
@@ -370,7 +373,7 @@ def multilex_scraper(input_dir, output_dir):
 
 
 
-    #                                      Korean_Websites
+    #                                     Country - Korea
 
 
 
@@ -398,28 +401,37 @@ def multilex_scraper(input_dir, output_dir):
             final_links = []
             today = date.today()
             
-            for link in links:
-                try:
-                    article = Article(link)
-                    article.download()
-                    article.parse()
-                    article.nlp()
-                except:
-                    err = "Korea : err : Couldn't fetch url " + link
-                    err_logs.append(err)
+            def getartciles(link):
+                    try:
+                        article = Article(link)
+                        article.download()
+                        article.parse()
+                        article.nlp()
+                    except:
+                        err = "Korea : err : Couldn't fetch url " + link
+                        err_logs.append(err)
+                        
+                    published=date_correction_for_newspaper3k(article.publish_date)
+                    pub_date.append(published)
 
-                    continue
-                published=date_correction_for_newspaper3k(article.publish_date)
-                print(published)
-                pub_date.append(published)
+                    title.append(article.title)
 
-                title.append(article.title)
+                    text.append(article.text)
 
-                text.append(article.text)
+                    scraped_date.append(str(today))
 
-                scraped_date.append(str(today))
-
-                final_links.append(link)
+                    final_links.append(link)
+            
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getartciles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
             
             df = pd.DataFrame({"text": text, "link": final_links,
                               "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
@@ -437,9 +449,137 @@ def multilex_scraper(input_dir, output_dir):
             print("Korea not working")
             not_working_functions.append('Korea')
             
+
             
             
+    #                          Country - Australia
+    
+    
+    
+       
             
+    def proactive(keyword):
+        try:
+            print("proactive")
+            err_logs = []
+            url = f"https://www.proactiveinvestors.com.au/search/advancedSearch/news?url=&keyword={keyword}"
+            domain_url = "https://www.proactiveinvestors.com.au/"
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            page = requests.get(url, headers=headers)
+            soup = BeautifulSoup(page.content, "html.parser")
+            # soup  # Debugging - if soup is working correctly
+            # Class names of the elements to be scraped
+            div_class = "advanced-search-block"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            
+            title_h1_class = "h2"
+            date_p_itemprop = "datePublished"
+            para_div_itemprop = "articleBody"
+            links = []
+            for divtag in soup.find_all("div", {"class": div_class}):
+                for a in divtag.find_all("a", href=True):
+                    link = a["href"]  # Gets the link
+                    # Checking the link if it is a relative link
+                    if link[0] == '/':
+                        link = domain_url + link[1:]
+                    # Filtering advertaisment links
+                    link_start = domain_url
+                    if link.startswith(link_start):
+                        links.append(link)
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "proactiveinvestors"
+            
+            def getarticles(link):
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err = scrapper_name + ": err: Failed to retrieve data from link: " + \
+                        link + " and convert it to soup object"
+                    err_logs.append(err)
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("h1", {"class": title_h1_class})
+                    data.append(title_ele.text)
+                except:
+                    err = scrapper_name + ": err: Failed to find title in page. Link: " + link
+                    err_logs.append(err)
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("p", {"itemprop": date_p_itemprop})
+                    date_text = date_ele.text
+                    #date_text = (date_text.split('/'))[-1]
+                    #date_text = date_text.replace(" Updated: ", "")
+                    # The date_text could be further modified to represent a proper date format
+                    data.append(date_text)
+                except:
+                    err = scrapper_name + ": err: Failed to find date in page. Link: " + link
+                    err_logs.append(err)
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                cur_date = str(datetime.today())
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    para_ele = (l_soup.findAll(
+                        "div", {"itemprop": para_div_itemprop}))[-1]
+                    data.append(para_ele.text)  # Need to make this better
+                except:
+                    err = scrapper_name + ": err: Failed to find paragraph in page. Link: " + link
+                    err_logs.append(err)
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            if df.empty:
+                err = scrapper_name + ": err: Empty dataframe"
+                err_logs.append(err)
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("Proactive investors", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("Proactive Inverstors")
+            print("Proactive investors not working")
             
             
             
@@ -453,8 +593,9 @@ def multilex_scraper(input_dir, output_dir):
     
     
     df1=korea()
+    df2=proactive("ipo")
     
-    df_final_1 = [df1]
+    df_final_1 = [df1, df2]
     
     df_final = pd.concat(df_final_1)
 
@@ -485,6 +626,11 @@ def multilex_scraper(input_dir, output_dir):
 logging.info("last line of scraper")
 
 if __name__ == "__main__":
-    multilex_scraper("","")
+    x=time.time()
+    multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\test",r"C:\Users\ujwal\OneDrive\Desktop\test")
+    y=time.time()
+    print()
+    print("time: ", y-x)
+    print()
         
         
