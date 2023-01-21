@@ -672,7 +672,6 @@ def multilex_scraper(input_dir, output_dir):
     
     df1=korea()
     df2=proactive("ipo")
-    print(Errors)
     
     df_final_1 = [df1, df2]
     
@@ -692,6 +691,24 @@ def multilex_scraper(input_dir, output_dir):
     
     # final = FilterFunction(final)
     final.to_csv(todays_report_filename, index=False)
+    
+    
+    
+    logfile = ""
+    if(get_time_valid() < 16):
+        logfile = input_dir + "/logs.txt"
+    else:
+        logfile = input_dir + "/logs1.txt"
+    textfile = open(logfile, "w")
+    for i in not_working_functions:
+        textfile.write(i+"\n")
+    textfile.close()
+    
+    logging.info("writing output artifact " +
+                 todays_report_filename + " to " + output_dir)
+    final.to_csv(todays_report_filename, index=False)
+    logging.info("completed writing output artifact " +
+                 todays_report_filename + " to " + output_dir)
     
     err_file=""
     if(get_time_valid() < 16):
@@ -715,20 +732,8 @@ def multilex_scraper(input_dir, output_dir):
                 f.write("\n\n--------------------------------------------------------------------------\n\n")
                         
     
-    logfile = ""
-    if(get_time_valid() < 16):
-        logfile = input_dir + "/logs.txt"
-    else:
-        logfile = input_dir + "/logs1.txt"
-    textfile = open(logfile, "w")
-    for i in not_working_functions:
-        textfile.write(i+"\n")
-    textfile.close()
-    logging.info("writing output artifact " +
-                 todays_report_filename + " to " + output_dir)
-    final.to_csv(todays_report_filename, index=False)
-    logging.info("completed writing output artifact " +
-                 todays_report_filename + " to " + output_dir)
+    
+    
 # multilex_scraper("/home/prachi_multilex2", "/home/prachi_multilex2")       # uncomment this line to run this as a python script
 
 
