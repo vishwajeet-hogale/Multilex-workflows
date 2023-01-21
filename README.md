@@ -21,7 +21,7 @@
 - LoggingWf : S1 data workflow
 - SecS1WF : Union of two daily log reports and automated mail
 
-## News assignerr + data upload
+## News assigner + data upload
 
 - form
 - take final report as input
