@@ -403,6 +403,8 @@ def multilex_scraper(input_dir, output_dir):
 
 
             except:
+                print("Korea not working")
+                not_working_functions.append('Korea')
                 err = "Main link did not load: " + url
                 Errors["Korea"].append(err)
                 return
@@ -413,13 +415,17 @@ def multilex_scraper(input_dir, output_dir):
                         links.append(domain_url + l["href"])
             except:
                 if len(links)==0:
+                    print("Korea not working")
+                    not_working_functions.append('Korea')
                     Errors["Korea"].append("Extraction of link not working.")
+                    return
                     
 
             final_links = []
             today = date.today()
             
             def getartciles(link):
+                    flag=0
                     err=err_dict()
                     try:
                         article = Article(link)
@@ -437,22 +443,29 @@ def multilex_scraper(input_dir, output_dir):
                     except:
                         err["link"]=link
                         err['published_date']="Error"
+                        pub_date.append("-")
+                        flag=1
                     
                     try:
                         title.append(article.title)
                     except:
                         err["link"]=link
                         err["title"]="Error"
+                        title.append("-")
+                        flag=1
                     
                     try:
                         text.append(article.text)
                     except:
                         err["link"]=link
                         err["title"]="Error"
+                        text.append("-")
+                        flag=1
 
                     scraped_date.append(str(today))
                     
-                    Errors["Korea"].append(err)
+                    if flag==1:
+                        Errors["Korea"].append(err)
 
                     final_links.append(link)
             
@@ -491,9 +504,14 @@ def multilex_scraper(input_dir, output_dir):
     def proactive(keyword):
         try:
             print("proactive")
-            err_logs = []
+            Errors["Proactive"]=[]
+            
+            
+            
             url = f"https://www.proactiveinvestors.com.au/search/advancedSearch/news?url=&keyword={keyword}"
             domain_url = "https://www.proactiveinvestors.com.au/"
+            
+            
 
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -504,8 +522,17 @@ def multilex_scraper(input_dir, output_dir):
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-            page = requests.get(url, headers=headers)
-            soup = BeautifulSoup(page.content, "html.parser")
+            
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("Proactive not working")
+                not_working_functions.append('Proactive')
+                err = "Main link did not load: " + url
+                Errors["Proactive"].append(err)
+                return
+            
             # soup  # Debugging - if soup is working correctly
             # Class names of the elements to be scraped
             div_class = "advanced-search-block"  # Class name of div containing the a tag
@@ -516,16 +543,24 @@ def multilex_scraper(input_dir, output_dir):
             date_p_itemprop = "datePublished"
             para_div_itemprop = "articleBody"
             links = []
-            for divtag in soup.find_all("div", {"class": div_class}):
-                for a in divtag.find_all("a", href=True):
-                    link = a["href"]  # Gets the link
-                    # Checking the link if it is a relative link
-                    if link[0] == '/':
-                        link = domain_url + link[1:]
-                    # Filtering advertaisment links
-                    link_start = domain_url
-                    if link.startswith(link_start):
-                        links.append(link)
+            
+            try:
+                for divtag in soup.find_all("div", {"class": div_class}):
+                    for a in divtag.find_all("a", href=True):
+                        link = a["href"]  # Gets the link
+                        # Checking the link if it is a relative link
+                        if link[0] == '/':
+                            link = domain_url + link[1:]
+                        # Filtering advertaisment links
+                        link_start = domain_url
+                        if link.startswith(link_start):
+                            links.append(link)
+            except:
+                if len(links)==0:
+                    print("Proactive not working")
+                    not_working_functions.append('Proactive')
+                    Errors["Proactive"].append("Extraction of link not working.")
+                    return
                         
             # Remove duplicates
             links = list(set(links))
@@ -535,13 +570,16 @@ def multilex_scraper(input_dir, output_dir):
             scrapper_name = "proactiveinvestors"
             
             def getarticles(link):
+                flag=0
+                err=err_dict()
                 try:
                     l_page = requests.get(link, headers=headers)
                     l_soup = BeautifulSoup(l_page.content, 'html.parser')
                 except:
-                    err = scrapper_name + ": err: Failed to retrieve data from link: " + \
-                        link + " and convert it to soup object"
-                    err_logs.append(err)
+                    err["link"]="Link not working: "+link
+                    Errors["Proactive"].append(err)
+                    return
+                
                 data = []
                 
                 # Scraping the heading
@@ -551,8 +589,10 @@ def multilex_scraper(input_dir, output_dir):
                     title_ele = l_soup.find("h1", {"class": title_h1_class})
                     data.append(title_ele.text)
                 except:
-                    err = scrapper_name + ": err: Failed to find title in page. Link: " + link
-                    err_logs.append(err)
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
                  # drops the complete data if there is an error
                 # Adding the link to data
                 data.append(link)
@@ -565,8 +605,10 @@ def multilex_scraper(input_dir, output_dir):
                     # The date_text could be further modified to represent a proper date format
                     data.append(date_text)
                 except:
-                    err = scrapper_name + ": err: Failed to find date in page. Link: " + link
-                    err_logs.append(err)
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
               # drops the complete data if there is an error
                 # Adding the scraped date to data
                 cur_date = str(datetime.today())
@@ -577,10 +619,15 @@ def multilex_scraper(input_dir, output_dir):
                         "div", {"itemprop": para_div_itemprop}))[-1]
                     data.append(para_ele.text)  # Need to make this better
                 except:
-                    err = scrapper_name + ": err: Failed to find paragraph in page. Link: " + link
-                    err_logs.append(err)
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
                   # drops the complete data if there is an error
                 # Adding data to a collection
+                
+                if flag==1:
+                    Errors["Proactive"].append(err)
                 
                 collection.append(data)
                 
@@ -597,9 +644,8 @@ def multilex_scraper(input_dir, output_dir):
             
             df = pd.DataFrame(collection, columns=[
                               'title', 'link', 'publish_date', 'scraped_date', 'text'])
-            if df.empty:
-                err = scrapper_name + ": err: Empty dataframe"
-                err_logs.append(err)
+            
+            
             # print(df) # For debugging. To check if df is created
             # print(err_logs) # For debugging - to check if any errors occoured
             df = FilterFunction(df)
@@ -626,7 +672,7 @@ def multilex_scraper(input_dir, output_dir):
     
     df1=korea()
     df2=proactive("ipo")
-    
+    print(Errors)
     
     df_final_1 = [df1, df2]
     
@@ -638,10 +684,37 @@ def multilex_scraper(input_dir, output_dir):
 
     todays_report_filename = os.path.join(output_dir, 'todays_report.csv')
     todays_report_filename1 = os.path.join(output_dir, 'todays_report1.csv')
+    
+    
     df_final.to_csv(todays_report_filename1, index=False)
     final = correct_navigable_string(df_final)
+    
+    
     # final = FilterFunction(final)
     final.to_csv(todays_report_filename, index=False)
+    
+    err_file=""
+    if(get_time_valid() < 16):
+        err_file = input_dir + "/brief_err_file.txt"
+    else:
+        err_file = input_dir + "/brief_err_file.txt"
+        
+    with open(err_file, 'w') as f:
+        for key, value in Errors.items():
+            if len(value)!=0:
+                
+                if type(value[0])==str:
+                    f.write('%s : %s ' % (key, value[0]))
+                else:
+                    f.write(key+"\n\n")
+                    for val in value:
+                        for data, corr in val.items():
+                            f.write('\t\t %s : %s \n' % (data, corr))
+                        f.write("\n")
+                
+                f.write("\n\n--------------------------------------------------------------------------\n\n")
+                        
+    
     logfile = ""
     if(get_time_valid() < 16):
         logfile = input_dir + "/logs.txt"
@@ -667,7 +740,9 @@ if __name__ == "__main__":
     multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\test",r"C:\Users\ujwal\OneDrive\Desktop\test")
     y=time.time()
     print()
-    print("time: ", y-x)
+    print()
+    print("time taken by scraper.py: ", y-x)
+    print()
     print()
         
         
