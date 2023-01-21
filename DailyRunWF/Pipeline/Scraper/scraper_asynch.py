@@ -368,6 +368,17 @@ def multilex_scraper(input_dir, output_dir):
     
     def date_correction_for_newspaper3k(date):
         return str(date.strftime("%d/%m/%Y"))
+    
+    
+    Errors={}
+    
+    def err_dict(link="", published_date="", title="", text=""):
+        return {
+            "link": link,
+            "published_date": published_date,
+            "title": title,
+            "text": text
+        }
 
 
 
@@ -380,45 +391,68 @@ def multilex_scraper(input_dir, output_dir):
     def korea():
         try:
             print("Korea")
-            err_logs = []
+            Errors["Korea"]=[]
+            
             url = "http://www.koreaherald.com/search/index.php?kr=0&q=IPO"
             domain_url = "http://www.koreaherald.com/"
             title, links, text, pub_date, scraped_date = [], [], [], [], []
+            
             try:
                 page = requests.get(url)
                 soup = BeautifulSoup(page.content, "html.parser")
 
 
             except:
-                err = "Korea : err : Couldn't fetch " + url
-                err_logs.append(err)
+                err = "Main link did not load: " + url
+                Errors["Korea"].append(err)
                 return
-            for a in soup.find_all('ul', {'class': 'main_sec_li'}):
-                for l in a.find_all('a', href=True):
-                    links.append(domain_url + l["href"])
+            
+            try:
+                for a in soup.find_all('ul', {'class': 'main_sec_li'}):
+                    for l in a.find_all('a', href=True):
+                        links.append(domain_url + l["href"])
+            except:
+                if len(links)==0:
+                    Errors["Korea"].append("Extraction of link not working.")
+                    
 
             final_links = []
             today = date.today()
             
             def getartciles(link):
+                    err=err_dict()
                     try:
                         article = Article(link)
                         article.download()
                         article.parse()
                         article.nlp()
                     except:
-                        err = "Korea : err : Couldn't fetch url " + link
-                        err_logs.append(err)
-                        
-                    published=date_correction_for_newspaper3k(article.publish_date)
-                    print(published)
-                    pub_date.append(published)
-
-                    title.append(article.title)
-
-                    text.append(article.text)
+                        err["link"]="Link not working: "+link
+                        Errors["Korea"].append(err)
+                        return
+                    
+                    try:
+                        published=date_correction_for_newspaper3k(article.publish_date)
+                        pub_date.append(published)
+                    except:
+                        err["link"]=link
+                        err['published_date']="Error"
+                    
+                    try:
+                        title.append(article.title)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                    
+                    try:
+                        text.append(article.text)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
 
                     scraped_date.append(str(today))
+                    
+                    Errors["Korea"].append(err)
 
                     final_links.append(link)
             
@@ -435,10 +469,6 @@ def multilex_scraper(input_dir, output_dir):
             
             df = pd.DataFrame({"text": text, "link": final_links,
                               "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
-            
-            if df.empty:
-                err = "Korea : err: Empty dataframe"
-                err_logs.append(err)
             
             df = df.drop_duplicates(subset=["link"])
             df = FilterFunction(df)
