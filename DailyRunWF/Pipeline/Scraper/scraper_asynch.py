@@ -766,7 +766,8 @@ def multilex_scraper(input_dir, output_dir):
                     flag=1
               # drops the complete data if there is an error
                 # Adding the scraped date to data
-                cur_date = str(datetime.today())
+                today = date.today()
+                cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
                 try:
@@ -919,7 +920,8 @@ def multilex_scraper(input_dir, output_dir):
                     flag=1
               # drops the complete data if there is an error
                 # Adding the scraped date to data
-                cur_date = str(datetime.today())
+                today = date.today()
+                cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
                 try:
@@ -1195,7 +1197,8 @@ def multilex_scraper(input_dir, output_dir):
                     flag=1
               # drops the complete data if there is an error
                 # Adding the scraped date to data
-                cur_date = str(datetime.today())
+                today = date.today()
+                cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
                 try:
