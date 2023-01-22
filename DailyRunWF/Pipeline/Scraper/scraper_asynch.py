@@ -152,18 +152,34 @@ def multilex_scraper(input_dir, output_dir):
                 l1 = hi[0].split("/")
                 i = "-".join(l1)
                 return i
+            
             elif (re.findall("\d{1,2}/\w{3}/\d{4}", i)):
                 i = get_date_mname_d_y(re.findall("\d{1,2}/\w{3}/\d{4}", i)[0])
                 return i
+            
+            elif (re.findall(r'\d{1,2}-\d{1,2}-\d{4}', i)):
+                return i
+            
+            elif len(re.findall(r'\d{1,2}.\d{1,2}.\d{4}', i)) and i.find(":"):
+                if len(i.split(" ")) > 1:
+                    i = i.split(" ")[2].replace(".", "-")
+                    return i
+            
+            elif len(i.split("-")[0]) == 4:
+                i = "-".join(i.split("-")[::-1])
+                return i
+            
             elif (len(re.findall("\d{1,2}\s\w{3}\s\d{4}", i))):
 
                 i = get_date_mname_d_y(re.findall(
                     "\d{1,2}\s\w{3}\s\d{4}", i)[0])
                 # print(i)
                 return i
+            
             elif (re.findall(r'min read . Updated:', i)):
                 i = get_date_min_read(i)
                 return i
+            
             elif (len(i.split(".")) == 3):
                 if (len(i.split(".")[0]) == 4):
                     i = "-".join(i.split(".")[::-1])
@@ -171,13 +187,7 @@ def multilex_scraper(input_dir, output_dir):
                 else:
                     i = i.replace(".", "-")
                     return i
-            elif len(re.findall(r'\d{1,2}.\d{1,2}.\d{4}', i)) and i.find(":"):
-                if len(i.split(" ")) > 1:
-                    i = i.split(" ")[2].replace(".", "-")
-                    return i
-            elif (re.findall(r'\d{1,2}-\d{1,2}-\d{4}', i)):
-                return i
-
+            
             elif (i.count(":") >= 2):
                 if len(re.findall(r'T', i)):
                     i = "-".join(i.split("T")[0].split("-")[::-1])
@@ -191,9 +201,9 @@ def multilex_scraper(input_dir, output_dir):
                 else:
                     i = "-".join(i.split("-")[::-1])
                     return i
-            elif len(i.split("-")[0]) == 4:
-                i = "-".join(i.split("-")[::-1])
-                return i
+            
+            
+            
 
             i = get_date_mname_d_y(i)
             return i
