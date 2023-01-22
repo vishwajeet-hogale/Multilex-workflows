@@ -965,7 +965,128 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("investmentu")
             print("investmentu not working")
     
-    
+    def einnews():
+        try:
+            print("IPO EinNews")
+            Errors["Einnews"]=[]
+
+            baseSearchUrl = "https://ipo.einnews.com/"
+            domainUrl = "https://ipo.einnews.com"
+            keywords = ['IPO', 'pre-IPO', 'initial public offering']
+
+            # use this for faster testing
+            scrapedData = {}
+            links = []
+            titles = []
+            err_index = []
+            ArticleDates = []
+            ScrapeDates = []
+            ArticleBody = []
+            
+            queryUrl = baseSearchUrl
+            try:
+                session = HTMLSession()
+                resp = session.post(queryUrl)
+                resp.html.render()
+                pageSource = resp.html.html
+                parsedSource = BeautifulSoup(pageSource, "html.parser")
+            except:
+                print("Einnews not working")
+                not_working_functions.append('Einnews')
+                err = "Main link did not load: " + queryUrl
+                Errors["Einnews"].append(err)
+                return           
+            
+            
+            try:
+            
+                for item in parsedSource.find("ul", class_="pr-feed").find_all("li"):
+                    requiredTag = item.find("h3")
+                    
+                    flag=0
+                    err=err_dict()
+                    
+                    try:
+                        currentArticleLink = requiredTag.find("a")["href"]
+                        # print(currentArticleLink)
+                        if currentArticleLink[0] == "/":
+                            links.append(domainUrl + currentArticleLink)
+                        else:
+                            links.append(currentArticleLink)
+                    except:
+                        err["link"]="Link extractor not working"
+                        Errors["Einnews"].append(err)
+                        continue
+                    
+                    try:
+                        currentArticleTitle = str(
+                            requiredTag.find("a").text).strip()
+                        
+                        titles.append(currentArticleTitle)
+                    except:
+                        err["link"]=currentArticleLink
+                        err['title']="Error"
+                        titles.append("-")
+                        flag=1
+                    
+                    
+                    try:    
+                        currentArticleDateText = item.find(
+                            "span", class_="date").text
+                        if re.search("^\d.*", currentArticleDateText):
+                                currentArticleDate = datetime.today().strftime("%d-%m-%Y")
+                                ArticleDates.append(currentArticleDate)
+                                ScrapeDates.append(
+                                datetime.today().strftime("%d-%m-%Y"))
+                        else:
+                            currentArticleDate = datetime.strptime(currentArticleDateText,
+                                                                        "%b %d, %Y").strftime("%d-%m-%Y")
+                            ArticleDates.append(currentArticleDate)
+                            ScrapeDates.append(
+                                datetime.today().strftime("%d-%m-%Y"))
+                    except:
+                        err["link"]=currentArticleLink
+                        err['published_date']="Error"
+                        ScrapeDates.append("-")
+                        flag=1
+                    
+                    try:
+                        articleText = ""
+                        for pitem in item.find_all("p"):
+                            articleText += pitem.text
+                        ArticleBody.append(articleText.strip("\n"))
+                    except:
+                        err["link"]=currentArticleLink
+                        err['text']="Error"
+                        ArticleBody.append("-")
+                        flag=1
+                    
+                    if flag==1:
+                        Errors["Einnews"].append(err)
+            except:
+                print("Einnews not working")
+                not_working_functions.append('Einnews')
+                Errors["Einnews"].append("Extraction of link not working.")
+                return
+
+            scrapedData["title"] = titles
+            scrapedData["link"] = links
+            scrapedData["publish_date"] = ArticleDates
+            scrapedData["scraped_date"] = ScrapeDates
+            scrapedData["text"] = ArticleBody
+                # print(titles)
+                # print(links)
+                # print(ArticleDates)
+                # print(ArticleBody)
+
+            # DataFrame creation
+            einnewsDF = pd.DataFrame(scrapedData)
+            df = FilterFunction(einnewsDF)
+            emptydataframe("Einnews", df)
+            return df
+        except:
+            not_working_functions.append("IPO Einnews")
+            print("EINnews not working") 
     
     
             
@@ -980,8 +1101,9 @@ def multilex_scraper(input_dir, output_dir):
     df2=proactive("ipo")
     df3=gulfbusiness()
     df4=investmentu()
+    df5=einnews()
     
-    df_final_1 = [ df1, df2, df3, df4]
+    df_final_1 = [ df1, df2, df3, df4, df5]
     
     
     
