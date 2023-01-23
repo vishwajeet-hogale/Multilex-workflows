@@ -14,6 +14,7 @@ import requests
 import nltk
 #nltk.download('punkt')                         # Please uncomment if you're running this program for first time
 import threading
+from GoogleNews import GoogleNews
 
 import logging
 from requests_html import HTMLSession
@@ -1386,6 +1387,108 @@ def multilex_scraper(input_dir, output_dir):
             return df1
     
     
+    def google_news():
+        try:
+            print("Google")
+            Errors["Google"]=[]
+            try:
+                googlenews = GoogleNews(period='24h')
+                googlenews.search('ipo listing OR nod for IPO OR approval for IPO OR planning for IPO OR aims IPO OR eyes Ipo')
+            except:
+                print("Google not working")
+                not_working_functions.append('Google')
+                err = "Error in Module "
+                Errors["Google"].append(err)
+                return
+            
+            links=[]
+            
+            try:
+                for i in range(3):
+                    for j in googlenews.page_at(i+1):
+                        links.append(j["link"])
+            except:
+                if len(links)==0:
+                            print("Google not working")
+                            not_working_functions.append('Google')
+                            Errors["Google"].append("Extraction of link not working.")
+                            return
+            
+            final_links = []
+            title, text, pub_date, scraped_date = [], [], [], []
+            today = date.today()
+            
+            def getartciles(link):
+                    flag=0
+                    err=err_dict()
+                    try:
+                        article = Article(link)
+                        article.download()
+                        article.parse()
+                        article.nlp()
+                    except:
+                        err["link"]="Link not working: "+link
+                        Errors["Google"].append(err)
+                        return
+                    
+                    try:
+                        published=date_correction_for_newspaper3k(article.publish_date)
+                        pub_date.append(published)
+                    except:
+                        err["link"]=link
+                        err['published_date']="Error"
+                        pub_date.append("-")
+                        flag=1
+                    
+                    try:
+                        title.append(article.title)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        title.append("-")
+                        flag=1
+                    
+                    try:
+                        text.append(article.text)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        text.append("-")
+                        flag=1
+
+                    scraped_date.append(str(today))
+                    
+                    if flag==1:
+                        Errors["Google"].append(err)
+
+                    final_links.append(link)
+            
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getartciles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame({"text": text, "link": final_links,
+                                "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+            
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Google", df)
+            
+            return df
+        
+        except:
+            print("Google not working")
+            not_working_functions.append('Google')
+        
+                
+    
             
             
     #                                  Final
@@ -1403,8 +1506,9 @@ def multilex_scraper(input_dir, output_dir):
     df7=Reuters("ipo")
     df8=Reuters("pre ipo")
     df9=Reuters("Initial Public Offering")
+    df10=google_news()
     
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10]
     
     
     
