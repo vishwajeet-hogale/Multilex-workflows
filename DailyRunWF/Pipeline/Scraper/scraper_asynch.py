@@ -32,6 +32,8 @@ import warnings
 import pytz
 from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 
@@ -1253,6 +1255,135 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("businessinsider")
             print("businessinsider not working")
+            
+        
+    
+    def Reuters(keyword):
+        print('Reuters')
+        Errors["Reuters"]=[]
+        headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+        try:
+            
+            title = []
+            text = []
+            s_dates = []
+            links = []
+            pub_date = []
+            try:
+                url = f'https://www.reuters.com/search/news?blob={keyword}&sortBy=date&dateRange=all'
+                url1 = 'https://www.reuters.com'
+                try:
+                    page = requests.get(url, headers=headers)
+                    soup = BeautifulSoup(page.content, 'html.parser')
+                except:
+                    print("Reuters not working")
+                    not_working_functions.append('Reuters')
+                    err = "Main link did not load: " + url
+                    Errors["Reuters"].append(err)
+                    return
+                try:    
+                    y = soup.findAll("h5", {"class": "search-result-timestamp"})
+                    for x in y:
+                        import re
+                        TAG_RE = re.compile(r'<[^>]+>')
+                        pubdate = TAG_RE.sub('', str(x))
+                        pub_date.append(str(pubdate))
+                    for i in range(1, len(soup.find_all('h3'))):
+                        pdd = soup.find_all('h3')[i]
+                        for a in pdd.find_all('a', href=True):
+                            links.append(url1 + a["href"])
+                except:
+                    if len(links)==0:
+                        print("Reuters not working")
+                        not_working_functions.append('Reuters')
+                        Errors["Reuters"].append("Extraction of link not working.")
+                        return
+                
+                
+                
+                
+                def getarticles(l):
+                    flag=0
+                    err=err_dict()
+                    try:
+                        fetch = requests.get(l, headers=headers)
+                        sp = BeautifulSoup(fetch.content, 'lxml')
+                    except:
+                        err["link"]="Link not working: "+l
+                        Errors["Reuters"].append(err)
+                        return
+                    
+                    
+                    try:
+                        x = sp.find("h1", {
+                                    "class": "text__text__1FZLe text__dark-grey__3Ml43 text__medium__1kbOh text__heading_3__1kDhc heading__base__2T28j heading__heading_3__3aL54 article-header__title__3Y2hh"})
+                        n = x.text
+                    except:
+                        err["link"]=l
+                        err['title']="Error"
+                        n="-"
+                        flag=1
+                        
+                    try:    
+                        z = sp.find(
+                            "div", {"class": "article-body__content__17Yit paywall-article"})
+                        k = z.text
+                    except:
+                        err["link"]=l
+                        err['text']="Error"
+                        k="-"
+                        flag=1
+                    
+                    
+                    if flag==1:
+                        Errors["Reuters"].append(err)
+                    # print(z)
+                    text.append(k)
+                    title.append(n)
+                    s_dates.append(cur_date)
+                    
+                thread_list=[]
+                length=len(links)
+                for i in range(length):
+                    thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+                
+                for thread in thread_list:
+                    thread.start()
+                
+                for thread in thread_list:
+                    thread.join()
+                
+                
+            except:
+                print('Reuters is not working')
+                not_working_functions.append('Reuters')
+            
+              
+                
+            
+            percentile_list = {'publish_date': pub_date, 'scraped_date': s_dates,
+                               'title': title, 'link': links, 'text': text}
+            
+            reuters = pd.DataFrame.from_dict(percentile_list, orient='index')
+            df = reuters.transpose()
+            df.dropna(inplace=True)
+            # df = FilterFunction(reuters)
+            emptydataframe("reuters", df)
+            logging.info("Reuters function ended")
+            # df  = link_correction(df)
+            return df
+        except:
+            df1 = pd.DataFrame(
+                columns=['title', 'link', 'publish_date', 'scraped_date'])
+            return df1
     
     
             
@@ -1269,8 +1400,11 @@ def multilex_scraper(input_dir, output_dir):
     df4=investmentu()
     df5=einnews()
     df6=businessinsider()
+    df7=Reuters("ipo")
+    df8=Reuters("pre ipo")
+    df9=Reuters("Initial Public Offering")
     
-    df_final_1 = [ df1, df2, df3, df4, df5, df6]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9]
     
     
     
