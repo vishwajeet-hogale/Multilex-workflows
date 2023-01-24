@@ -2786,7 +2786,7 @@ def multilex_scraper(input_dir, output_dir):
     df17=kenyanwallstreet()
     df18=thesundaily()
     
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, sf18]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18]
     
     
     
