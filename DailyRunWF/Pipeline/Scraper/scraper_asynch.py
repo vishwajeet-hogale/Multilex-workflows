@@ -15,6 +15,9 @@ import nltk
 #nltk.download('punkt')                         # Please uncomment if you're running this program for first time
 import threading
 from GoogleNews import GoogleNews
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 import logging
 from requests_html import HTMLSession
