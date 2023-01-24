@@ -1953,6 +1953,176 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("globenewswire")
             print("globenewswire not working")
+            
+    def bing_search():
+        try:
+            print("Bing")
+            Errors["Bing"]=[]
+            try:
+
+                site = "https://www.bing.com/news/search?q=eyes+Ipo+OR+Ipo+listing+OR+aims+for+Ipo+OR+eyes+Ipo+OR+upcoming+Ipos+Or+going+to+list"
+
+                hdr = {'User-Agent': 'Mozilla/5.0'}
+                req = rs(site, headers=hdr)
+                page = urlopen(req)
+                soup = BeautifulSoup(page, "html.parser")
+
+                x = soup.find("div", id="newsFilterV5")
+                x = x.ul.li.ul
+                for i in x.find_all("li"):
+                    if str(i.text) == "Past 24 hours":
+                        y = i.a.get('href')
+
+                time.sleep(0.4)
+
+                site = "https://www.bing.com"+y
+                
+                options = webdriver.ChromeOptions() 
+                options.headless = True
+                options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+                service = ChromeService(executable_path=ChromeDriverManager().install())
+                driver = webdriver.Chrome(service=service, options=options)
+                driver.get(site)
+                time.sleep(1) 
+                scroll_pause_time = 0.8
+                screen_height = driver.execute_script("return window.screen.height;")   # get the screen height of the web
+                i = 1
+                while True:
+                    driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))  
+                    i += 1
+                    time.sleep(scroll_pause_time)
+
+                    scroll_height = driver.execute_script("return document.body.scrollHeight;")  
+
+                    if (screen_height) * i > scroll_height:
+                        break 
+            except:
+                print("Bing not working")
+                not_working_functions.append('Bing')
+                err = "Error in main link finder"
+                Errors["Bing"].append(err)
+                return
+                
+
+            list_of_titles = []
+            list_of_text = []
+            list_of_links = []
+            list_of_published_dates = []
+            scraped_time = []
+            try:
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+            except:
+                print("Bing not working")
+                not_working_functions.append('Bing')
+                err = "driver page didn't load/Error in page produced by driver"
+                Errors["Bing"].append(err)
+                return
+
+            x= soup.find_all("div", class_="news-card newsitem cardcommon b_cards2")
+            
+            def getarticles(i):
+                current_time = datetime.now()
+                flag=0
+                err=err_dict()
+                try:
+                    link = i.find_all("a")[0].get('href')
+                    article = Article(link)
+                    article.download()
+                    article.parse()
+                    article.nlp()
+                except:
+                    try:
+                        link
+                        
+                        try:
+                            name = i.find("div", class_="t_t").a.text
+                        except:
+                            err["link"]=link
+                            err['title']="Error"
+                            name="-"
+                            flag=1
+                            
+
+                        try:
+                            text = i.find("div", class_="snippet").text
+                        except:
+                            err["link"]=link
+                            err['text']="Error"
+                            text="-"
+                            flag=1
+                        
+                        list_of_titles.append(name)
+                        list_of_text.append(text)
+                        list_of_links.append(link)
+                        list_of_published_dates.append(current_time)
+                        scraped_time.append(current_time)
+                        
+                        if flag==1:
+                            Errors["Bing"].append(err)
+                        return
+                    
+                    except:
+                        err["link"]="Link not extracted properly"
+                        Errors["Bing"].append(err)
+                        return
+                
+                try:
+                    name=article.title
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    name="-"
+                    flag=1
+                
+                try:
+                    text=article.text
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    text="-"
+                    flag=1
+
+                list_of_titles.append(name)
+                list_of_text.append(text)
+                list_of_links.append(link)
+                list_of_published_dates.append(current_time)
+                scraped_time.append(current_time)
+                
+                if flag==1:
+                    Errors["Bing"].append(err)
+            
+            
+            thread_list=[]
+            length=len(x)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(x[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+
+            scrapedData = {}
+
+            scrapedData["title"] = list_of_titles
+            scrapedData["link"] = list_of_links
+            scrapedData["publish_date"] = list_of_published_dates
+            scrapedData["scraped_date"] = scraped_time
+            scrapedData["text"] = list_of_text
+            bing_search = pd.DataFrame(scrapedData)
+
+
+            df = FilterFunction(bing_search)
+            emptydataframe("bing_search", df)
+            # df  = link_correction(df)
+            return df
+        except:
+            not_working_functions.append("IPO Bing_search")
+            print("Bing Search not working")
+            df1 = pd.DataFrame(
+                columns=['title', 'link', 'publish_date', 'scraped_date'])
+            return df1
         
                 
     
@@ -1977,8 +2147,9 @@ def multilex_scraper(input_dir, output_dir):
     df11=defenseworld()
     df12=technode()
     df13=globenewswire()
+    df14=bing_search()
     
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 ,df11,df12,df13]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 ,df11,df12,df13, df14]
     
     
     
