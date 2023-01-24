@@ -2024,7 +2024,7 @@ def multilex_scraper(input_dir, output_dir):
             x= soup.find_all("div", class_="news-card newsitem cardcommon b_cards2")
             
             def getarticles(i):
-                current_time = datetime.now()
+                current_time = date.today()
                 flag=0
                 err=err_dict()
                 try:
@@ -2829,7 +2829,7 @@ def multilex_scraper(input_dir, output_dir):
     else:
         err_file = input_dir + "/brief_err_file.txt"
         
-    with open(err_file, 'w') as f:
+    with open(err_file, 'w', encoding='utf-8') as f:
         for key, value in Errors.items():
             if len(value)!=0:
                 
