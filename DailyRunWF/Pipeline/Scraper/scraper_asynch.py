@@ -2035,33 +2035,8 @@ def multilex_scraper(input_dir, output_dir):
                     article.nlp()
                 except:
                     try:
-                        link
-                        
-                        try:
-                            name = i.find("div", class_="t_t").a.text
-                        except:
-                            err["link"]=link
-                            err['title']="Error"
-                            name="-"
-                            flag=1
-                            
-
-                        try:
-                            text = i.find("div", class_="snippet").text
-                        except:
-                            err["link"]=link
-                            err['text']="Error"
-                            text="-"
-                            flag=1
-                        
-                        list_of_titles.append(name)
-                        list_of_text.append(text)
-                        list_of_links.append(link)
-                        list_of_published_dates.append(current_time)
-                        scraped_time.append(current_time)
-                        
-                        if flag==1:
-                            Errors["Bing"].append(err)
+                        err["link"]="link not working"+link
+                        Errors["Bing"].append(err)
                         return
                     
                     except:
