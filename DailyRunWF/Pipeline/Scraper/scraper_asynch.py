@@ -3284,7 +3284,7 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_text = link[37:47]
+                    date_text = link[45:47]+"-"+link[42:44]+"-"+link[37:41]
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
                     # The date_text could be further modified to represent a proper date format
@@ -3588,7 +3588,7 @@ def multilex_scraper(input_dir, output_dir):
                 # Scraping the published date
                 try:
                     
-                    date_text=link[29:39]
+                    date_text=link[37:39]+"-"+link[34:36]+"-"+link[29:33]
                     
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
