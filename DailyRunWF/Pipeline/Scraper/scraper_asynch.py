@@ -995,6 +995,16 @@ def multilex_scraper(input_dir, output_dir):
             baseSearchUrl = "https://ipo.einnews.com/"
             domainUrl = "https://ipo.einnews.com"
             keywords = ['IPO', 'pre-IPO', 'initial public offering']
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
 
             # use this for faster testing
             scrapedData = {}
@@ -1007,10 +1017,7 @@ def multilex_scraper(input_dir, output_dir):
             
             queryUrl = baseSearchUrl
             try:
-                session = HTMLSession()
-                resp = session.post(queryUrl)
-                resp.html.render()
-                pageSource = resp.html.html
+                pageSource = requests.get(queryUrl, headers=headers).content
                 parsedSource = BeautifulSoup(pageSource, "html.parser")
             except:
                 print("Einnews not working")
@@ -1400,7 +1407,7 @@ def multilex_scraper(input_dir, output_dir):
             Errors["Google"]=[]
             try:
                 googlenews = GoogleNews(period='24h')
-                googlenews.search('ipo listing OR nod for IPO OR approval for IPO OR planning for IPO OR aims IPO OR eyes Ipo')
+                googlenews.search('ipo listing OR nod for IPO OR approval for IPO or planning for IPO')
             except:
                 print("Google not working")
                 not_working_functions.append('Google')
@@ -1967,7 +1974,7 @@ def multilex_scraper(input_dir, output_dir):
             Errors["Bing"]=[]
             try:
 
-                site = "https://www.bing.com/news/search?q=eyes+Ipo+OR+Ipo+listing+OR+aims+for+Ipo+OR+eyes+Ipo+OR+upcoming+Ipos+Or+going+to+list"
+                site = "https://www.bing.com/news/search?q=ipo+listing+OR+nod+for+IPO+OR+approval+for+IPO+or+planning+for+IPO"
 
                 hdr = {'User-Agent': 'Mozilla/5.0'}
                 req = rs(site, headers=hdr)
@@ -1986,6 +1993,8 @@ def multilex_scraper(input_dir, output_dir):
                 
                 options = webdriver.ChromeOptions() 
                 options.headless = True
+                options.add_argument('--no-sandbox')
+                options.add_argument('--disable-dev-shm-usage')
                 options.add_experimental_option('excludeSwitches', ['enable-logging']) 
                 service = ChromeService(executable_path=ChromeDriverManager().install())
                 driver = webdriver.Chrome(service=service, options=options)
@@ -2003,11 +2012,12 @@ def multilex_scraper(input_dir, output_dir):
 
                     if (screen_height) * i > scroll_height:
                         break 
-            except:
+            except Exception as e:
                 print("Bing not working")
                 not_working_functions.append('Bing')
                 err = "Error in main link finder"
                 Errors["Bing"].append(err)
+                print("Error: ", e)
                 return
                 
 
@@ -4432,7 +4442,7 @@ def multilex_scraper(input_dir, output_dir):
     
     
     
-    
+    df14=bing_search()
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness()
@@ -4446,7 +4456,6 @@ def multilex_scraper(input_dir, output_dir):
     df11=defenseworld()
     df12=technode()
     df13=globenewswire()
-    df14=bing_search()
     df15=autonews()
     df16=capacitymedia()
     df17=kenyanwallstreet()
@@ -4532,7 +4541,7 @@ logging.info("last line of scraper")
 
 if __name__ == "__main__":
     x=time.time()
-    multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\test",r"C:\Users\ujwal\OneDrive\Desktop\test")
+    multilex_scraper("","")
     y=time.time()
     print()
     print()
