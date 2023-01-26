@@ -4423,6 +4423,155 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("investmentweek")
             print("investmentweek not working")
+
+    def sundayobserver():
+        try:
+            print("sundayobserver")
+            Errors["sundayobserver"]=[]
+            
+            
+            
+            url = "https://www.sundayobserver.lk/search/node/ipo"
+            domain_url = "https://www.sundayobserver.lk/"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            li_class = "search-result"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            title_h1_class = "title"
+            date_span_class = ["date-display-single"]
+            para_div_class = ["field-item even"]
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("sundayobserver not working")
+                not_working_functions.append('sundayobserver')
+                err = "Main link did not load: " + url
+                Errors["sundayobserver"].append(err)
+                return
+            
+            
+            try:
+                
+                for h2_tag in soup.find_all("li", {"class": li_class}):
+                    for a in h2_tag.find_all("a", href=True):
+                        link = a["href"]  # Gets the link
+                        # Checking the link if it is a relative link
+                        if link[0] == '/':
+                            link = domain_url + link[1:]
+                        # Filtering advertaisment links
+                        link_start = domain_url
+                        if link.startswith(link_start):
+                            links.append(link)
+            except:
+                if len(links)==0:
+                    print("sundayobserver not working")
+                    not_working_functions.append('sundayobserver')
+                    Errors["sundayobserver"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "sundayobserver"
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["sundayobserver"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("h1", {"class": title_h1_class})
+                    data.append(title_ele.text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_text=link[38:40]+"-"+link[35:37]+"-"+link[30:34]
+                    #date_text = (date_text.split('/'))[-1]
+                    #date_text = date_text.replace(" Updated: ", "")
+                    # The date_text could be further modified to represent a proper date format
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    para_ele = (l_soup.findAll("div", {"class": para_div_class}))[-1]
+                    data.append(para_ele.text)  # Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["sundayobserver"].append(err)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("sundayobserver", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("sundayobserver")
+            print("sundayobserver not working")
                 
     
             
@@ -4462,8 +4611,9 @@ def multilex_scraper(input_dir, output_dir):
     df27=zdnet()
     df28=manilatimes()
     df29=investmentweek()
+    df30=sundayobserver()
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30]
     
     
     
