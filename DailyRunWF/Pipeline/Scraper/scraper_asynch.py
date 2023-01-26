@@ -159,6 +159,10 @@ def multilex_scraper(input_dir, output_dir):
                 i = "-".join(l1)
                 return i
             
+            elif (re.findall("\d{4}/\d{1,2}/\d{1,2}", i)):
+                i=i.split("/")[::-1]
+                return "-".join(i)
+            
             elif (re.findall("\d{1,2}/\w{3}/\d{4}", i)):
                 i = get_date_mname_d_y(re.findall("\d{1,2}/\w{3}/\d{4}", i)[0])
                 return i
