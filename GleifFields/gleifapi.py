@@ -53,7 +53,7 @@ def company_info1(companyname,iso):
         objects = []
         try:
                 for i in json_format['data']:
-        
+
                         key='relationships'
                         x = list(i.keys())
                         if(x.count(key) == 1):
@@ -95,8 +95,10 @@ def generate_final_file(df):
                 if "," in row["Companies"]:
                         company = row["Companies"].strip().split(",")[0]
                 print(company)
-                # word_length = len(company.split())
-                data = company_info1(" ".join(company.strip().split()[:-1]),row["Country"].strip())
+                word_length = len(company.split())
+                if word_length > 2:
+                        company = " ".join(company.strip().split()[:-1])
+                data = company_info1(company,row["Country"].strip())
                 if row["Country"] == data["country"]:
                         la.append(data["legalAddress"])
                         oa.append(data["officeAddress"])
@@ -114,7 +116,7 @@ def generate_final_file(df):
 
 #company_info("ABB E-mobility")
 if __name__ == "__main__":
-        df = pd.read_excel("PREIPO_2023-01-02.xlsx")
+        df = pd.read_excel("PREIPO_2023-01-12.xlsx")
         print(generate_final_file(df))
         # get_company_info("DIVGI TORQTRANSFER SYSTEMS LIMITED","IN")
         # "335800N9OHIPOMBP7C30"
