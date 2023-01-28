@@ -92,8 +92,33 @@ def multilex_scraper(input_dir, output_dir):
     def emptydataframe(name, df):
         if df.empty:
             not_working_functions.append(name+" : err : Empty datframe")
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "January",
-              "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    
+    formats = [
+            '%d-%m-%Y', '%d/%m/%Y', '%d %m %Y',
+            '%d-%b-%Y', '%d/%b/%Y', '%d %b %Y',
+            '%d-%B-%Y', '%d/%B/%Y', '%d %B %Y',
+            '%Y-%m-%d', '%Y/%m/%d', '%Y %m %d',
+            '%Y-%b-%d', '%Y/%b/%d', '%Y %b %d',
+            '%Y-%B-%d', '%Y/%B/%d', '%Y %B %d',
+            '%B %d, %Y', '%b %d, %Y',
+            '%m-%d-%Y', '%m/%d/%Y', '%m %d %Y',
+            '%b-%d-%Y', '%b/%d/%Y', '%b %d %Y',
+            '%B-%d-%Y', '%B/%d/%Y', '%B %d %Y'
+        ]
+
+    regexes = []
+    for fmt in formats:
+        # Replace %d, %m, %b, %B, and %Y with regular expression patterns
+        regex = fmt.replace(r'%d', r'([1-9]|0[1-9]|[1-2][0-9]|3[0-1])')
+        regex = regex.replace(r'%m', r'([1-9]|0[1-9]|1[0-2])')
+        regex = regex.replace(r'%b', r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)')
+        regex = regex.replace(r'%B', r'(January|February|March|April|May|June|July|August|September|October|November|December)')
+        regex = regex.replace(r'%Y', r'\d{4}')
+        regex = regex.replace(r" ", r"\s")
+        regex = r"\b"+regex+r"\b"
+        regexes.append(re.compile(regex, re.IGNORECASE))
+
+    
     logging.basicConfig(
         level=logging.DEBUG,
         format=log_format,
@@ -135,102 +160,19 @@ def multilex_scraper(input_dir, output_dir):
             link = link.split("&ct")[0]
         return link
 
-    def get_date_mname_d_y(date):
-        # Apr 21, 2022
-        # 21 Apr 2022
-        month = re.findall(
-            r'''(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)''', date)
-        m = str(months.index(month[0][0].strip()) % 12 + 1)
-        y = str(re.findall(r'\d{4}', date)[0])
-        day = str(re.findall(r'\d{1,2}', date)[0])
-        return "-".join([day, m, y])
-
-    def get_date_min_read(date):
-        # 2min read . Updated: 21 Apr 2022, time
-        return get_date_mname_d_y(date.split(":")[1].split(",")[0].strip())
-
     def correct_publish_date(i):
         try:
             i = str(i)
             i = i.strip()
-            if len(re.findall("\d{1,2}/\d{1,2}/\d{4}", i)):
-                hi = re.findall("\d{1,2}/\d{1,2}/\d{4}", i)
-                l1 = hi[0].split("/")
-                i = "-".join(l1)
-                return i
             
-            elif (re.findall("\d{4}/\d{1,2}/\d{1,2}", i)):
-                i=i.split("/")[::-1]
-                return "-".join(i)
-            
-            elif (re.findall("\d{1,2}/\w{3}/\d{4}", i)):
-                i = get_date_mname_d_y(re.findall("\d{1,2}/\w{3}/\d{4}", i)[0])
-                return i
-            
-            elif (re.findall(r'\d{1,2}-\d{1,2}-\d{4}', i)):
-                return i
-            
-            elif len(re.findall(r'\d{1,2}.\d{1,2}.\d{4}', i)) and i.find(":"):
-                if len(i.split(" ")) > 1:
-                    i = i.split(" ")[2].replace(".", "-")
-                    return i
-            
-            elif len(i.split("-")[0]) == 4:
-                i = "-".join(i.split("-")[::-1])
-                return i
-            
-            elif (len(re.findall("\d{1,2}\s\w{3}\s\d{4}", i))):
-
-                i = get_date_mname_d_y(re.findall(
-                    "\d{1,2}\s\w{3}\s\d{4}", i)[0])
-                # print(i)
-                return i
-            
-            elif (re.findall(r'min read . Updated:', i)):
-                i = get_date_min_read(i)
-                return i
-            
-            elif (len(i.split(".")) == 3):
-                if (len(i.split(".")[0]) == 4):
-                    i = "-".join(i.split(".")[::-1])
-                    return i
-                else:
-                    i = i.replace(".", "-")
-                    return i
-            
-            elif (i.count(":") >= 2):
-                if len(re.findall(r'T', i)):
-                    i = "-".join(i.split("T")[0].split("-")[::-1])
-                    return i
-                if len(re.findall(r'Newswire', i)):
-                    i = "-".join(i.strip().split(" ")[-3].split("-")[::-1])
-                    return i
-                i = i.split(" ")[0].strip()
-                if len(re.findall(r'[a-zA-Z]+', i)):
-                    i = get_date_mname_d_y(i)
-                else:
-                    i = "-".join(i.split("-")[::-1])
-                    return i
-            
-            
-            
-
-            i = get_date_mname_d_y(i)
-            return i
+        
+            for index, regex in enumerate(regexes):
+                for match in regex.finditer(i):
+                    date_string = match.group()
+                    return datetime.strptime(date_string, formats[index]).strftime("%d-%m-%Y")
+            return "Date"
         except:
-            i = i.strip()
-
-            i = translate(i)
-            month = re.findall(
-                r'''(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)''', i)
-            if not len(month):
-                i = "Date"
-                return i
-            m = str(months.index(month[0][0].strip()) % 12 + 1)
-            y = str(re.findall(r'\d{4}', i)[0])
-            day = str(re.findall(r'\d{1,2}', i)[0])
-            i = "-".join([day, m, y])
-            return i
+            return "Date"
 
     def correct_navigable_string(df1):
         try:
@@ -250,8 +192,11 @@ def multilex_scraper(input_dir, output_dir):
                 # Get the whole h2 tag
                     row["publish_date"] = str(soup.p.string)
                     row["publish_date"] = str(row["publish_date"]).strip()
+                    row["publish_date"] = str(row["publish_date"]).encode("utf-8", "ignore").decode("utf-8")
                     row["publish_date"] = correct_publish_date(
                         str(row["publish_date"]))
+                    row["text"] = row["text"].replace("â€™", "'")
+                    row["title"] = row["title"].replace("â€™", "'")
                     row["link"] = correct_link(str(row["link"]))
                 except:
                     #     # print(row)
@@ -4894,8 +4839,7 @@ def multilex_scraper(input_dir, output_dir):
     #                                  Final
     
     
-    
-    
+
     df14=bing_search()
     df1=korea()
     df2=proactive("ipo")
@@ -4930,13 +4874,14 @@ def multilex_scraper(input_dir, output_dir):
     df32=insideretail()
 
     df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32]
-    
+
     
     
        
     
     df_final = pd.concat(df_final_1)
 
+    
     todays_report_filename = os.path.join(output_dir, 'todays_report.csv')
     todays_report_filename1 = os.path.join(output_dir, 'todays_report1.csv')
     
