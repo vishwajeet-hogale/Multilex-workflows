@@ -4832,6 +4832,95 @@ def multilex_scraper(input_dir, output_dir):
             print("insideretail not working")
     
     
+    
+    def EconomicTimes():
+        try:
+            print("EconomicTimes")
+            Errors["EconomicTimes"]=[]
+            
+            url = "https://economictimes.indiatimes.com/markets/markets/ipos/fpos/news"
+            domain_url = "https://economictimes.indiatimes.com/"
+            title, links, text, pub_date, scraped_date = [], [], [], [], []
+            
+            try:
+                page = requests.get(url)
+                soup = BeautifulSoup(page.content, "html.parser")
+
+
+            except:
+                print("EconomicTimes not working")
+                not_working_functions.append('EconomicTimes')
+                err = "Main link did not load: " + url
+                Errors["EconomicTimes"].append(err)
+                return
+            
+            today = date.today()
+            
+            err=err_dict()
+            
+            print(len(soup.find_all('div', {'class': 'eachStory'})))
+            
+            try:
+                for a in soup.find_all('div', {'class': 'eachStory'}):
+                    try:
+                        link=domain_url+str(a.h3.a.get("href"))
+                        links.append(link)
+                        try:
+                            published=a.time.text
+                            if "ago" in published:
+                                pub_date.append(date.today())
+                            else:
+                                pub_date.append(published)
+                        except:
+                            err["link"]=link
+                            err['published_date']="Error"
+                            pub_date.append("-")
+                            flag=1
+                        
+                        try:
+                            title.append(a.h3.text)
+                        except:
+                            err["link"]=link
+                            err["title"]="Error"
+                            title.append("-")
+                            flag=1
+                        
+                        try:
+                            text.append(a.p.text)
+                        except:
+                            err["link"]=link
+                            err["title"]="Error"
+                            text.append("-")
+                            flag=1
+
+                        scraped_date.append(str(today))
+                        
+                        if flag==1:
+                            Errors["EconomicTimes"].append(err)
+                    except:
+                        continue 
+            except:
+                if len(links)==0:
+                    print("EconomicTimes not working")
+                    not_working_functions.append('EconomicTimes')
+                    Errors["EconomicTimes"].append("Extraction of link not working.")
+                    return
+                    
+            
+            
+            
+            df = pd.DataFrame({"text": text, "link": links,
+                              "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+            
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("EconomicTimes", df)
+            
+            return df
+        except:
+            print("EconomicTimes not working")
+            not_working_functions.append('EconomicTimes')
+    
                 
     
             
@@ -4839,7 +4928,7 @@ def multilex_scraper(input_dir, output_dir):
     #                                  Final
     
     
-
+    df33=EconomicTimes()
     df14=bing_search()
     df1=korea()
     df2=proactive("ipo")
@@ -4873,7 +4962,7 @@ def multilex_scraper(input_dir, output_dir):
     df31=reinsurancene()
     df32=insideretail()
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33]
 
     
     
