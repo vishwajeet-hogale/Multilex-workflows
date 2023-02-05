@@ -5075,15 +5075,15 @@ def multilex_scraper(input_dir, output_dir):
             print("seenews not working")
 
 
-    def globenewswire():
+    def shorttermrentalz():
         try:
-            print("globenewswire")
-            Errors["globenewswire"]=[]
+            print("shorttermrentalz")
+            Errors["shorttermrentalz"]=[]
             
             
             
-            url = "https://www.globenewswire.com/search/keyword/ipo"
-            domain_url = "https://www.globenewswire.com/"
+            url = "https://shorttermrentalz.com/?s=ipo"
+            domain_url = "https://shorttermrentalz.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -5093,21 +5093,21 @@ def multilex_scraper(input_dir, output_dir):
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-            div_class="pagging-list-item-text-container"# Class name of div containing the a tag
+            div_class="article-content clearfix"# Class name of div containing the a tag
             #h1_class = "_1Y-96"
             #h1_div_class = "col-xs-12"
-            title_h1_class= "article-headline"
-            date_span_class= ["article-published"]
-            para_div_class=["main-body-container article-body"]
+            title_header_class= "entry-header"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content clearfix"]
             links=[]
             try:
                 page = requests.get(url, headers=headers)
                 soup = BeautifulSoup(page.content, "html.parser")
             except:
-                print("globenewswire not working")
-                not_working_functions.append('globenewswire')
+                print("shorttermrentalz not working")
+                not_working_functions.append('shorttermrentalz')
                 err = "Main link did not load: " + url
-                Errors["globenewswire"].append(err)
+                Errors["shorttermrentalz"].append(err)
                 return
             
             
@@ -5125,9 +5125,9 @@ def multilex_scraper(input_dir, output_dir):
                             links.append(link)
             except:
                 if len(links)==0:
-                    print("globenewswire not working")
-                    not_working_functions.append('globenewswire')
-                    Errors["globenewswire"].append("Extraction of link not working.")
+                    print("shorttermrentalz not working")
+                    not_working_functions.append('shorttermrentalz')
+                    Errors["shorttermrentalz"].append("Extraction of link not working.")
                     return
                         
             # Remove duplicates
@@ -5135,7 +5135,7 @@ def multilex_scraper(input_dir, output_dir):
             
             # links # Debugging - if link array is generated
             collection = []
-            scrapper_name = "globenewswire"
+            scrapper_name = "shorttermrentalz"
             
             def getarticles(link):
                 flag=0
@@ -5145,7 +5145,7 @@ def multilex_scraper(input_dir, output_dir):
                     l_soup = BeautifulSoup(l_page.content, 'html.parser')
                 except:
                     err["link"]="Link not working: "+link
-                    Errors["globenewswire"].append(err)
+                    Errors["shorttermrentalz"].append(err)
                     return
                 
                 data = []
@@ -5154,7 +5154,7 @@ def multilex_scraper(input_dir, output_dir):
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
                 
                 try:
-                    title_ele = l_soup.find("h1",{"class":title_h1_class})
+                    title_ele = l_soup.find("header",{"class":title_header_class})
                     data.append(title_ele.text)
                 except:
                     err["link"]=link
@@ -5166,7 +5166,14 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_text = link[51:53]+"-"+link[48:50]+"-"+link[43:47]
+                    date_ele = l_soup.find("time",{"class":date_time_class})
+                    date_text = date_ele.text
+                    l1=date_text.split(" ")
+                    l1[0]=l1[0].strip("st")
+                    l1[0]=l1[0].strip("th")
+                    l1[0]=l1[0].strip("nd")
+                    l1[0]=l1[0].strip("rd")
+                    date_text=l1[0]+"-"+l1[1]+"-"+l1[2]
                     
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
@@ -5195,7 +5202,7 @@ def multilex_scraper(input_dir, output_dir):
                 # Adding data to a collection
                 
                 if flag==1:
-                    Errors["globenewswire"].append(err)
+                    Errors["shorttermrentalz"].append(err)
                 
                 collection.append(data)
                 
@@ -5217,13 +5224,13 @@ def multilex_scraper(input_dir, output_dir):
             # print(df) # For debugging. To check if df is created
             # print(err_logs) # For debugging - to check if any errors occoured
             df = FilterFunction(df)
-            emptydataframe("globenewswire", df)
+            emptydataframe("shorttermrentalz", df)
             # df  = link_correction(df)
             return df
         
         except:
-            not_working_functions.append("globenewswire")
-            print("globenewswire not working")
+            not_working_functions.append("shorttermrentalz")
+            print("shorttermrentalz not working")
     
     
                 
@@ -5267,7 +5274,7 @@ def multilex_scraper(input_dir, output_dir):
     df32=insideretail()
     df33=EconomicTimes()
     df34=seenews()
-    df35=globenewswire()
+    df35=shorttermrentalz()
 
     df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35]
 
