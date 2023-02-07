@@ -1352,7 +1352,7 @@ def multilex_scraper(input_dir, output_dir):
             Errors["Google"]=[]
             try:
                 googlenews = GoogleNews(period='24h')
-                googlenews.search('ipo listing OR nod for IPO OR approval for IPO or planning for IPO')
+                googlenews.search('eyes Ipo OR Ipo listing OR aims for Ipo OR Spac OR IPO')
             except:
                 print("Google not working")
                 not_working_functions.append('Google')
@@ -1919,7 +1919,7 @@ def multilex_scraper(input_dir, output_dir):
             Errors["Bing"]=[]
             try:
 
-                site = "https://www.bing.com/news/search?q=ipo+listing+OR+nod+for+IPO+OR+approval+for+IPO+or+planning+for+IPO"
+                site = "https://www.bing.com/news/search?q=eyes+Ipo+OR+Ipo+listing+OR+aims+for+Ipo+OR+Spac+OR+IPO"
 
                 hdr = {'User-Agent': 'Mozilla/5.0'}
                 req = rs(site, headers=hdr)
