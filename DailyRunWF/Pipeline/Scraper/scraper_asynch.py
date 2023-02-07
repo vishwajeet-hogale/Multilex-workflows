@@ -5954,8 +5954,8 @@ def multilex_scraper(input_dir, output_dir):
     df41=vietnamnet("fpo")
     df42=vietnamnet("spac")
     df43=thesydneymorningherald("ipo")
-    df44=thesydneymorningherald("ipo")
-    df45=thesydneymorningherald("ipo")
+    df44=thesydneymorningherald("fpo")
+    df45=thesydneymorningherald("spac")
 
     df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df40, df41, df42, df43, df44, df45]
 
