@@ -1402,6 +1402,11 @@ def multilex_scraper(input_dir, output_dir):
                     except:
                         err["link"]="Link not working: "+link
                         Errors["Google"].append(err)
+                        final_links.append(link)
+                        title.append(a)
+                        text.append(b)
+                        scraped_date.append(str(today))
+                        pub_date.append(str(today))
                         return
 
                     
