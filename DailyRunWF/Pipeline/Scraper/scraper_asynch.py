@@ -1351,7 +1351,11 @@ def multilex_scraper(input_dir, output_dir):
             print("Google")
             Errors["Google"]=[]
             try:
-                googlenews = GoogleNews(period='24h')
+                today = date.today()
+                yesterday = today - timedelta(days=1)
+                yesterday = str(yesterday.strftime("%m/%d/%Y"))
+                today = str(today.strftime("%m/%d/%Y"))
+                googlenews = GoogleNews(start=yesterday, end=today)
                 googlenews.search('eyes Ipo OR Ipo listing OR aims for Ipo OR Spac OR IPO')
             except:
                 print("Google not working")
@@ -1361,11 +1365,21 @@ def multilex_scraper(input_dir, output_dir):
                 return
             
             links=[]
+            titles=[]
+            texts=[]
             
             try:
-                for i in range(3):
+                for i in range(10):
                     for j in googlenews.page_at(i+1):
                         links.append(j["link"])
+                        try:
+                            titles.append(j["title"])
+                        except:
+                            titles.append("-")
+                        try:
+                            texts.append(j["desc"])
+                        except:
+                            texts.append("-")
             except:
                 if len(links)==0:
                             print("Google not working")
@@ -1377,7 +1391,7 @@ def multilex_scraper(input_dir, output_dir):
             title, text, pub_date, scraped_date = [], [], [], []
             today = date.today()
             
-            def getartciles(link):
+            def getartciles(link, a, b):
                     flag=0
                     err=err_dict()
                     try:
@@ -1389,33 +1403,32 @@ def multilex_scraper(input_dir, output_dir):
                         err["link"]="Link not working: "+link
                         Errors["Google"].append(err)
                         return
+
                     
                     try:
-                        published=date_correction_for_newspaper3k(article.publish_date)
-                        pub_date.append(published)
-                    except:
-                        err["link"]=link
-                        err['published_date']="Error"
-                        pub_date.append("-")
-                        flag=1
-                    
-                    try:
-                        title.append(article.title)
+                        if article.title:
+                            title.append(article.title)
+                        else:
+                            title.append(a)
                     except:
                         err["link"]=link
                         err["title"]="Error"
-                        title.append("-")
+                        title.append(a)
                         flag=1
                     
                     try:
-                        text.append(article.text)
+                        if article.text:
+                            text.append(article.text)
+                        else:
+                            text.append(b)
                     except:
                         err["link"]=link
                         err["title"]="Error"
-                        text.append("-")
+                        text.append(b)
                         flag=1
 
                     scraped_date.append(str(today))
+                    pub_date.append(str(today))
                     
                     if flag==1:
                         Errors["Google"].append(err)
@@ -1425,7 +1438,7 @@ def multilex_scraper(input_dir, output_dir):
             thread_list=[]
             length=len(links)
             for i in range(length):
-                thread_list.append(threading.Thread(target=getartciles, args=(links[i], )))
+                thread_list.append(threading.Thread(target=getartciles, args=(links[i],titles[i], texts[i], )))
             
             for thread in thread_list:
                 thread.start()
@@ -1979,23 +1992,46 @@ def multilex_scraper(input_dir, output_dir):
                 err = "driver page didn't load/Error in page produced by driver"
                 Errors["Bing"].append(err)
                 return
-
-            x= soup.find_all("div", class_="news-card newsitem cardcommon b_cards2")
             
-            def getarticles(i):
+            titles=[]
+            texts=[]
+            links=[]
+            x= soup.find_all("div", class_="news-card newsitem cardcommon b_cards2")
+            for i in x:
+                try:
+                    links.append(i.get("url"))
+                    try:
+                        titles.append(i.find("div", class_="t_t").a.text)
+                    except:
+                        titles.append("-")
+                    try:
+                        texts.append(i.find("div", class_="snippet").text)
+                    except:
+                        texts.append("-")
+                except:
+                    continue
+            
+                
+            
+            def getarticles(i, title, text1):
                 current_time = date.today()
                 flag=0
                 err=err_dict()
                 try:
-                    link = i.find_all("a")[0].get('href')
+                    link = i
                     article = Article(link)
                     article.download()
                     article.parse()
                     article.nlp()
                 except:
                     try:
-                        err["link"]="link not working"+link
+                        err["link"]="Article not working"+link
                         Errors["Bing"].append(err)
+                        list_of_titles.append(title)
+                        list_of_text.append(text1)
+                        list_of_links.append(link)
+                        list_of_published_dates.append(current_time)
+                        scraped_time.append(current_time)
                         return
                     
                     except:
@@ -2005,18 +2041,22 @@ def multilex_scraper(input_dir, output_dir):
                 
                 try:
                     name=article.title
+                    if name==None:
+                        name=title
                 except:
                     err["link"]=link
                     err['title']="Error"
-                    name="-"
+                    name=title
                     flag=1
                 
                 try:
                     text=article.text
+                    if text==None:
+                        text=text1
                 except:
                     err["link"]=link
                     err['text']="Error"
-                    text="-"
+                    text=text1
                     flag=1
 
                 list_of_titles.append(name)
@@ -2028,11 +2068,10 @@ def multilex_scraper(input_dir, output_dir):
                 if flag==1:
                     Errors["Bing"].append(err)
             
-            
             thread_list=[]
-            length=len(x)
+            length=len(links)
             for i in range(length):
-                thread_list.append(threading.Thread(target=getarticles, args=(x[i], )))
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], titles[i], texts[i], )))
             
             for thread in thread_list:
                 thread.start()
@@ -5863,6 +5902,8 @@ def multilex_scraper(input_dir, output_dir):
             
             
     #                                  Final
+    
+    
     
     
     df1=korea()
