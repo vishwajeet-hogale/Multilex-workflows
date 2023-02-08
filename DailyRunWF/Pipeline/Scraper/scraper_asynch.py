@@ -117,6 +117,15 @@ def multilex_scraper(input_dir, output_dir):
         regex = regex.replace(r" ", r"\s")
         regex = r"\b"+regex+r"\b"
         regexes.append(re.compile(regex, re.IGNORECASE))
+        
+    
+    options = webdriver.ChromeOptions() 
+    options.headless = True
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+    service = ChromeService(executable_path=ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
 
     
     logging.basicConfig(
@@ -1954,13 +1963,7 @@ def multilex_scraper(input_dir, output_dir):
 
                 site = "https://www.bing.com"+y
                 
-                options = webdriver.ChromeOptions() 
-                options.headless = True
-                options.add_argument('--no-sandbox')
-                options.add_argument('--disable-dev-shm-usage')
-                options.add_experimental_option('excludeSwitches', ['enable-logging']) 
-                service = ChromeService(executable_path=ChromeDriverManager().install())
-                driver = webdriver.Chrome(service=service, options=options)
+                
                 driver.get(site)
                 time.sleep(1) 
                 scroll_pause_time = 0.8
@@ -1997,7 +2000,7 @@ def multilex_scraper(input_dir, output_dir):
                 err = "driver page didn't load/Error in page produced by driver"
                 Errors["Bing"].append(err)
                 return
-            
+            driver.quit()
             titles=[]
             texts=[]
             links=[]
@@ -6355,12 +6358,129 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("albaniandailynews")
             print("albaniandailynews not working")
     
+    
+    def stock_eastmoney():
+        try:
+            print("stock_eastmoney")
+            Errors["stock_eastmoney"]=[]
+            
+            url = "http://stock.eastmoney.com/a/cxgyw.html"
+            
+            title, links, text, pub_date, scraped_date = [], [], [], [], []
+            
+            try:
+                driver.get(url)
+                soup = BeautifulSoup(driver.page_source, features="html.parser")
+                driver.quit()
+            except:
+                print("stock_eastmoney not working")
+                not_working_functions.append('stock_eastmoney')
+                err = "Main link did not load: " + url
+                Errors["stock_eastmoney"].append(err)
+                return
+            
+            links=[]
+            
+            try:
+                for i in soup.find("ul", id="newsListContent").find_all("li"):
+                    links.append(i.find("div", class_="text").find("p", class_="title").a.get("href"))
+                
+            except Exception as e:
+                if len(links)==0:
+                    print("stock_eastmoney not working")
+                    not_working_functions.append('stock_eastmoney')
+                    Errors["stock_eastmoney"].append("Extraction of link not working.")
+                    return
+                
+            final_links=[]
+            today = date.today()
+            
+            def getartciles(link):
+                    flag=0
+                    err=err_dict()
+                    try:
+                        page = requests.get(link)
+                        soup = BeautifulSoup(page.content, "html.parser")
+                        soup = soup.find("div", class_="contentwrap")
+                    except:
+                        err["link"]="Link not working: "+link
+                        Errors["stock_eastmoney"].append(err)
+                        return
+                    
+                    try:
+                        published=soup.find("div", class_="infos").div.text
+                        match = re.search(r"\d{4}.*\d{2}.*\d{2}", published)
+                        date = match.group()
+
+                        year = re.search(r"\d{4}", date).group()
+                        month = re.search(r"\d{2}", date[5:]).group()
+                        day = re.search(r"\d{2}", date[8:]).group()
+
+                        published = day + "/" + month + "/" + year
+                        pub_date.append(published)
+                    except:
+                        err["link"]=link
+                        err['published_date']="Error"
+                        pub_date.append("-")
+                        flag=1
+                    
+                    try:
+                        title.append(translate(soup.find("div", class_="title").text))
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        title.append("-")
+                        flag=1
+                    
+                    try:
+                        para=""
+                        for i in soup.find("div", id="ContentBody").find_all("p"):
+                            para+=" "+str(i.text)
+                        para=translate(para)
+                        text.append(para)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        text.append("-")
+                        flag=1
+
+                    scraped_date.append(str(today))
+                    
+                    if flag==1:
+                        Errors["stock_eastmoney"].append(err)
+
+                    final_links.append(link)
+            
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getartciles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            
+            df = pd.DataFrame({"text": text, "link": final_links,
+                              "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+            
+            emptydataframe("stock_eastmoney", df)
+            
+            print(df)
+            
+            return df
+                
+        except:
+            not_working_functions.append("stock_eastmoney")
+            print("stock_eastmoney not working")
+            
                 
     
             
             
     #                                  Final
-    
     
     
     
@@ -6418,8 +6538,9 @@ def multilex_scraper(input_dir, output_dir):
     df52=albaniandailynews("ipo")
     df53=albaniandailynews("fpo")
     df54=albaniandailynews("spac")
+    df55=stock_eastmoney()
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df40, df41, df42, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df40, df41, df42, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55]
 
     
     
