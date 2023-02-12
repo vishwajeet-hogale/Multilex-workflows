@@ -1,12 +1,3 @@
-#                                      Importing modules
-
-
-
-
-
-
-
-
 
 
 from newspaper import Article
@@ -6478,7 +6469,185 @@ def multilex_scraper(input_dir, output_dir):
             
                 
     
+    def straittimes():
+        #from selenium import webdriver
+        #from selenium.webdriver.chrome.options import Options
+        # from selenium.webdriver.chrome.service import Service as ChromeService
+        #from webdriver_manager.chrome import ChromeDriverManager
+        #import requests
+        
+        #import time
+        #from urllib.request import Request, urlopen
+        #from bs4 import BeautifulSoup
+        #from datetime import datetime,date
+        #from newspaper import Article
+        #import pandas as pd
+        #import threading
+    
+
+        try:
+            print("straittimes")
+            Errors={}
+
+            Errors["straittimes"]=[]
             
+            url = "https://www.straitstimes.com/search?searchkey=ipo"
+            domain_url = "http://www.straitstimes.com/"
+            title, links, text, pub_date, scraped_date = [], [], [], [], []
+
+           
+            options = webdriver.ChromeOptions() 
+            options.headless = True
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+
+            service = ChromeService(executable_path=ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
+            driver.get(url)
+            time.sleep(2)
+
+            html = driver.page_source
+            driver.quit()
+            
+            try:
+                sp=BeautifulSoup(html, 'lxml')
+
+                # we are in ipo page . one news corresponds to queryly_item_row item
+                all_divs = sp.find_all('div',{"class":"queryly_item_row"})     
+
+
+            except:
+                print("STrait time not working")
+                not_working_functions.append('straitimes')
+                err = "Main link did not load: " + url
+                Errors["straittimes"].append(err)
+                return
+            
+            try:
+                if (all_divs!=None): 
+                 for div1 in all_divs:
+                    if(div1!=None):
+                        date1=div1.find("div",{"class":"queryly_item_description"})
+                        
+                        #chck news publish date  from front page
+                        utext_main=""
+                        if (date1 != None):
+                            utext_main=date1.text
+                            utext_main=utext_main.lstrip()
+                            #print(utext_main)
+                            if(len(utext_main)>=12):
+                                temp1_month_year=utext_main[0:3]+" "+utext_main[8:12]
+                                #print(temp1_month_year)
+                                
+                                currentMonth = datetime.now().month
+                                currentYear = datetime.now().year
+                                monthdict={1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+                                currentMonthandYear=str(monthdict[currentMonth])+" "+str(currentYear)
+                                #print("\n\n...........\n\n")
+
+                                #print("temp1_month_year "+temp1_month_year)
+                                #print("currentMonthandYear " +currentMonthandYear)
+                                if(temp1_month_year==currentMonthandYear):
+                                    #print("Matched....the news belong to current month, proceed with new fetch details")
+                                    #pub_date.append(utext_main) 
+                                    
+                                    a_all=div1.find_all("a")
+                                    if(a_all!=None):
+                                        link=""
+                                        for a1 in a_all:
+                                            if((a1['href']!=None)):
+                                                link=a1['href']
+                                                links.append(link)
+                                                
+               
+            except:
+                if len(links)==0:
+                    print("straitimes not working")
+                    not_working_functions.append('Korea')
+                    Errors["straitimes"].append("Extraction of link not working.")
+                    return
+                    
+
+            final_links = []
+            today = date.today()
+            
+            # function starts 
+            def getartciles(link):
+                    flag=0
+                    err=err_dict()
+                    try:
+                        #print (" link which is a function parameter" , link)
+                        article = Article(link)
+                        article.download()
+                        article.parse()
+                        #article.nlp()
+            
+                    except:
+                        err["link"]="Link not working: "+link
+                        Errors["Korea"].append(err)
+                        return
+                    
+                    try:
+                        published=date_correction_for_newspaper3k(article.publish_date)
+                        pub_date.append(published)
+                        #print("publish date", pub_date)
+                    except:
+                        err["link"]=link
+                        err['published_date']="Error"
+                        pub_date.append("-")
+                        flag=1
+                    
+                    try:
+                        title.append(article.title)
+                        #print("title  .......", title)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        title.append("-")
+                        flag=1
+                    
+                    try:
+                        text.append(article.text)
+                        #print(" text ......", text)
+                    except:
+                        err["link"]=link
+                        err["title"]="Error"
+                        text.append("-")
+                        flag=1
+
+                    scraped_date.append(str(today))
+                    
+                    if flag==1:
+                        Errors["straitimes"].append(err)
+
+                    final_links.append(link)
+            
+            # function ends 
+
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getartciles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame({"text": text, "link": final_links,
+                              "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+            
+            df = df.drop_duplicates(subset=["link"])
+            df = FilterFunction(df)
+            emptydataframe("Korea", df)
+            
+            return df
+            
+        except:
+            print("straittimes not working")
+            not_working_functions.append('straittimes')        
             
     #                                  Final
     
@@ -6539,8 +6708,10 @@ def multilex_scraper(input_dir, output_dir):
     df53=albaniandailynews("fpo")
     df54=albaniandailynews("spac")
     df55=stock_eastmoney()
+    df56=straittimes()
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df40, df41, df42, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55]
+
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df40, df41, df42, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55,df56]
 
     
     
