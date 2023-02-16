@@ -7886,6 +7886,9 @@ def multilex_scraper(input_dir, output_dir):
     #                                  Final
     
     
+    df55=stock_eastmoney()
+    df14=bing_search()
+    df10=google_news()
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness()
@@ -7895,11 +7898,9 @@ def multilex_scraper(input_dir, output_dir):
     df7=Reuters("ipo")
     df8=Reuters("pre ipo")
     df9=Reuters("Initial Public Offering")
-    df10=google_news()
     df11=defenseworld()
     df12=technode()
     df13=globenewswire()
-    df14=bing_search()
     df15=autonews()
     df16=capacitymedia()
     df17=kenyanwallstreet()
@@ -7940,7 +7941,6 @@ def multilex_scraper(input_dir, output_dir):
     df52=albaniandailynews("ipo")
     df53=albaniandailynews("fpo")
     df54=albaniandailynews("spac")
-    df55=stock_eastmoney()
     df56=straittimes()
     df57=financialpost("ipo")
     df58=financialpost("fpo")
