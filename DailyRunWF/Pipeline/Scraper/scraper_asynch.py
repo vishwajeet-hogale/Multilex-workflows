@@ -1356,7 +1356,7 @@ def multilex_scraper(input_dir, output_dir):
                 yesterday = str(yesterday.strftime("%m/%d/%Y"))
                 today = str(today.strftime("%m/%d/%Y"))
                 googlenews = GoogleNews(start=yesterday, end=today)
-                googlenews.search('eyes Ipo OR Ipo listing OR aims for Ipo OR Spac OR IPO')
+                googlenews.search('IPO')
             except:
                 print("Google not working")
                 not_working_functions.append('Google')
@@ -1369,7 +1369,7 @@ def multilex_scraper(input_dir, output_dir):
             texts=[]
             
             try:
-                for i in range(10):
+                for i in range(30):
                     for j in googlenews.page_at(i+1):
                         links.append(j["link"])
                         try:
