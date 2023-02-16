@@ -110,13 +110,7 @@ def multilex_scraper(input_dir, output_dir):
         regexes.append(re.compile(regex, re.IGNORECASE))
         
     
-    options = webdriver.ChromeOptions() 
-    options.headless = True
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_experimental_option('excludeSwitches', ['enable-logging']) 
-    service = ChromeService(executable_path=ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    
 
     
     logging.basicConfig(
@@ -1954,6 +1948,14 @@ def multilex_scraper(input_dir, output_dir):
 
                 site = "https://www.bing.com"+y
                 
+                options = webdriver.ChromeOptions() 
+                options.headless = True
+                options.add_argument('--no-sandbox')
+                options.add_argument('--disable-dev-shm-usage')
+                options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+                service = ChromeService(executable_path=ChromeDriverManager().install())
+                driver = webdriver.Chrome(service=service, options=options)
+                
                 
                 driver.get(site)
                 time.sleep(1) 
@@ -1991,6 +1993,7 @@ def multilex_scraper(input_dir, output_dir):
                 err = "driver page didn't load/Error in page produced by driver"
                 Errors["Bing"].append(err)
                 return
+            driver.close()
             driver.quit()
             titles=[]
             texts=[]
@@ -6360,8 +6363,16 @@ def multilex_scraper(input_dir, output_dir):
             title, links, text, pub_date, scraped_date = [], [], [], [], []
             
             try:
+                options = webdriver.ChromeOptions() 
+                options.headless = True
+                options.add_argument('--no-sandbox')
+                options.add_argument('--disable-dev-shm-usage')
+                options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+                service = ChromeService(executable_path=ChromeDriverManager().install())
+                driver = webdriver.Chrome(service=service, options=options)
                 driver.get(url)
                 soup = BeautifulSoup(driver.page_source, features="html.parser")
+                driver.close()
                 driver.quit()
             except:
                 print("stock_eastmoney not working")
