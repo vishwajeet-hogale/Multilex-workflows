@@ -618,14 +618,14 @@ def multilex_scraper(input_dir, output_dir):
             
     
     
-    def gulfbusiness():
+    def gulfbusiness(keyword):
         try:
             print("gulfbusiness")
             Errors["gulfbusiness"]=[]
             
             
             
-            url = "https://gulfbusiness.com/?s=ipo"
+            url = f"https://gulfbusiness.com/?s={keyword}"
             domain_url = "https://gulfbusiness.com/"
             
 
@@ -772,14 +772,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("gulfbusiness")
             print("gulfbusiness not working")
     
-    def investmentu():
+    def investmentu(keyword):
         try:
             print("investmentu")
             Errors["investmentu"]=[]
             
             
             
-            url = "https://investmentu.com/?s=ipo"
+            url = f"https://investmentu.com/?s={keyword}"
             domain_url = "https://investmentu.com/"
             
 
@@ -1056,14 +1056,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("IPO Einnews")
             print("EINnews not working") 
 
-    def businessinsider():
+    def businessinsider(keyword):
         try:
             print("businessinsider")
             Errors["businessinsider"]=[]
             
             
             
-            url = "https://www.businessinsider.in/searchresult.cms?query=ipo&sortorder=score"
+            url = f"https://www.businessinsider.in/searchresult.cms?query={keyword}&sortorder=score"
             domain_url = "https://www.businessinsider.in/"
             
 
@@ -1458,14 +1458,14 @@ def multilex_scraper(input_dir, output_dir):
             print("Google not working")
             not_working_functions.append('Google')
 
-    def defenseworld():
+    def defenseworld(keyword):
         try:
             print("defenseworld")
             Errors["defenseworld"]=[]
             
             
             
-            url = "https://www.defenseworld.net/?s=ipo"
+            url = f"https://www.defenseworld.net/?s={keyword}"
             domain_url = "https://www.defenseworld.net/"
             
 
@@ -1614,14 +1614,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("defenseworld")
             print("defenseworld not working")
 
-    def technode():
+    def technode(keyword):
         try:
             print("technode")
             Errors["technode"]=[]
             
             
             
-            url = "https://technode.com/?s=ipo"
+            url = f"https://technode.com/?s={keyword}"
             domain_url = "https://technode.com/"
             
 
@@ -1770,14 +1770,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("technode")
             print("technode not working")
 
-    def globenewswire():
+    def globenewswire(keyword):
         try:
             print("globenewswire")
             Errors["globenewswire"]=[]
             
             
             
-            url = "https://www.globenewswire.com/search/keyword/ipo"
+            url = f"https://www.globenewswire.com/search/keyword/{keyword}"
             domain_url = "https://www.globenewswire.com/"
             
 
@@ -2102,14 +2102,14 @@ def multilex_scraper(input_dir, output_dir):
                 columns=['title', 'link', 'publish_date', 'scraped_date'])
             return df1
 
-    def autonews():
+    def autonews(keyword):
         try:
             print("autonews")
             Errors["autonews"]=[]
             
             
             
-            url = "https://www.autonews.com/search?search_phrase=ipo&field_emphasis_image=&sort_by=search_api_relevance"
+            url = f"https://www.autonews.com/search?search_phrase={keyword}&field_emphasis_image=&sort_by=search_api_relevance"
             domain_url = "https://www.autonews.com/"
             
 
@@ -2266,14 +2266,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("autonews")
             print("autonews not working")
 
-    def capacitymedia():
+    def capacitymedia(keyword):
         try:
             print("capacitymedia")
             Errors["capacitymedia"]=[]
             
             
             
-            url = "https://www.capacitymedia.com/search?q=IPO&f0=2022-01-27%3A&f0From=2022-01-27&f0To=&s=0"
+            url = f"https://www.capacitymedia.com/search?q={keyword}&f0=2022-01-27%3A&f0From=2022-01-27&f0To=&s=0"
             domain_url = "https://www.capacitymedia.com/"
             
 
@@ -2423,14 +2423,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("capacitymedia")
             print("capacitymedia not working")
 
-    def kenyanwallstreet():
+    def kenyanwallstreet(keyword):
         try:
             print("kenyanwallstreet")
             Errors["kenyanwallstreet"]=[]
             
             
             
-            url = "https://kenyanwallstreet.com/?s=ipo"
+            url = f"https://kenyanwallstreet.com/?s={keyword}"
             domain_url = "https://kenyanwallstreet.com/"
             
 
@@ -2580,14 +2580,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("kenyanwallstreet")
             print("kenyanwallstreet not working")
 
-    def thesundaily():
+    def thesundaily(keyword):
         try:
             print("thesundaily")
             Errors["thesundaily"]=[]
             
             
             
-            url = "https://www.thesundaily.my/search-result/-/search/ipo/false/false/19801109/20221109/date/true/true/0/0/meta/0/0/0/1"
+            url = f"https://www.thesundaily.my/search-result/-/search/{keyword}/false/false/19801109/20221109/date/true/true/0/0/meta/0/0/0/1"
             domain_url = "https://www.thesundaily.my/"
 
             headers = {
@@ -2732,14 +2732,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("thesundaily")
             print("thesundaily not working")
 
-    def digitaljournal():
+    def digitaljournal(keyword):
         try:
             print("digitaljournal")
             Errors["digitaljournal"]=[]
             
             
             
-            url = "https://www.digitaljournal.com/?s=ipo"
+            url = f"https://www.digitaljournal.com/?s={keyword}"
             domain_url = "https://www.digitaljournal.com/"
 
             headers = {
@@ -2884,14 +2884,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("digitaljournal")
             print("digitaljournal not working")
 
-    def asiafinancial():
+    def asiafinancial(keyword):
         try:
             print("asiafinancial")
             Errors["asiafinancial"]=[]
             
             
             
-            url = "https://www.asiafinancial.com/?s=ipo#"
+            url = f"https://www.asiafinancial.com/?s={keyword}#"
             domain_url = "https://www.asiafinancial.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3037,14 +3037,14 @@ def multilex_scraper(input_dir, output_dir):
             print("asiafinancial not working")
 
 
-    def stockhead():
+    def stockhead(keyword):
         try:
             print("stockhead")
             Errors["stockhead"]=[]
             
             
             
-            url = "https://stockhead.com.au/?s=ipo"
+            url = f"https://stockhead.com.au/?s={keyword}"
             domain_url = "https://stockhead.com.au/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3193,14 +3193,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("stockhead")
             print("stockhead not working")
 
-    def koreajoongangdaily():
+    def koreajoongangdaily(keyword):
         try:
             print("koreajoongangdaily")
             Errors["koreajoongangdaily"]=[]
             
             
             
-            url = "https://koreajoongangdaily.joins.com/section/searchResult/ipo?searchFlag=1"
+            url = f"https://koreajoongangdaily.joins.com/section/searchResult/{keyword}?searchFlag=1"
             domain_url = "https://koreajoongangdaily.joins.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3342,14 +3342,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("koreajoongangdaily")
             print("koreajoongangdaily not working")
 
-    def upstreamonline():
+    def upstreamonline(keyword):
         try:
             print("upstreamonline")
             Errors["upstreamonline"]=[]
             
             
             
-            url = "https://www.upstreamonline.com/archive/?languages=en&locale=en&q=ipo"
+            url = f"https://www.upstreamonline.com/archive/?languages=en&locale=en&q={keyword}"
             domain_url = "https://www.upstreamonline.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3496,14 +3496,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("upstreamonline")
             print("upstreamonline not working")
 
-    def etfdailynews():
+    def etfdailynews(keyword):
         try:
             print("etfdailynews")
             Errors["etfdailynews"]=[]
             
             
             
-            url = "https://www.etfdailynews.com/?s=ipo"
+            url = f"https://www.etfdailynews.com/?s={keyword}"
             domain_url = "https://www.etfdailynews.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3648,14 +3648,14 @@ def multilex_scraper(input_dir, output_dir):
             print("etfdailynews not working")
         
 
-    def splash247():
+    def splash247(keyword):
         try:
             print("splash247")
             Errors["splash247"]=[]
             
             
             
-            url = "https://splash247.com/?s=ipo"
+            url = f"https://splash247.com/?s={keyword}"
             domain_url = "https://splash247.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3802,14 +3802,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("splash247")
             print("splash247 not working")
 
-    def brisbanetimes():
+    def brisbanetimes(keyword):
         try:
             print("brisbanetimes")
             Errors["brisbanetimes"]=[]
             
             
             
-            url = "https://www.brisbanetimes.com.au/search?text=ipo"
+            url = f"https://www.brisbanetimes.com.au/search?text={keyword}"
             domain_url = "https://www.brisbanetimes.com.au/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -3956,14 +3956,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("brisbanetimes")
             print("brisbanetimes not working")
 
-    def zdnet():
+    def zdnet(keyword):
         try:
             print("zdnet")
             Errors["zdnet"]=[]
             
             
             
-            url = "https://www.zdnet.com/search/?q=ipo"
+            url = f"https://www.zdnet.com/search/?q={keyword}"
             domain_url = "https://www.zdnet.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -4113,14 +4113,14 @@ def multilex_scraper(input_dir, output_dir):
             print("zdnet not working")
 
 
-    def manilatimes():
+    def manilatimes(keyword):
         try:
             print("manilatimes")
             Errors["manilatimes"]=[]
             
             
             
-            url = "https://www.manilatimes.net/search?query=ipo"
+            url = f"https://www.manilatimes.net/search?query={keyword}"
             domain_url = "https://www.manilatimes.net/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -4267,14 +4267,14 @@ def multilex_scraper(input_dir, output_dir):
             print("manilatimes not working")
 
 
-    def investmentweek():
+    def investmentweek(keyword):
         try:
             print("investmentweek")
             Errors["investmentweek"]=[]
             
             
             
-            url = "https://www.investmentweek.co.uk/search?query=ipo&per_page=24&sort=relevance1&date=this_year"
+            url = f"https://www.investmentweek.co.uk/search?query={keyword}&per_page=24&sort=relevance1&date=this_year"
             domain_url = "https://www.investmentweek.co.uk/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -4420,14 +4420,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("investmentweek")
             print("investmentweek not working")
 
-    def sundayobserver():
+    def sundayobserver(keyword):
         try:
             print("sundayobserver")
             Errors["sundayobserver"]=[]
             
             
             
-            url = "https://www.sundayobserver.lk/search/node/ipo"
+            url = f"https://www.sundayobserver.lk/search/node/{keyword}"
             domain_url = "https://www.sundayobserver.lk/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -4569,14 +4569,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("sundayobserver")
             print("sundayobserver not working")
 
-    def reinsurancene():
+    def reinsurancene(keyword):
         try:
             print("reinsurancene")
             Errors["reinsurancene"]=[]
             
             
             
-            url = "https://www.reinsurancene.ws/?s=ipo"
+            url = f"https://www.reinsurancene.ws/?s={keyword}"
             domain_url = "https://www.reinsurancene.ws/"
 
             headers = {
@@ -4721,14 +4721,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("reinsurancene")
             print("reinsurancene not working")
 
-    def insideretail():
+    def insideretail(keyword):
         try:
             print("insideretail")
             Errors["insideretail"]=[]
             
             
             
-            url = "https://insideretail.com.au/?s=ipo"
+            url = f"https://insideretail.com.au/?s={keyword}"
             domain_url = "https://insideretail.com.au/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -4962,14 +4962,14 @@ def multilex_scraper(input_dir, output_dir):
             print("EconomicTimes not working")
             not_working_functions.append('EconomicTimes')
 
-    def seenews():
+    def seenews(keyword):
         try:
             print("seenews")
             Errors["seenews"]=[]
             
             
             
-            url = "https://seenews.com/search-results/?keywords=IPO&order_by=name&order=asc&optradio=on&company_id=&company_owner=&capital_from=&capital_to=&total_assets_from=&total_assets_to=&total_revenue_from=&total_revenue_to=&number_of_employees_from=&number_of_employees_to=&net_profit_from=&net_profit_to=&net_loss_from=&net_loss_to=&seeci_from=&seeci_to=&ebitda_from=&ebitda_to=&year=&statement_type="
+            url = f"https://seenews.com/search-results/?keywords={keyword}&order_by=name&order=asc&optradio=on&company_id=&company_owner=&capital_from=&capital_to=&total_assets_from=&total_assets_to=&total_revenue_from=&total_revenue_to=&number_of_employees_from=&number_of_employees_to=&net_profit_from=&net_profit_to=&net_loss_from=&net_loss_to=&seeci_from=&seeci_to=&ebitda_from=&ebitda_to=&year=&statement_type="
             domain_url = "https://seenews.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -5116,14 +5116,14 @@ def multilex_scraper(input_dir, output_dir):
             print("seenews not working")
 
 
-    def shorttermrentalz():
+    def shorttermrentalz(keyword):
         try:
             print("shorttermrentalz")
             Errors["shorttermrentalz"]=[]
             
             
             
-            url = "https://shorttermrentalz.com/?s=ipo"
+            url = f"https://shorttermrentalz.com/?s={keyword}"
             domain_url = "https://shorttermrentalz.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -5273,14 +5273,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("shorttermrentalz")
             print("shorttermrentalz not working")
 
-    def arabnews():
+    def arabnews(keyword):
         try:
             print("arabnews")
             Errors["arabnews"]=[]
             
             
             
-            url = "https://www.arabnews.com/search/site/ipo"
+            url = f"https://www.arabnews.com/search/site/{keyword}"
             domain_url = "https://www.arabnews.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -8060,38 +8060,94 @@ def multilex_scraper(input_dir, output_dir):
     df10=google_news()
     df1=korea()
     df2=proactive("ipo")
-    df3=gulfbusiness()
-    df4=investmentu()
-    df5=einnews()
-    df6=businessinsider()
+    df3=gulfbusiness("ipo")
+    df138=gulfbusiness("fpo")
+    df139=gulfbusiness("spac")
+    df4=investmentu("ipo")
+    df136=investmentu("fpo")
+    df137=investmentu("spac")
+    df5=einnews("ipo")
+    df134=einnews("fpo")
+    df135=einnews("spac")
+    df6=businessinsider("ipo")
+    df132=businessinsider("fpo")
+    df133=businessinsider("spac")
     df7=Reuters("ipo")
     df8=Reuters("pre ipo")
     df9=Reuters("Initial Public Offering")
-    df11=defenseworld()
-    df12=technode()
-    df13=globenewswire()
-    df15=autonews()
-    df16=capacitymedia()
-    df17=kenyanwallstreet()
-    df18=thesundaily()
-    df19=digitaljournal()
-    df20=asiafinancial()
-    df21=stockhead()
-    df22=koreajoongangdaily()
-    df23=upstreamonline()
-    df24=etfdailynews()
-    df25=splash247()
-    df26=brisbanetimes()
-    df27=zdnet()
-    df28=manilatimes()
-    df29=investmentweek()
-    df30=sundayobserver()
-    df31=reinsurancene()
-    df32=insideretail()
+    df11=defenseworld("ipo")
+    df130=defenseworld("fpo")
+    df131=defenseworld("spac")
+    df12=technode("ipo")
+    df128=technode("fpo")
+    df129=technode("spac")
+    df13=globenewswire("ipo")
+    df126=globenewswire("fpo")
+    df127=globenewswire("spac")
+    df15=autonews("ipo")
+    df124=autonews("fpo")
+    df125=autonews("spac")
+    df16=capacitymedia("ipo")
+    df122=capacitymedia("fpo")
+    df123=capacitymedia("spac")
+    df17=kenyanwallstreet("ipo")
+    df120=kenyanwallstreet("fpo")
+    df121=kenyanwallstreet("spac")
+    df18=thesundaily("ipo")
+    df118=thesundaily("fpo")
+    df119=thesundaily("spac")
+    df19=digitaljournal("ipo")
+    df116=digitaljournal("fpo")
+    df117=digitaljournal("spac")
+    df20=asiafinancial("ipo")
+    df114=asiafinancial("fpo")
+    df115=asiafinancial("spac")
+    df21=stockhead("ipo")
+    df112=stockhead("fpo")
+    df113=stockhead("spac")
+    df22=koreajoongangdaily("ipo")
+    df110=koreajoongangdaily("fpo")
+    df111=koreajoongangdaily("spac")
+    df23=upstreamonline("ipo")
+    df108=upstreamonline("fpo")
+    df109=upstreamonline("spac")
+    df24=etfdailynews("ipo")
+    df106=etfdailynews("fpo")
+    df107=etfdailynews("spac")
+    df25=splash247("ipo")
+    df104=splash247("fpo")
+    df105=splash247("spac")
+    df26=brisbanetimes("ipo")
+    df102=brisbanetimes("fpo")
+    df103=brisbanetimes("spac")
+    df27=zdnet("ipo")
+    df100=zdnet("fpo")
+    df101=zdnet("spac")
+    df28=manilatimes("ipo")
+    df98=manilatimes("fpo")
+    df99=manilatimes("spac")
+    df29=investmentweek("ipo")
+    df96=investmentweek("fpo")
+    df97=investmentweek("spac")
+    df30=sundayobserver("ipo")
+    df94=sundayobserver("fpo")
+    df95=sundayobserver("spac")
+    df31=reinsurancene("ipo")
+    df92=reinsurancene("fpo")
+    df93=reinsurancene("spac")
+    df32=insideretail("ipo")
+    df90=insideretail("fpo")
+    df91=insideretail("spac")
     df33=EconomicTimes()
-    df34=seenews()
-    df35=shorttermrentalz()
-    df36=arabnews()
+    df34=seenews("ipo")
+    df88=seenews("fpo")
+    df89=seenews("spac")
+    df35=shorttermrentalz("ipo")
+    df86=shorttermrentalz("fpo")
+    df87=shorttermrentalz("spac")
+    df36=arabnews("ipo")
+    df84=arabnews("fpo")
+    df85=arabnews("spac")
     df37=macaubusiness("ipo")
     df38=macaubusiness("fpo")
     df39=macaubusiness("spac")
@@ -8140,7 +8196,7 @@ def multilex_scraper(input_dir, output_dir):
     df83=uzdaily("spac")
 
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55, df56, df57, df58, df59, df60, df61, df62, df63, df64, df65, df66, df67, df68, df69, df70, df71, df72, df73, df74, df75, df76, df77, df78, df79, df80, df81, df82, df83]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10 , df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55, df56, df57, df58, df59, df60, df61, df62, df63, df64, df65, df66, df67, df68, df69, df70, df71, df72, df73, df74, df75, df76, df77, df78, df79, df80, df81, df82, df83,df84,df85,df86,df87,df88,df89,df90,df91,df92,df93,df94,df95,df96,df97,df98,df99,df100,df101,df102,df103,df104,df105,df106,df107,df108,df109,df110,df111,df112,df113,df114,df115,df116,df117,df118,df119,df120,df121,df122,df123,df124,df125,df126,df127,df128,df129,df130,df131,df132,df133,df134,df135,df136,df137,df138,df139]
 
     
     
