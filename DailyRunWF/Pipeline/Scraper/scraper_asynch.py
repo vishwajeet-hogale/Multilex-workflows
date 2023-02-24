@@ -928,7 +928,7 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("investmentu")
             print("investmentu not working")
     
-    def einnews(param):
+    def einnews():
         try:
             print("IPO EinNews")
             Errors["Einnews"]=[]
@@ -8551,31 +8551,47 @@ def multilex_scraper(input_dir, output_dir):
 
             service = ChromeService(executable_path=ChromeDriverManager().install())
             driver = webdriver.Chrome(service=service, options=options)
-            driver.get(ipo_url)
-            html = driver.page_source
-            driver.quit()
+            
+            try:
+                driver.get(ipo_url)
+                html = driver.page_source
+                driver.quit()
+                soup=BeautifulSoup(html,"html.parser")
+            except:
+                print("Bangkok_post not working")
+                not_working_functions.append('Bangkok_post')
+                err = "Main link did not load: " + ipo_url
+                Errors["Bangkok_post"].append(err)
+                return
 
-            soup=BeautifulSoup(html,"html.parser")
+            
 
             #navigating to ul first where class is searchlist 
+            
+            try:
+                al_ul=soup.find("ul",{"class":"SearchList"})
+                li=al_ul.find_all("li")
+                if (li !=None):
+                    for item in li:
+                        if (item !=None):
 
-            al_ul=soup.find("ul",{"class":"SearchList"})
-            li=al_ul.find_all("li")
-            if (li !=None):
-                for item in li:
-                    if (item !=None):
+                            link_item=item.find("h3")
+                            if (link_item !=None):
 
-                        link_item=item.find("h3")
-                        if (link_item !=None):
+                                
+                                link_i=link_item.find('a', href=True)
+                                
+                                if (link_i !=None):
+                                    link_i1=link_i['href']
 
-                            
-                            link_i=link_item.find('a', href=True)
-                            
-                            if (link_i !=None):
-                                link_i1=link_i['href']
-
-                                #print("link_i's......",link_i1)
-                                links1.append(link_i1)
+                                    #print("link_i's......",link_i1)
+                                    links1.append(link_i1)
+            except:
+                if len(links1)==0:
+                    print("Bangkok_post not working")
+                    not_working_functions.append('Bangkok_post')
+                    Errors["Bangkok_post"].append("Extraction of link not working.")
+                    return
 
             def getArticles(link1):
                 flag=0
@@ -8712,8 +8728,6 @@ def multilex_scraper(input_dir, output_dir):
             #print("df .................", df)
             df = FilterFunction(df)
             emptydataframe("bankokpost", df)
-            print(df)
-            print(Errors["Bangkok_post"])
             return df
                     
         except:
