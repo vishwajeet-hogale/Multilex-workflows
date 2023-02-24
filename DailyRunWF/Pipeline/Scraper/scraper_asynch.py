@@ -8728,8 +8728,6 @@ def multilex_scraper(input_dir, output_dir):
             #print("df .................", df)
             df = FilterFunction(df)
             emptydataframe("bankokpost", df)
-            print(df)
-            print(Errors["Bangkok_post"])
             return df
                     
         except:
