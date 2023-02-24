@@ -928,7 +928,7 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("investmentu")
             print("investmentu not working")
     
-    def einnews(param):
+    def einnews():
         try:
             print("IPO EinNews")
             Errors["Einnews"]=[]
