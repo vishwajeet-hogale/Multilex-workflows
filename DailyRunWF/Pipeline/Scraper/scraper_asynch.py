@@ -1,6 +1,6 @@
 
 
-from newspaper import Article
+from newspaper import Article, Config
 import requests
 import nltk
 #nltk.download('punkt')                         # Please uncomment if you're running this program for first time
@@ -6421,7 +6421,7 @@ def multilex_scraper(input_dir, output_dir):
                         day = re.search(r"\d{2}", date[8:]).group()
 
                         published = day + "/" + month + "/" + year
-                        pub_date.append(published)
+                        
                     except:
                         err["link"]=link
                         err['published_date']="Error"
@@ -6429,7 +6429,8 @@ def multilex_scraper(input_dir, output_dir):
                         flag=1
                     
                     try:
-                        title.append(translate(soup.find("div", class_="title").text))
+                        ti=translate(soup.find("div", class_="title").text)
+                        
                     except:
                         err["link"]=link
                         err["title"]="Error"
@@ -6441,7 +6442,7 @@ def multilex_scraper(input_dir, output_dir):
                         for i in soup.find("div", id="ContentBody").find_all("p"):
                             para+=" "+str(i.text)
                         para=translate(para)
-                        text.append(para)
+                        
                     except:
                         err["link"]=link
                         err["title"]="Error"
@@ -6452,8 +6453,11 @@ def multilex_scraper(input_dir, output_dir):
                     
                     if flag==1:
                         Errors["stock_eastmoney"].append(err)
-
+                    
+                    text.append(para)    
+                    title.append(ti)
                     final_links.append(link)
+                    pub_date.append(published)
             
             thread_list=[]
             length=len(links)
@@ -8531,10 +8535,6 @@ def multilex_scraper(input_dir, output_dir):
 
 
     def bankok_post(param):
-        from newspaper import Config 
-        from selenium.webdriver.chrome.service import Service as ChromeService
-        from webdriver_manager.chrome import ChromeDriverManager
-        
         try:
                 print("Bangkok Post......")
                 error_list=[]
@@ -8591,12 +8591,12 @@ def multilex_scraper(input_dir, output_dir):
                                 article.parse()
 
                                 #link
-                                links.append (link1)
                                 
 
                                 #title
                                 try:
-                                    title.append(article.title)
+                                    ti=article.title
+                                    
                                     #print(article.text)
                                 except:
                                     err["link"]=link1
@@ -8606,8 +8606,9 @@ def multilex_scraper(input_dir, output_dir):
 
                                 #text
                                 try:
-                                    #print(" text " + article.text)
-                                    text.append(article.text)
+                                    #print(" text " + article.text)\
+                                    te=article.text
+                                    
                                     
                                 except:
                                     err["link"]=link1
@@ -8669,7 +8670,7 @@ def multilex_scraper(input_dir, output_dir):
 
 
 
-                                    pub_date.append(published) 
+                                    
 
 
                                 except:
@@ -8679,23 +8680,25 @@ def multilex_scraper(input_dir, output_dir):
                                     flag=1
 
                                 #scrape date 
+                                
+                                text.append(te)
+                                links.append (link1)
+                                title.append(ti)
+                                pub_date.append(published) 
                                 today=date.today()
                                 scraped_date.append(str(today))
 
 
-                #thread_list=[]
                 length=len(links1)
+                thread_list=[]
                 for i in range(length):
-                        getArticles(links1[i])
-
-                #commenting THREAD IMPLEMENTATION as it is jumbling the data for different news link
-                        #thread_list.append(threading.Thread(target=getArticles, args=(links1[i], )))
+                        thread_list.append(threading.Thread(target=getArticles, args=(links1[i], )))
                             
-                #for thread in thread_list:
-                        #thread.start()
+                for thread in thread_list:
+                        thread.start()
                             
-                #for thread in thread_list:
-                        #thread.join()
+                for thread in thread_list:
+                        thread.join()
 
                 
                             
@@ -8862,6 +8865,7 @@ def multilex_scraper(input_dir, output_dir):
                     err = "Main link did not load "
                     Errors["himalayantimes"].append(err)
                     return
+    
 
     def tradingcharts(keyword):
         try:
