@@ -6425,7 +6425,7 @@ def multilex_scraper(input_dir, output_dir):
                     except:
                         err["link"]=link
                         err['published_date']="Error"
-                        pub_date.append("-")
+                        published = "-"
                         flag=1
                     
                     try:
@@ -6434,7 +6434,7 @@ def multilex_scraper(input_dir, output_dir):
                     except:
                         err["link"]=link
                         err["title"]="Error"
-                        title.append("-")
+                        ti="-"
                         flag=1
                     
                     try:
@@ -6446,7 +6446,7 @@ def multilex_scraper(input_dir, output_dir):
                     except:
                         err["link"]=link
                         err["title"]="Error"
-                        text.append("-")
+                        para="-"
                         flag=1
 
                     scraped_date.append(str(today))
@@ -8536,181 +8536,185 @@ def multilex_scraper(input_dir, output_dir):
 
     def bankok_post(param):
         try:
-                print("Bangkok Post......")
-                error_list=[]
-                title,links,links1,text,pub_date,scraped_date = [],[],[],[],[],[]
-                main_url="https://www.bangkokpost.com/"
-                ipo_url="https://search.bangkokpost.com/search/result?category=all&&q="+param
+            print("Bangkok Post......")
+            Errors["Bangkok_post"]=[]
+            title,links,links1,text,pub_date,scraped_date = [],[],[],[],[],[]
+            main_url="https://www.bangkokpost.com/"
+            ipo_url="https://search.bangkokpost.com/search/result?category=all&&q="+param
 
 
-                options = webdriver.ChromeOptions() 
-                options.headless = True
-                options.add_argument('--no-sandbox')
-                options.add_argument('--disable-dev-shm-usage')
-                options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+            options = webdriver.ChromeOptions() 
+            options.headless = True
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
 
-                service = ChromeService(executable_path=ChromeDriverManager().install())
-                driver = webdriver.Chrome(service=service, options=options)
-                driver.get(ipo_url)
-                html = driver.page_source
-                driver.quit()
+            service = ChromeService(executable_path=ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
+            driver.get(ipo_url)
+            html = driver.page_source
+            driver.quit()
 
-                soup=BeautifulSoup(html,"html.parser")
+            soup=BeautifulSoup(html,"html.parser")
 
-                #navigating to ul first where class is searchlist 
+            #navigating to ul first where class is searchlist 
 
-                al_ul=soup.find("ul",{"class":"SearchList"})
-                li=al_ul.find_all("li")
-                if (li !=None):
-                    for item in li:
-                        if (item !=None):
+            al_ul=soup.find("ul",{"class":"SearchList"})
+            li=al_ul.find_all("li")
+            if (li !=None):
+                for item in li:
+                    if (item !=None):
 
-                            link_item=item.find("h3")
-                            if (link_item !=None):
+                        link_item=item.find("h3")
+                        if (link_item !=None):
 
-                               
-                                link_i=link_item.find('a', href=True)
-                                
-                                if (link_i !=None):
-                                    link_i1=link_i['href']
-
-                                    #print("link_i's......",link_i1)
-                                    links1.append(link_i1)
-
-                def getArticles(link1):
-                                flag=0
-                                err=err_dict()
-                                user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-                                config = Config()
-                                config.browser_user_agent = user_agent
-                                config.request_timeout = 120
-                                article = Article(link1, config = config)
-                                time.sleep(2)
-                                article.download()
-                                time.sleep(3)
-                                article.parse()
-
-                                #link
-                                
-
-                                #title
-                                try:
-                                    ti=article.title
-                                    
-                                    #print(article.text)
-                                except:
-                                    err["link"]=link1
-                                    err["title"]="Error"
-                                    title.append("-")
-                                    flag=1
-
-                                #text
-                                try:
-                                    #print(" text " + article.text)\
-                                    te=article.text
-                                    
-                                    
-                                except:
-                                    err["link"]=link1
-                                    err["text"]="Error"
-                                    title.append("-")
-                                    flag=1
                             
-                                #publish_date
-                                
-                                try:
-                                    headers = {
-                                                            "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-                                                            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                                                            'sec-fetch-site': 'none',
-                                                            'sec-fetch-mode': 'navigate',
-                                                            'sec-fetch-user': '?1',
-                                                            'sec-fetch-dest': 'document',
-                                                            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-                                                        }
-                                    page11=requests.get(link1,headers=headers)
-                                    soup1=BeautifulSoup(page11.content,"html.parser")
-                                    published="-"
-                                    al_date=soup1.find("div",{"class":"article-info"})
-                                    if (al_date !=None):
-                                        date_time=al_date.find("div",{"class":"row"})
-                                        if(date_time !=None):
-                                            date_item=date_time.find("div",{"class":"col-15 col-md"})
-                                            if(date_item !=None):
-                                                date_para=date_item.find("p")
-                                                if (date_para.text !=None):
-                                                    
-                                                    date_string=date_para.text[11:]
-                                                    date_string1=date_string.strip()
-                                                    
-                                                    publish_date21=date_string1[:11]
+                            link_i=link_item.find('a', href=True)
+                            
+                            if (link_i !=None):
+                                link_i1=link_i['href']
 
-                                                    # Full month format
-                                                    full_month_format = "%d %b %Y"
+                                #print("link_i's......",link_i1)
+                                links1.append(link_i1)
 
-                                                    # Convert the string into a datetime object
-                                                    publish_date2=datetime.strptime(publish_date21, full_month_format)
-                                                    
-                                                    published=date_correction_for_newspaper3k(publish_date2)
+            def getArticles(link1):
+                flag=0
+                err=err_dict()
+                user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+                config = Config()
+                config.browser_user_agent = user_agent
+                config.request_timeout = 120
+                try:
+                    article = Article(link1, config = config)
+                    time.sleep(2)
+                    article.download()
+                    time.sleep(3)
+                    article.parse()
+                except:
+                    err["link"]="Link not working: "+link1
+                    Errors["Bangkok_post"].append(err)
+                    return
 
+                #link
+            
 
-                                    elif (al_date ==None):
-                                        all_date=soup1.find("div",{"class":"media-headline"})
-                                        if (all_date !=None):
-                                            date_para=all_date.find ("div",{"class":"f-icon"})
-                                            date_string=date_para.text[11:]
-                                            date_string1=date_string.strip()
-                                        
-                                            full_month_format = "%d %b %Y"
+                #title
+                try:
+                    ti=article.title
+                    
+                    #print(article.text)
+                except:
+                    err["link"]=link1
+                    err["title"]="Error"
+                    ti="-"
+                    flag=1
 
-                                            # Convert the string into a datetime object
-                                            publish_date2=datetime.strptime(date_string1, full_month_format)
-                                            
-                                            published=date_correction_for_newspaper3k(publish_date2)
-
-
-
+                #text
+                try:
+                    #print(" text " + article.text)\
+                    te=article.text
+                    
+                    
+                except:
+                    err["link"]=link1
+                    err["text"]="Error"
+                    te="-"
+                    flag=1
+            
+                #publish_date
+                
+                try:
+                    headers = {
+                                            "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+                                            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                                            'sec-fetch-site': 'none',
+                                            'sec-fetch-mode': 'navigate',
+                                            'sec-fetch-user': '?1',
+                                            'sec-fetch-dest': 'document',
+                                            'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                                        }
+                    page11=requests.get(link1,headers=headers)
+                    soup1=BeautifulSoup(page11.content,"html.parser")
+                    published="-"
+                    al_date=soup1.find("div",{"class":"article-info"})
+                    if (al_date !=None):
+                        date_time=al_date.find("div",{"class":"row"})
+                        if(date_time !=None):
+                            date_item=date_time.find("div",{"class":"col-15 col-md"})
+                            if(date_item !=None):
+                                date_para=date_item.find("p")
+                                if (date_para.text !=None):
                                     
+                                    date_string=date_para.text[11:]
+                                    date_string1=date_string.strip()
+                                    
+                                    publish_date21=date_string1[:11]
+
+                                    # Full month format
+                                    full_month_format = "%d %b %Y"
+
+                                    # Convert the string into a datetime object
+                                    publish_date2=datetime.strptime(publish_date21, full_month_format)
+                                    
+                                    published=date_correction_for_newspaper3k(publish_date2)
 
 
-                                except:
-                                    err["link"]=link1
-                                    err['published_date']="Error"
-                                    pub_date.append("-")
-                                    flag=1
+                    elif (al_date ==None):
+                        all_date=soup1.find("div",{"class":"media-headline"})
+                        if (all_date !=None):
+                            date_para=all_date.find ("div",{"class":"f-icon"})
+                            date_string=date_para.text[11:]
+                            date_string1=date_string.strip()
+                        
+                            full_month_format = "%d %b %Y"
 
-                                #scrape date 
-                                
-                                text.append(te)
-                                links.append (link1)
-                                title.append(ti)
-                                pub_date.append(published) 
-                                today=date.today()
-                                scraped_date.append(str(today))
-
-
-                length=len(links1)
-                thread_list=[]
-                for i in range(length):
-                        thread_list.append(threading.Thread(target=getArticles, args=(links1[i], )))
+                            # Convert the string into a datetime object
+                            publish_date2=datetime.strptime(date_string1, full_month_format)
                             
-                for thread in thread_list:
-                        thread.start()
-                            
-                for thread in thread_list:
-                        thread.join()
+                            published=date_correction_for_newspaper3k(publish_date2)
+                
+                except:
+                    err["link"]=link1
+                    err['published_date']="Error"
+                    published="-"
+                    flag=1
+                
+                if flag==1:
+                    Errors["Bangkok_post"].append(err)
+                
+                text.append(te)
+                links.append (link1)
+                title.append(ti)
+                pub_date.append(published) 
+                today=date.today()
+                scraped_date.append(str(today))
 
                 
-                            
-                df = pd.DataFrame({"text": text, "link": links,
-                                            "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
-                            
-                df = df.drop_duplicates(subset=["link"])
-                #print("df .................", df)
-                df = FilterFunction(df)
-                emptydataframe("bankokpost", df)
-                
-                return df
+
+
+            length=len(links1)
+            thread_list=[]
+            for i in range(length):
+                    thread_list.append(threading.Thread(target=getArticles, args=(links1[i], )))
+                        
+            for thread in thread_list:
+                    thread.start()
+                        
+            for thread in thread_list:
+                    thread.join()
+
+            
+                        
+            df = pd.DataFrame({"text": text, "link": links,
+                                        "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
+                        
+            df = df.drop_duplicates(subset=["link"])
+            #print("df .................", df)
+            df = FilterFunction(df)
+            emptydataframe("bankokpost", df)
+            print(df)
+            print(Errors["Bangkok_post"])
+            return df
                     
         except:
             print("Bangkok post  not working")
