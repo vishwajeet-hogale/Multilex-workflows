@@ -159,7 +159,7 @@ def multilex_scraper(input_dir, output_dir):
             i = str(i)
             i = i.strip()
             if ("/" in i) or ("-" in i):
-                i = i.replace(" ", "")
+                i = "".join(i.split())
             
         
             for index, regex in enumerate(regexes):
