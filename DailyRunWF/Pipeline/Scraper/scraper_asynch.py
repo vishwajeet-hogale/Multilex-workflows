@@ -869,6 +869,8 @@ def multilex_scraper(input_dir, output_dir):
                 try:
                     date_ele = l_soup.find("time",{"class":date_time_class})
                     date_text = date_ele.text[0:12]
+                    l=date_text.split(" ")
+                    date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2]
 
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
