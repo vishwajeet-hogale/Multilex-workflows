@@ -1159,7 +1159,7 @@ def multilex_scraper(input_dir, output_dir):
                     date_ele = l_soup.find("span",{"class":date_span_class})
                     date_text = date_ele.text[0:14]
                     date_text.split(" ")
-                    date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2].strip((","))
+                    date_text=date_text[1].strip(",")+"-"+date_text[0]+"-"+date_text[2].strip((","))
 
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
