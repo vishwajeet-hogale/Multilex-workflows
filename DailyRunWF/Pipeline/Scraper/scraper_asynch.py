@@ -1156,10 +1156,10 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_ele = l_soup.find("span",{"class":date_span_class})
+                    date_ele = l_soup.find("span",{"class":"Date"})
                     date_text = date_ele.text[0:14]
-                    date_text.split(" ")
-                    date_text=date_text[1].strip(",")+"-"+date_text[0]+"-"+date_text[2].strip((","))
+                    date_text=date_text.split(",")
+                    date_text = ",".join([date_text[0], date_text[1]])
 
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
