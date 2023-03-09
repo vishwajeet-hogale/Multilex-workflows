@@ -1156,10 +1156,10 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_ele = l_soup.find("span",{"class":date_span_class})
+                    date_ele = l_soup.find("span",{"class":"Date"})
                     date_text = date_ele.text[0:14]
-                    date_text.split(" ")
-                    date_text=date_text[1].strip(",")+"-"+date_text[0]+"-"+date_text[2].strip((","))
+                    date_text=date_text.split(",")
+                    date_text = ",".join([date_text[0], date_text[1]])
 
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
@@ -1271,7 +1271,7 @@ def multilex_scraper(input_dir, output_dir):
                         return
                 
                 
-                
+                lin=[]
                 
                 def getarticles(l):
                     flag=0
@@ -1309,6 +1309,7 @@ def multilex_scraper(input_dir, output_dir):
                     if flag==1:
                         Errors["Reuters"].append(err)
                     # print(z)
+                    lin.append(l)
                     text.append(k)
                     title.append(n)
                     s_dates.append(cur_date)
@@ -1330,10 +1331,10 @@ def multilex_scraper(input_dir, output_dir):
                 not_working_functions.append('Reuters')
             
               
-                
+            
             
             percentile_list = {'publish_date': pub_date, 'scraped_date': s_dates,
-                               'title': title, 'link': links, 'text': text}
+                               'title': title, 'link': lin, 'text': text}
             
             reuters = pd.DataFrame.from_dict(percentile_list, orient='index')
             df = reuters.transpose()
