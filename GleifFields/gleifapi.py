@@ -4,6 +4,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 from pygleif import PyGleif
+from opencorporate_selenium import *
 def company_info(companyname):
         #api_url = "https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q=ABB E-mobility"
         api_url="https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q="+companyname
@@ -89,7 +90,8 @@ def get_jurisdiction_info(lei):
                 return ""
         
 def generate_final_file(df):
-        la,oa,lei = [],[],[]
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        la,oa,lei,comnum,incopdat,comtyp,jurs,ra = [],[],[],[],[],[],[],[]
         for i,row in df.iterrows():
                 company = row["Companies"]
                 if "," in row["Companies"]:
@@ -99,25 +101,58 @@ def generate_final_file(df):
                 if word_length > 2:
                         company = " ".join(company.strip().split()[:-1])
                 data = company_info1(company,row["Country"].strip())
-                if row["Country"] == data["country"]:
+                f = 0
+                try:
+                        data1 = opencorporates(company,driver)
+                except:
+                        f = 1
+                if row["Country"] == data["country"] and not f:
                         la.append(data["legalAddress"])
                         oa.append(data["officeAddress"])
                         lei.append(data["LEI"])
+                        comnum.append("")
+                        incopdat.append("")
+                        comtyp.append("")
+                        jurs.append("")
+                        ra.append("")
                 else:
-                        la.append("")
-                        oa.append("")
-                        lei.append("")
+                        try:
+                                la.append("")
+                                oa.append("")
+                                lei.append("")
+                                comnum.append(data1["Company Number"])
+                                incopdat.append(data1["Incorporation Date"])
+                                comtyp.append(data1["Company Type"])
+                                jurs.append(data1["Jurisdiction"])
+                                ra.append(data1["Registered Address"])
+                        except:
+                                la = la[:-1]
+                                oa = oa[:-1]
+                                lei = lei[:-1]
+                                comnum = comnum[:-1]
+                                incopdat = incopdat[:-1]
+                                comtyp = comtyp[:-1]
+                                jurs = jurs[:-1]
+                                ra = ra[:-1]
+
+
         df["LegalAddress"] = la
         df["OfficeAddress"] = oa
         df["LEI"] = lei
-        df.to_csv("FinalFile.csv")
+        df["Comapny Number"] = comnum
+        df["Incorporation Date"] = incopdat
+        df["Company Type"] = comtyp
+        df["Jurisdiction"] = jurs
+        df["Registered Address"] = ra
+        df.to_csv("FinalFile.csv",index=False)
         return df
 
 
 #company_info("ABB E-mobility")
 if __name__ == "__main__":
-        df = pd.read_excel("PREIPO_2023-01-12.xlsx")
+        df = pd.read_excel("PREIPO_2023-01-02.xlsx")
         print(generate_final_file(df))
+        driver.quit()
         # get_company_info("DIVGI TORQTRANSFER SYSTEMS LIMITED","IN")
         # "335800N9OHIPOMBP7C30"
         # print(company_info1("Dar Al Arkan","UAE"))

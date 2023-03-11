@@ -1,12 +1,13 @@
 reuters : err : Empty datframe
 Google alert : err : Empty datframe
 Livemint : err : Empty datframe
+Xinhuanet
+Xinhuanet : err : Empty datframe
 Moneycontrol : err : Empty datframe
 German
 Japan : err : Empty datframe
 Romania : err : Empty datframe
 Google alert1 : err : Empty datframe
-Google Alert 2 : err : Empty datframe
 Google Alert 3 : err : Empty datframe
 Google Alert 4 : err : Empty datframe
 Google Alert 5 : err : Empty datframe
@@ -16,7 +17,6 @@ Koreatimes : err : Empty datframe
 zdnet : err : Empty datframe
 kedg : err : Empty datframe
 wealthx : err : Empty datframe
-economic_times
 Prnewswire : err : Empty datframe
 Arab finance : err : Empty datframe
 interfax : err : Empty datframe
@@ -38,27 +38,32 @@ reuters : err : Empty datframe
 reuters : err : Empty datframe
 Hundustanbusinessline : err : Empty datframe
 Fr : err : Empty datframe
-Headlines of today : err : Empty datframe
 Gobal Capital : err : Empty datframe
 businesstoday : err : Empty datframe
 altassets : err : Empty datframe
 theindianwire : err : Empty datframe
 indianexpress : err : Empty datframe
+newindianexpress : err : Empty datframe
 hindustannewshub : err : Empty datframe
 ndtv : err : Empty datframe
+etfdailynews : err : Empty datframe
+theepochtimes : err : Empty datframe
+brisbanetimes : err : Empty datframe
 thenewsminute : err : Empty datframe
-koreatechdesk : err : Empty datframe
 globalonlinemony : err : Empty datframe
 Business  Standard
 Strait times
 Sumatra bisnis : err : Empty datframe
-Techstory : err : Empty datframe
+Techstory 
 zdnet : err : Empty datframe
 alphastreet : err : Empty datframe
+Google_search : err : Empty datframe
 marketing-interactive : err : Empty datframe
 gadgets360 : err : Empty datframe
 interfax : err : Empty datframe
+businessgreen : err : Empty datframe
 theglobeandmail : err : Empty datframe
+beincrypto : err : Empty datframe
 enterprisetalk : err : Empty datframe
 bollyinside : err : Empty datframe
 eurekalert : err : Empty datframe
