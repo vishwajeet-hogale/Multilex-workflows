@@ -9269,7 +9269,7 @@ def multilex_scraper(input_dir, output_dir):
                 
                 try:
                     title_ele =l_soup.find("span", {"class": "seitenkopf__headline--text"})
-                    title_text = title_ele.text
+                    title_text =title_ele.text
                     title_text=translate(title_text)
                     data.append(title_text)
                 except:
@@ -12588,6 +12588,164 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("khaleejtimes")
             print("khaleejtimes not working")
 
+    def albayan(keyword):
+        try:
+            print("albayan")
+            Errors["albayan"]=[]
+            
+          
+            url = f"https://www.albayan.ae/search-7.3263153?s=d&q={keyword}"
+            domain_url = "https://www.albayan.ae/"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+           
+            
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("albayan not working")
+                not_working_functions.append('albayan')
+                err = "Main link did not load: " + url
+                Errors["albayan"].append(err)
+                return
+            
+            
+            try:
+                
+                for divtag in soup.find_all("li"):
+                    for a in divtag.find_all("a", href=True):
+                        link = a["href"]  # Gets the link
+
+                        
+
+                                            # Filtering advertaisment links
+                        link_start = domain_url
+                        if link.startswith(link_start):
+                            links.append(link)
+                                    # Remove duplicates
+                links = list(set(links))
+            except:
+                if len(links)==0:
+                    print("albayan not working")
+                    not_working_functions.append('albayan')
+                    Errors["albayan"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "albayan"
+            
+            def getarticles(link):
+                
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["albayan"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele =l_soup.find("h1")
+                    title_text = translate(title_ele.text)
+                    
+                    data.append(title_text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_text=link.split("/")
+                    l=date_text[5]
+                    l1=l.split("-")
+                    date_text=l1[2]+"-"+l1[1]+"-"+l1[0]
+
+                   
+                    
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+              
+                try:
+                   para_ele = (l_soup.findAll("section",{"class":"twocolumnsctky"}))[-1]
+                   para_text = translate(para_ele.text)
+                   
+                   data.append(para_text)  # Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["albayan"].append(err)
+                
+                collection.append(data)
+                
+           
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("albayan", df)
+            # df  = link_correction(df)
+            
+            return df
+        
+        except:
+            not_working_functions.append("albayan")
+            print("albayan not working")
+          
+
     #                                  Final
     
     df149=bankok_post("ipo")
@@ -12811,10 +12969,13 @@ def multilex_scraper(input_dir, output_dir):
     df219=khaleejtimes("ipo")
     df220=khaleejtimes("fpo")
     df221=khaleejtimes("spac")
+    df222=albayan("ipo")
+    df223=albayan("fpo")
+    df224=albayan("spac")
 
 
 
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55, df56, df57, df58, df59, df60, df61, df62, df63, df64, df65, df66, df67, df68, df69, df70, df71, df72, df73, df74, df75, df76, df77, df78, df79, df80, df81, df82, df83,df84,df85,df86,df87,df88,df89,df90,df91,df92,df93,df94,df95,df96,df97,df98,df99,df100,df101,df102,df103,df104,df105,df106,df107,df108,df109,df110,df111,df112,df113,df114,df115,df116,df117,df118,df119,df120,df121,df122,df123,df124,df125,df126,df127,df128,df129,df130,df131,df132,df133,df136,df137,df138,df139,df140,df141,df142,df143,df144,df145,df146,df147,df148, df149,df150,df151, df152, df153 ,df154, df155, df156, df157, df158, df159, df160, df161, df162, df163, df164, df165, df166, df167, df168, df169, df170, df171, df172, df173, df174, df175, df176, df177, df178, df179, df180, df181, df182, df183, df184, df185, df186, df187, df40, df41, df42, df188, df189, df190, df191, df192, df193, df194, df195, df196, df197, df198, df199, df200, df201, df202, df203,df204,df205,df206, df207, df208, df209, df210, df211, df212, df213, df214, df215, df216, df217, df218, df219, df220, df221]
+    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55, df56, df57, df58, df59, df60, df61, df62, df63, df64, df65, df66, df67, df68, df69, df70, df71, df72, df73, df74, df75, df76, df77, df78, df79, df80, df81, df82, df83,df84,df85,df86,df87,df88,df89,df90,df91,df92,df93,df94,df95,df96,df97,df98,df99,df100,df101,df102,df103,df104,df105,df106,df107,df108,df109,df110,df111,df112,df113,df114,df115,df116,df117,df118,df119,df120,df121,df122,df123,df124,df125,df126,df127,df128,df129,df130,df131,df132,df133,df136,df137,df138,df139,df140,df141,df142,df143,df144,df145,df146,df147,df148, df149,df150,df151, df152, df153 ,df154, df155, df156, df157, df158, df159, df160, df161, df162, df163, df164, df165, df166, df167, df168, df169, df170, df171, df172, df173, df174, df175, df176, df177, df178, df179, df180, df181, df182, df183, df184, df185, df186, df187, df40, df41, df42, df188, df189, df190, df191, df192, df193, df194, df195, df196, df197, df198, df199, df200, df201, df202, df203,df204,df205,df206, df207, df208, df209, df210, df211, df212, df213, df214, df215, df216, df217, df218, df219, df220, df221,df222,df223,df224]
     
     
        
