@@ -13207,7 +13207,7 @@ def multilex_scraper(input_dir, output_dir):
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-            count =5
+            count =3
             collection = []
             while True:
                 if not count:
@@ -13315,13 +13315,13 @@ def multilex_scraper(input_dir, output_dir):
                     # Scraping the paragraph
                 
                     try:
-                        para_eles = soup.find_all("p")[-1]
-                        # for para in para_eles:
-                        para_text = translatedeep(para_eles.text)
+                        para_eles = soup.find_all("p")
+                        for para in para_eles:
+                            para_text = translatedeep(para.text)
                             # print(para_text)
 
                         
-                        data.append(para_text)  # Need to make this better
+                            data.append(para_text)  # Need to make this better # Need to make this better
                     except:
                         err["link"]=link
                         err['text']="Error"
