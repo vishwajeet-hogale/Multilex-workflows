@@ -13315,13 +13315,13 @@ def multilex_scraper(input_dir, output_dir):
                     # Scraping the paragraph
                 
                     try:
-                        para_eles = soup.find_all("p")
+                        para_eles = l_soup.find_all("p")
+                        p_text =""
                         for para in para_eles:
                             para_text = translatedeep(para.text)
                             # print(para_text)
-
-                        
-                            data.append(para_text)  # Need to make this better # Need to make this better
+                            p_text +=para_text
+                        data.append(p_text)  # Need to make this better
                     except:
                         err["link"]=link
                         err['text']="Error"
