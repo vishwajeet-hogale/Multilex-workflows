@@ -15,6 +15,7 @@ import logging
 from requests_html import HTMLSession
 from pathlib import Path
 from googletrans import Translator
+from deep_translator import GoogleTranslator
 import re
 import json
 import time
@@ -130,6 +131,10 @@ def multilex_scraper(input_dir, output_dir):
         translator = Translator()
         translation = translator.translate(text, dest='en')
         return translation.text
+    
+    def translatedeep(text):
+        translation = GoogleTranslator(source='auto', target='en').translate(text)
+        return translation
 
     def translate_dataframe(df):
         try:
@@ -13185,7 +13190,181 @@ def multilex_scraper(input_dir, output_dir):
           
           
           
+    def headline_daily(keyword):
+        try:
+            print("headline_daily")
+            Errors["headline_daily"]=[]
+            
+          
+            url = f"https://hd.stheadline.com/search?keyword={keyword}"
+            domain_url = "https://hd.stheadline.com/"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            count =5
+            collection = []
+            while True:
+                if not count:
+                    break   
+                links=[]
+                try:
+                    page = requests.get(url, headers=headers)
+                    soup = BeautifulSoup(page.content, "html.parser")
+                except:
+                    print("headline_daily not working")
+                    not_working_functions.append('headline_daily')
+                    err = "Main link did not load: " + url
+                    Errors["headline_daily"].append(err)
+                    return
+                
+                next_link = soup.find('a', attrs={'aria-label': 'Next'})
+                
+                url =domain_url+ next_link['href'][1:]
+                # print(url)
+                    
+                count-=1
+                # print(count)
+                
+                try:
+                    div_id = soup.find_all("div",{"class": "col-xs-12"})
+                    for div in div_id :
+                        a_link= div.find("a")
+                        link=a_link['href']
+                                                # Checking the link if it is a relative link
+                        if link[0] == '/':
+                            link = domain_url + link[1:]
 
+                                                # Filtering advertaisment links
+                        # link_start = domain_url
+                        # if link.startswith(link_start):
+                        links.append(link)
+                                        # Remove duplicates
+                    links = list(set(links))
+                    
+                except:
+                    if len(links)==0:
+                        print("headline_daily not working")
+                        not_working_functions.append('headline_daily')
+                        Errors["headline_daily"].append("Extraction of link not working.")
+                        return
+                            
+                
+                # links # Debugging - if link array is generated
+                # collection = []
+                scrapper_name = "headline_daily"
+                
+                def getarticles(link):
+
+                    # print(link)
+                    flag=0
+                    err=err_dict()
+                    try:
+                        l_page = requests.get(link, headers=headers)
+                        l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                    except:
+                        err["link"]="Link not working: "+link
+                        Errors["headline_daily"].append(err)
+                        return
+                    
+                    data = []
+                    
+                    # Scraping the heading
+                    #h1_ele = l_soup.find("h1", {"class": h1_class})
+                    
+                    try:
+                        title_ele =l_soup.find("div",class_="article-title")
+                        title_text = translatedeep(title_ele.text)
+                        # print(title_text)
+                        data.append(title_text)
+                    except:
+                        err["link"]=link
+                        err['title']="Error"
+                        data.append("-")
+                        flag=1
+                    # drops the complete data if there is an error
+                    # Adding the link to data
+                    data.append(link)
+                    # Scraping the published date
+                    try:
+                        date_ele =l_soup.find("div",{"class":"time"})
+                        date_text = date_ele.text
+                        date_obj = datetime.strptime(date_text.split(' ')[-1], '%Y-%m-%d').date()
+                        
+
+                        # Convert datetime object to desired date format
+                        formatted_date = date_obj.strftime('%d-%m-%y')
+
+                        
+                        data.append(formatted_date)
+                    except:
+                        err["link"]=link
+                        err['published_date']="Error"
+                        data.append("-")
+                        flag=1
+                # drops the complete data if there is an error
+                    # Adding the scraped date to data
+                    today = date.today()
+                    cur_date = str(today)
+                    data.append(cur_date)
+                    # Scraping the paragraph
+                
+                    try:
+                        para_eles = soup.find_all("p")[-1]
+                        # for para in para_eles:
+                        para_text = translatedeep(para_eles.text)
+                            # print(para_text)
+
+                        
+                        data.append(para_text)  # Need to make this better
+                    except:
+                        err["link"]=link
+                        err['text']="Error"
+                        data.append("-")
+                        flag=1
+                    # drops the complete data if there is an error
+                    # Adding data to a collection
+                    
+                    if flag==1:
+                        Errors["headline_daily"].append(err)
+                    
+                    collection.append(data)
+                    
+                    # for x in data:
+                    #     print(x)
+                    # print()
+            
+                thread_list=[]
+                length=len(links)
+                for i in range(length):
+                    thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+                        
+                for thread in thread_list:
+                    thread.start()
+                        
+                for thread in thread_list:
+                    thread.join()
+                   
+            df = pd.DataFrame(collection, columns=[
+                                        'title', 'link', 'publish_date', 'scraped_date', 'text'])
+                
+                
+                # print(df) # For debugging. To check if df is created
+                # print(err_logs) # For debugging - to check if any errors occoured
+                # df = FilterFunction(df)
+                # emptydataframe("headline_daily", df)
+                # df  = link_correction(df)
+                
+            return df
+        
+        except:
+            not_working_functions.append("headline_daily")
+            print("headline_daily not working")
     #                                  Final
     
     df149=bankok_post("ipo")
