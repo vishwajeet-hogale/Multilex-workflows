@@ -13680,7 +13680,7 @@ def multilex_scraper(input_dir, output_dir):
         
             thread_list=[]
             length=len(links)
-            for i in range(4):
+            for i in range(10):
                 thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
                     
             for thread in thread_list:
