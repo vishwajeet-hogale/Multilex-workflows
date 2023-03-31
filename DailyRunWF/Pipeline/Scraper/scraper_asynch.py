@@ -13776,7 +13776,7 @@ def multilex_scraper(input_dir, output_dir):
             
             def getarticles(link):
 
-                print(link)
+                #  print(link)
                 flag=0
                 err=err_dict()
                 try:
