@@ -13,6 +13,7 @@ def NERModel_lg(input_dir, output_dir):
         title = data['title']
         lst1 =[]
         for i in text:
+                """
                 lst_1 =[]
                 i = str(i)
                 print(i)
@@ -21,10 +22,12 @@ def NERModel_lg(input_dir, output_dir):
         #             print(element.label_)
                         if element.label_ == 'ORG':
                                 lst_1.append(element)
-                lst1.append(lst_1)     
+                """
+                lst1.append([])     
 
         lst2=[]
         for i in title:
+                """
                 lst_2 =[]
                 i = str(i)
                 doc = nlp1(i)
@@ -32,7 +35,8 @@ def NERModel_lg(input_dir, output_dir):
         #             print(element.label_)
                     if element.label_ == 'ORG':
                         lst_2.append(element)
-                lst2.append(lst_2)        
+                """
+                lst2.append([])        
         dic = {'companies_1':lst1,'companies_2':lst2}
         df = pd.DataFrame(dic)
         dff = [data,df]
