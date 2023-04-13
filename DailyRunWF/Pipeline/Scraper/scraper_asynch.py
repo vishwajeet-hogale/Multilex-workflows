@@ -16175,7 +16175,7 @@ def multilex_scraper(input_dir, output_dir):
                     l=date_text.split(" ")
                     date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2]
                     data.append(date_text)
-                    print(data)
+                    
                 except:
                     err["link"]=link
                     err['published_date']="Error"
