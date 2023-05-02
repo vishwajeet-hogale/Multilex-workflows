@@ -1364,10 +1364,10 @@ def multilex_scraper(input_dir, output_dir):
             print(f"Keyword: {keyword}")
             Errors["Google"]=[]
             options = webdriver.ChromeOptions() 
-            options.headless = True
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+            #options.headless = True
+            #options.add_argument('--no-sandbox')
+            #options.add_argument('--disable-dev-shm-usage')
+            #options.add_experimental_option('excludeSwitches', ['enable-logging']) 
             service = ChromeService(executable_path=ChromeDriverManager().install())
             driver = webdriver.Chrome(service=service, options=options)
             try:
@@ -1381,6 +1381,7 @@ def multilex_scraper(input_dir, output_dir):
                 time.sleep(0.6)
                 tools=driver.find_element(By.XPATH, '//*[@id="hdtb-tls"]')
                 tools.click()
+                
                 
                 time.sleep(0.8)
                 recent=driver.find_element(By.CLASS_NAME, "KTBKoe")
@@ -1462,7 +1463,6 @@ def multilex_scraper(input_dir, output_dir):
                         next_page=driver.find_element(By.ID, "pnnext")
                         next_page.click()    
                     except Exception as e:
-                        print(e)
                         try:
                             driver.quit()
                         except:
@@ -1996,10 +1996,10 @@ def multilex_scraper(input_dir, output_dir):
                 page = urlopen(req)
                 soup = BeautifulSoup(page, "html.parser")
 
-                x = soup.find("div", id="newsFilterV5")
-                x = x.ul.li.ul
+                x = soup.find("li", id="tf")
+                x = x.ul
                 for i in x.find_all("li"):
-                    if str(i.text) == "Past 24 hours":
+                    if "24" in str(i.text):
                         y = i.a.get('href')
 
                 time.sleep(0.4)
@@ -16548,10 +16548,13 @@ def multilex_scraper(input_dir, output_dir):
     keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "lising", "files for IPO", "plans to list"]
     
     for search in keywords_for_search_engines:
-        df14=bing_search(search)
-        search_list.append(df14)
         df14=google_news(search)
         search_list.append(df14)
+    
+    for search in keywords_for_search_engines:
+        df14=bing_search(search)
+        search_list.append(df14)
+    
     
     df14=pd.concat(search_list)
     df14.drop_duplicates(subset=["link"])
@@ -16559,6 +16562,7 @@ def multilex_scraper(input_dir, output_dir):
     
     
     df55=stock_eastmoney()
+    print(df55)
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness("ipo")
