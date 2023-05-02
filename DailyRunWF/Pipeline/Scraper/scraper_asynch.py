@@ -6449,7 +6449,7 @@ def multilex_scraper(input_dir, output_dir):
                         flag=1
                     
                     try:
-                        ti=translate(soup.find("div", class_="title").text)
+                        ti=translatedeep(soup.find("div", class_="title").text)
                         
                     except:
                         err["link"]=link
@@ -6461,7 +6461,7 @@ def multilex_scraper(input_dir, output_dir):
                         para=""
                         for i in soup.find("div", id="ContentBody").find_all("p"):
                             para+=" "+str(i.text)
-                        para=translate(para)
+                        para=translatedeep(para)
                         
                     except:
                         err["link"]=link
