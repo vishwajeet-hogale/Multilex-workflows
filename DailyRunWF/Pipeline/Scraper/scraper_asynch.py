@@ -16699,6 +16699,7 @@ def multilex_scraper(input_dir, output_dir):
     #df149=bankok_post("ipo")
     #df150=bankok_post("fpo")
     #df151=bankok_post("spac")
+    df55=stock_eastmoney()
     
     search_list=[]
     
@@ -16718,8 +16719,7 @@ def multilex_scraper(input_dir, output_dir):
     df14.drop_duplicates(subset=["title"])
     
     
-    df55=stock_eastmoney()
-    print(df55)
+    
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness("ipo")
