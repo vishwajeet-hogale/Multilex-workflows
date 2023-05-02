@@ -6,10 +6,11 @@ import requests
 import nltk
 #nltk.download('punkt')                         # Please uncomment if you're running this program for first time
 import threading
-from GoogleNews import GoogleNews
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
+import random
 
 import logging
 from requests_html import HTMLSession
@@ -30,6 +31,7 @@ import pytz
 from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
 import urllib3
+import urllib.parse
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -1356,19 +1358,44 @@ def multilex_scraper(input_dir, output_dir):
             return df1
     
     
-    def google_news():
+    def google_news(keyword):
         try:
             print("Google")
+            print(f"Keyword: {keyword}")
             Errors["Google"]=[]
+            options = webdriver.ChromeOptions() 
+            options.headless = True
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+            service = ChromeService(executable_path=ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
             try:
-                today = date.today()
-                yesterday = today - timedelta(days=1)
-                yesterday = str(yesterday.strftime("%m/%d/%Y"))
-                today = str(today.strftime("%m/%d/%Y"))
-                googlenews = GoogleNews(start=yesterday, end=today)
-                googlenews.search('IPO')
+                keyword = urllib.parse.quote(keyword)
+                url = f"https://www.google.com/search?q={keyword}"
+                website="https://www.google.com"
+                driver.get(url)
+                news=driver.find_element(By.XPATH, '//*[@id="hdtb-msb"]/div[1]/div/div[2]/a')
+                time.sleep(2)
+                news.click()
+                time.sleep(0.6)
+                tools=driver.find_element(By.XPATH, '//*[@id="hdtb-tls"]')
+                tools.click()
+                
+                time.sleep(0.8)
+                recent=driver.find_element(By.CLASS_NAME, "KTBKoe")
+                recent.click()
+                
+                time.sleep(0.9)
+                past_24_hours=driver.find_element(By.XPATH, '//*[@id="lb"]/div/g-menu/g-menu-item[3]/div/a')
+                past_24_hours.click()
+                
             except:
                 print("Google not working")
+                try:
+                    driver.quit()
+                except:
+                    pass
                 not_working_functions.append('Google')
                 err = "Error in Module "
                 Errors["Google"].append(err)
@@ -1378,18 +1405,71 @@ def multilex_scraper(input_dir, output_dir):
             titles=[]
             texts=[]
             
+            page_number=0
             try:
-                for i in range(30):
-                    for j in googlenews.page_at(i+1):
-                        links.append(j["link"])
+                while True:
+                    try:
+                        flag=0
+                        page=BeautifulSoup(driver.page_source, "html.parser")
+                        articles=page.find("div", {"class": "MjjYud"}).div.findChildren("div")
+                        for i in range(len(articles)):
+                            try:
+                                link=articles[i].find("a", class_="WlydOe").get("href")
+                                try:
+                                    if link!=links[-1]:
+                                        links.append(link)
+                                except:
+                                    links.append(link)
+                                try:
+                                    title=translatedeep(articles[i].find("div", class_="n0jPhd ynAwRc MBeuO nDgy9d").text)
+                                    try:
+                                        if title!=titles[-1]:
+                                            if title:
+                                                titles.append(title)
+                                            else:
+                                                titles.append("-")
+                                    except:
+                                        if title:
+                                            titles.append(title)
+                                        else:
+                                            titles.append("-")
+                                except:
+                                    titles.append("-")
+                                try:
+                                    text=translatedeep(articles[i].find("div", class_="GI74Re nDgy9d").text)
+                                    try:
+                                        if text!=texts[-1]:
+                                            if text:
+                                                texts.append(text)
+                                            else:
+                                                texts.append("-")
+                                    except:
+                                        if text:
+                                            texts.append(text)
+                                        else:
+                                            texts.append("-")
+                                except:
+                                    texts.append("-")
+                                
+                            except:
+                                continue
+                        page_number+=1
+                        print(f"Finished page number: {page_number}")
+                        print(f"Numbers of articles collected: {len(links)}")
+                        print(f"Number of titles collected: {len(titles)}")
+                        print(f"Number of texts collected: {len(texts)}")
+                        time.sleep(round(random.uniform(0.5, 1.1), 2))
+                        next_page=driver.find_element(By.ID, "pnnext")
+                        next_page.click()    
+                    except Exception as e:
+                        print(e)
                         try:
-                            titles.append(j["title"])
+                            driver.quit()
                         except:
-                            titles.append("-")
-                        try:
-                            texts.append(j["desc"])
-                        except:
-                            texts.append("-")
+                            ""
+                        break
+                    
+                
             except:
                 if len(links)==0:
                             print("Google not working")
@@ -1402,53 +1482,13 @@ def multilex_scraper(input_dir, output_dir):
             today = date.today()
             
             def getartciles(link, a, b):
-                    flag=0
-                    err=err_dict()
-                    try:
-                        article = Article(link)
-                        article.download()
-                        article.parse()
-                        article.nlp()
-                    except:
-                        err["link"]="Link not working: "+link
-                        Errors["Google"].append(err)
-                        final_links.append(link)
-                        title.append(a)
-                        text.append(b)
-                        scraped_date.append(str(today))
-                        pub_date.append(str(today))
-                        return
-
-                    
-                    try:
-                        if article.title:
-                            title.append(article.title)
-                        else:
-                            title.append(a)
-                    except:
-                        err["link"]=link
-                        err["title"]="Error"
-                        title.append(a)
-                        flag=1
-                    
-                    try:
-                        if article.text:
-                            text.append(article.text)
-                        else:
-                            text.append(b)
-                    except:
-                        err["link"]=link
-                        err["title"]="Error"
-                        text.append(b)
-                        flag=1
-
+                    today=date.today()
+                    final_links.append(link)
+                    title.append(a)
+                    text.append(b)
                     scraped_date.append(str(today))
                     pub_date.append(str(today))
-                    
-                    if flag==1:
-                        Errors["Google"].append(err)
 
-                    final_links.append(link)
             
             thread_list=[]
             length=len(links)
@@ -1465,7 +1505,6 @@ def multilex_scraper(input_dir, output_dir):
                                 "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
             
             df = df.drop_duplicates(subset=["link"])
-            df = FilterFunction(df)
             emptydataframe("Google", df)
             
             return df
@@ -1941,13 +1980,16 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("globenewswire")
             print("globenewswire not working")
             
-    def bing_search():
+    def bing_search(keyword="IPO"):
         try:
+            
             print("Bing")
+            print(f"Keyword: {keyword}")
             Errors["Bing"]=[]
+            keyword = urllib.parse.quote(keyword)
             try:
 
-                site = "https://www.bing.com/news/search?q=eyes+Ipo+OR+Ipo+listing+OR+aims+for+Ipo+OR+Spac+OR+IPO"
+                site = f"https://www.bing.com/news/search?q={keyword}"
 
                 hdr = {'User-Agent': 'Mozilla/5.0'}
                 req = rs(site, headers=hdr)
@@ -1995,7 +2037,7 @@ def multilex_scraper(input_dir, output_dir):
                 print("Error: ", e)
                 return
                 
-
+            
             list_of_titles = []
             list_of_text = []
             list_of_links = []
@@ -2014,77 +2056,41 @@ def multilex_scraper(input_dir, output_dir):
             titles=[]
             texts=[]
             links=[]
-            x= soup.find_all("div", class_="news-card newsitem cardcommon b_cards2")
+            x= soup.find_all("div", class_="news-card newsitem cardcommon")
             for i in x:
                 try:
                     links.append(i.get("url"))
                     try:
-                        titles.append(i.find("div", class_="t_t").a.text)
+                        title=translatedeep(i.find("a", class_="title").get_text())
+                        if title:
+                            titles.append(title)
+                        else:
+                           titles.append("-") 
                     except:
                         titles.append("-")
                     try:
-                        texts.append(i.find("div", class_="snippet").text)
+                        text=translatedeep(i.find("div", class_="snippet").text)
+                        if text:
+                            texts.append(text)
+                        else:
+                            texts.append("-")
                     except:
                         texts.append("-")
                 except:
                     continue
             
-                
+            print(f"number of links produced = {len(links)}")
+            print(f"number of titles produced = {len(titles)}")
+            print(f"number of texts produced = {len(texts)}")    
             
-            def getarticles(i, title, text1):
+            def getarticles(i, title="-", text1="-"):
                 current_time = date.today()
-                flag=0
-                err=err_dict()
-                try:
-                    link = i
-                    article = Article(link)
-                    article.download()
-                    article.parse()
-                    article.nlp()
-                except:
-                    try:
-                        err["link"]="Article not working"+link
-                        Errors["Bing"].append(err)
-                        list_of_titles.append(title)
-                        list_of_text.append(text1)
-                        list_of_links.append(link)
-                        list_of_published_dates.append(current_time)
-                        scraped_time.append(current_time)
-                        return
-                    
-                    except:
-                        err["link"]="Link not extracted properly"
-                        Errors["Bing"].append(err)
-                        return
-                
-                try:
-                    name=article.title
-                    if name==None:
-                        name=title
-                except:
-                    err["link"]=link
-                    err['title']="Error"
-                    name=title
-                    flag=1
-                
-                try:
-                    text=article.text
-                    if text==None:
-                        text=text1
-                except:
-                    err["link"]=link
-                    err['text']="Error"
-                    text=text1
-                    flag=1
-
-                list_of_titles.append(name)
-                list_of_text.append(text)
-                list_of_links.append(link)
+                list_of_titles.append(title)
+                list_of_text.append(text1)
+                list_of_links.append(i)
                 list_of_published_dates.append(current_time)
                 scraped_time.append(current_time)
                 
-                if flag==1:
-                    Errors["Bing"].append(err)
             
             thread_list=[]
             length=len(links)
@@ -2107,7 +2113,7 @@ def multilex_scraper(input_dir, output_dir):
             bing_search = pd.DataFrame(scrapedData)
 
 
-            df = FilterFunction(bing_search)
+            df = bing_search
             emptydataframe("bing_search", df)
             # df  = link_correction(df)
             return df
@@ -16086,750 +16092,311 @@ def multilex_scraper(input_dir, output_dir):
             print("businesstoday not working")
 
 
-    def thebambooworks():
-        try:
-            print("thebambooworks")
-            Errors["thebambooworks"]=[]
-
-
-            url = "https://thebambooworks.com/category/all/ipo/"
-            domain_url = "https://thebambooworks.com/"
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                'sec-fetch-site': 'none',
-                'sec-fetch-mode': 'navigate',
-                'sec-fetch-user': '?1',
-                'sec-fetch-dest': 'document',
-                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            }
-
-
-            links=[]
-            try:
-                page = requests.get(url, headers=headers)
-                soup = BeautifulSoup(page.content, "html.parser")
-            except:
-                print("thebambooworks not working")
-                not_working_functions.append('thebambooworks')
-                err = "Main link did not load: " + url
-                Errors["thebambooworks"].append(err)
-                return
-
-
-            try:
-
-                all_divs = soup.find_all("a",{"class":"entry-title"})
-                for div in all_divs:
-                    links.append(div["href"])
-
-            except:
-                if len(links)==0:
-                    print("thebambooworks not working")
-                    not_working_functions.append('thebambooworks')
-                    Errors["thebambooworks"].append("Extraction of link not working.")
-                    return
-
-            # Remove duplicates
-            links = list(set(links))
-
-            # links # Debugging - if link array is generated
-            collection = []
-            scrapper_name = "thebambooworks"
-
-            def getarticles(link):
-
-                flag=0
-                err=err_dict()
-                try:
-                    l_page = requests.get(link, headers=headers)
-                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
-                except:
-                    err["link"]="Link not working: "+link
-                    Errors["thebambooworks"].append(err)
-                    return
-
-                data = []
-
-                # Scraping the heading
-                #h1_ele = l_soup.find("h1", {"class": h1_class})
-
-                try:
-                    title_ele =l_soup.find("h1")
-                    title_text = title_ele.text
-
-                    data.append(title_text)
-                except:
-                    err["link"]=link
-                    err['title']="Error"
-                    data.append("-")
-                    flag=1
-                 # drops the complete data if there is an error
-                # Adding the link to data
-                data.append(link)
-                # Scraping the published date
-                try:
-
-                    date_ele = l_soup.find("time")
-                    date_text = date_ele.text
-                    l=date_text.split(" ")
-                    date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2]
-                    data.append(date_text)
-                    
-                except:
-                    err["link"]=link
-                    err['published_date']="Error"
-                    data.append("-")
-                    flag=1
-              # drops the complete data if there is an error
-                # Adding the scraped date to data
-                today = date.today()
-                cur_date = str(today)
-                data.append(cur_date)
-                # Scraping the paragraph
-
-                try:
-                   para_ele = (l_soup.findAll("div",{"class":"entry-content-container"}))[-1]
-                   para_text = para_ele.text
-                   para_text = para_text.strip("\n ")
-                   data.append(para_text)
-                    # Need to make this better
-                except:
-                    err["link"]=link
-                    err['text']="Error"
-                    data.append("-")
-                    flag=1
-                  # drops the complete data if there is an error
-                # Adding data to a collection
-
-                if flag==1:
-                    Errors["thebambooworks"].append(err)
-
-                collection.append(data)
-
-
-            thread_list=[]
-            length=len(links)
-            for i in range(length):
-                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
-
-            for thread in thread_list:
-                thread.start()
-
-            for thread in thread_list:
-                thread.join()
-
-            df = pd.DataFrame(collection, columns=[
-                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
-
-
-            # print(df) # For debugging. To check if df is created
-            # print(err_logs) # For debugging - to check if any errors occoured
-            df = FilterFunction(df)
-            emptydataframe("thebambooworks", df)
-            # df  = link_correction(df)
-
-            return df
-
-        except:
-            not_working_functions.append("thebambooworks")
-            print("thebambooworks not working")
-    def newswire_ca(keyword):
-        try:
-            print("newswire_ca")
-            Errors["newswire_ca"]=[]
-
-
-            url = f"https://www.newswire.ca/search/all/?keyword={keyword}"
-            domain_url = "https://www.newswire.ca/"
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                'sec-fetch-site': 'none',
-                'sec-fetch-mode': 'navigate',
-                'sec-fetch-user': '?1',
-                'sec-fetch-dest': 'document',
-                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            }
-
-
-            links=[]
-            try:
-                page = requests.get(url, headers=headers)
-                soup = BeautifulSoup(page.content, "html.parser")
-            except:
-                print("newswire_ca not working")
-                not_working_functions.append('newswire_ca')
-                err = "Main link did not load: " + url
-                Errors["newswire_ca"].append(err)
-                return
-
-
-            try:
-
-                all_divs = soup.find_all("a",{"class":"news-release"})
-                for div in all_divs:
-                    links.append("https:"+div["href"])
-
-            except:
-                if len(links)==0:
-                    print("newswire_ca not working")
-                    not_working_functions.append('newswire_ca')
-                    Errors["newswire_ca"].append("Extraction of link not working.")
-                    return
-
-            # Remove duplicates
-            links = list(set(links))
-
-            # links # Debugging - if link array is generated
-            collection = []
-            scrapper_name = "newswire_ca"
-
-            def getarticles(link):
-
-                flag=0
-                err=err_dict()
-                try:
-                    l_page = requests.get(link, headers=headers)
-                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
-                except:
-                    err["link"]="Link not working: "+link
-                    Errors["newswire_ca"].append(err)
-                    return
-
-                data = []
-
-                # Scraping the heading
-                #h1_ele = l_soup.find("h1", {"class": h1_class})
-
-                try:
-                    title_ele =l_soup.find("h1")
-                    title_text = title_ele.text
-
-                    data.append(title_text)
-                except:
-                    err["link"]=link
-                    err['title']="Error"
-                    data.append("-")
-                    flag=1
-                 # drops the complete data if there is an error
-                # Adding the link to data
-                data.append(link)
-                # Scraping the published date
-                try:
-
-                    date_ele = l_soup.find("p",{"class":"mb-no"})
-                    date_text = date_ele.text
-                    l=date_text.split(" ")
-                    date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2].strip(",")
-                    data.append(date_text)
-                    
-                except:
-                    err["link"]=link
-                    err['published_date']="Error"
-                    data.append("-")
-                    flag=1
-              # drops the complete data if there is an error
-                # Adding the scraped date to data
-                today = date.today()
-                cur_date = str(today)
-                data.append(cur_date)
-                # Scraping the paragraph
-
-                try:
-                   para_ele = (l_soup.findAll("div",{"class":"col-lg-10 col-lg-offset-1"}))[-1]
-                   para_text = para_ele.text
-                   para_text = para_text.strip("\n ")
-                   data.append(para_text)
-                    # Need to make this better
-                except:
-                    err["link"]=link
-                    err['text']="Error"
-                    data.append("-")
-                    flag=1
-                  # drops the complete data if there is an error
-                # Adding data to a collection
-
-                if flag==1:
-                    Errors["newswire_ca"].append(err)
-
-                collection.append(data)
-
-
-            thread_list=[]
-            length=len(links)
-            for i in range(length):
-                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
-
-            for thread in thread_list:
-                thread.start()
-
-            for thread in thread_list:
-                thread.join()
-
-            df = pd.DataFrame(collection, columns=[
-                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
-
-
-            # print(df) # For debugging. To check if df is created
-            # print(err_logs) # For debugging - to check if any errors occoured
-            df = FilterFunction(df)
-            emptydataframe("newswire_ca", df)
-            # df  = link_correction(df)
-
-            return df
-
-        except:
-            not_working_functions.append("newswire_ca")
-            print("newswire_ca not working")
-    def marketscreener():
-        try:
-            print("marketscreener")
-            Errors["marketscreener"]=[]
-
-
-            url = "https://www.marketscreener.com/news/companies/IPO/"
-            domain_url = "https://www.marketscreener.com"
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                'sec-fetch-site': 'none',
-                'sec-fetch-mode': 'navigate',
-                'sec-fetch-user': '?1',
-                'sec-fetch-dest': 'document',
-                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            }
-            links=[]
-            try:
-                page = requests.get(url, headers=headers)
-                soup = BeautifulSoup(page.content, "html.parser")
-            except:
-                print("marketscreener not working")
-                not_working_functions.append('marketscreener')
-                err = "Main link did not load: " + url
-                Errors["marketscreener"].append(err)
-                return
-
-
-            try:
-
-                all_divs = soup.find_all("a",{"class":"c txt-s1 txt-overflow-2 link link--no-underline my-5 my-m-0"})
-        
-                for div in all_divs:
-                    links.append(domain_url+div["href"])
-                  
-            except:
-                if len(links)==0:
-                    print("marketscreener not working")
-                
-                    not_working_functions.append('marketscreener')
-                    Errors["marketscreener"].append("Extraction of link not working.")
-                    return
-
-            # Remove duplicates
-            links = list(set(links))
-
-            # links # Debugging - if link array is generated
-            collection = []
-            scrapper_name = "marketscreener"
-
-            def getarticles(link):
-
-                flag=0
-                err=err_dict()
-                try:
-                    l_page = requests.get(link, headers=headers)
-                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
-                except:
-                    err["link"]="Link not working: "+link
-                    Errors["marketscreener"].append(err)
-                    return
-
-                data = []
-
-                # Scraping the heading
-                #h1_ele = l_soup.find("h1", {"class": h1_class})
-
-                try:
-                    title_ele =l_soup.find("h1")
-                    title_text = title_ele.text
-                    data.append(title_text)
-                except:
-                    err["link"]=link
-                    err['title']="Error"
-                    data.append("-")
-                    flag=1
-                 # drops the complete data if there is an error
-                # Adding the link to data
-                data.append(link)
-                # Scraping the published date
-                try:
-
-                    date_ele = l_soup.find("div",{"style":"align-self: center;color:black;"})
-                    date_text = date_ele.text
-                    l1=date_text.split(" ")
-                    l=l1[0].split("/")
-                    date_text=l[1]+"-"+l[0]+"-"+l[2]
-                    data.append(date_text)
-              
-                except:
-                    err["link"]=link
-                    err['published_date']="Error"
-                    data.append("-")
-                    flag=1
-              # drops the complete data if there is an error
-                # Adding the scraped date to data
-                today = date.today()
-                cur_date = str(today)
-                data.append(cur_date)
-                # Scraping the paragraph
-
-                try:
-                    para_ele = (l_soup.findAll("span",{"itemprop":"articleBody"}))[-1]
-                    para_text = para_ele.text
-                    para_text = para_text.strip("\n ")
-                    data.append(para_text)
-                    # Need to make this better
-                except:
-                    err["link"]=link
-                    err['text']="Error"
-                    data.append("-")
-                    flag=1
-                  # drops the complete data if there is an error
-                # Adding data to a collection
-
-                if flag==1:
-                    Errors["marketscreener"].append(err)
-
-                collection.append(data)
-
-
-            thread_list=[]
-            length=len(links)
-            for i in range(length):
-                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
-
-            for thread in thread_list:
-                thread.start()
-
-            for thread in thread_list:
-                thread.join()
-
-            df = pd.DataFrame(collection, columns=[
-                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
-
-
-            # print(df) # For debugging. To check if df is created
-            # print(err_logs) # For debugging - to check if any errors occoured
-            df = FilterFunction(df)
-            emptydataframe("marketscreener", df)
-            # df  = link_correction(df)
-
-            return df
-
-        except:
-            not_working_functions.append("marketscreener")
-            print("marketscreener not working")
-
-
     #                                  Final
+    #df149=bankok_post("ipo")
+    #df150=bankok_post("fpo")
+    #df151=bankok_post("spac")
     
-    df149=bankok_post("ipo")
-    df150=bankok_post("fpo")
-    df151=bankok_post("spac")
+    search_list=[]
+    
+    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "lising", "files for IPO", "plans to list"]
+    
+    for search in keywords_for_search_engines:
+        df14=bing_search(search)
+        search_list.append(df14)
+        df14=google_news(search)
+        search_list.append(df14)
+    
+    df14=pd.concat(search_list)
+    df14.drop_duplicates(subset=["link"])
+    df14.drop_duplicates(subset=["title"])
+    
+    
     df55=stock_eastmoney()
-    df14=bing_search()
-    df10=google_news()
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness("ipo")
-    df138=gulfbusiness("fpo")
-    df139=gulfbusiness("spac")
+    #df138=gulfbusiness("fpo")
+    #df139=gulfbusiness("spac")
     df4=investmentu("ipo")
-    df136=investmentu("fpo")
-    df137=investmentu("spac")
+    #df136=investmentu("fpo")
+    #df137=investmentu("spac")
     df5=einnews()
     df6=businessinsider("ipo")
-    df132=businessinsider("fpo")
-    df133=businessinsider("spac")
+    #df132=businessinsider("fpo")
+    #df133=businessinsider("spac")
     df7=Reuters("ipo")
-    df8=Reuters("pre ipo")
-    df9=Reuters("Initial Public Offering")
+    #df8=Reuters("pre ipo")
+    #df9=Reuters("Initial Public Offering")
     df11=defenseworld("ipo")
-    df130=defenseworld("fpo")
-    df131=defenseworld("spac")
+    #df130=defenseworld("fpo")
+    #df131=defenseworld("spac")
     df12=technode("ipo")
-    df128=technode("fpo")
-    df129=technode("spac")
+    #df128=technode("fpo")
+    #df129=technode("spac")
     df13=globenewswire("ipo")
-    df126=globenewswire("fpo")
-    df127=globenewswire("spac")
+    #df126=globenewswire("fpo")
+    #df127=globenewswire("spac")
     df15=autonews("ipo")
-    df124=autonews("fpo")
-    df125=autonews("spac")
+    #df124=autonews("fpo")
+    #df125=autonews("spac")
     df16=capacitymedia("ipo")
-    df122=capacitymedia("fpo")
-    df123=capacitymedia("spac")
+    ##df122=capacitymedia("fpo")
+    #df123=capacitymedia("spac")
     df17=kenyanwallstreet("ipo")
-    df120=kenyanwallstreet("fpo")
-    df121=kenyanwallstreet("spac")
+    #df120=kenyanwallstreet("fpo")
+    #df121=kenyanwallstreet("spac")
     df18=thesundaily("ipo")
-    df118=thesundaily("fpo")
-    df119=thesundaily("spac")
+    #df118=thesundaily("fpo")
+    #df119=thesundaily("spac")
     df19=digitaljournal("ipo")
-    df116=digitaljournal("fpo")
-    df117=digitaljournal("spac")
+    ##df116=digitaljournal("fpo")
+    #df117=digitaljournal("spac")
     df20=asiafinancial("ipo")
-    df114=asiafinancial("fpo")
-    df115=asiafinancial("spac")
+    #df114=asiafinancial("fpo")
+    #df115=asiafinancial("spac")
     df21=stockhead("ipo")
-    df112=stockhead("fpo")
-    df113=stockhead("spac")
+    #df112=stockhead("fpo")
+    #df113=stockhead("spac")
     df22=koreajoongangdaily("ipo")
-    df110=koreajoongangdaily("fpo")
-    df111=koreajoongangdaily("spac")
+    #df110=koreajoongangdaily("fpo")
+    #df111=koreajoongangdaily("spac")
     df23=upstreamonline("ipo")
-    df108=upstreamonline("fpo")
-    df109=upstreamonline("spac")
+    #df108=upstreamonline("fpo")
+    #df109=upstreamonline("spac")
     df24=etfdailynews("ipo")
-    df106=etfdailynews("fpo")
-    df107=etfdailynews("spac")
+    #df106=etfdailynews("fpo")
+    #df107=etfdailynews("spac")
     df25=splash247("ipo")
-    df104=splash247("fpo")
-    df105=splash247("spac")
+    ##df104=splash247("fpo")
+    #df105=splash247("spac")
     df26=brisbanetimes("ipo")
-    df102=brisbanetimes("fpo")
-    df103=brisbanetimes("spac")
+    #df102=brisbanetimes("fpo")
+    #df103=brisbanetimes("spac")
     df27=zdnet("ipo")
-    df100=zdnet("fpo")
-    df101=zdnet("spac")
+    ##df100=zdnet("fpo")
+    #df101=zdnet("spac")
     df28=manilatimes("ipo")
-    df98=manilatimes("fpo")
-    df99=manilatimes("spac")
+    #df98=manilatimes("fpo")
+    #df99=manilatimes("spac")
     df29=investmentweek("ipo")
-    df96=investmentweek("fpo")
-    df97=investmentweek("spac")
+    #df96=investmentweek("fpo")
+    #df97=investmentweek("spac")
     df30=sundayobserver("ipo")
-    df94=sundayobserver("fpo")
-    df95=sundayobserver("spac")
+    #df94=sundayobserver("fpo")
+    #df95=sundayobserver("spac")
     df31=reinsurancene("ipo")
-    df92=reinsurancene("fpo")
-    df93=reinsurancene("spac")
+    #df92=reinsurancene("fpo")
+    #df93=reinsurancene("spac")
     df32=insideretail("ipo")
-    df90=insideretail("fpo")
-    df91=insideretail("spac")
+    #df90=insideretail("fpo")
+    #df91=insideretail("spac")
     df33=EconomicTimes()
     df34=seenews("ipo")
-    df88=seenews("fpo")
-    df89=seenews("spac")
+    #df88=seenews("fpo")
+    #df89=seenews("spac")
     df35=shorttermrentalz("ipo")
-    df86=shorttermrentalz("fpo")
-    df87=shorttermrentalz("spac")
+    #df86=shorttermrentalz("fpo")
+    #df87=shorttermrentalz("spac")
     df36=arabnews("ipo")
-    df84=arabnews("fpo")
-    df85=arabnews("spac")
+    ##df84=arabnews("fpo")
+    #df85=arabnews("spac")
     df37=macaubusiness("ipo")
-    df38=macaubusiness("fpo")
-    df39=macaubusiness("spac")
+    #df38=macaubusiness("fpo")
+    #df39=macaubusiness("spac")
     df40=vietnamnet("ipo")
-    df41=vietnamnet("fpo")
-    df42=vietnamnet("spac")
+    #df41=vietnamnet("fpo")
+    #df42=vietnamnet("spac")
     df43=thesydneymorningherald("ipo")
-    df44=thesydneymorningherald("fpo")
-    df45=thesydneymorningherald("spac")
+    #df44=thesydneymorningherald("fpo")
+    #df45=thesydneymorningherald("spac")
     df46=economictimes("ipo")
-    df47=economictimes("fpo")
-    df48=economictimes("spac")
+    ##df47=economictimes("fpo")
+    #df48=economictimes("spac")
     df49=nzherald("ipo")
-    df50=nzherald("fpo")
-    df51=nzherald("spac")
+    #df50=nzherald("fpo")
+    #df51=nzherald("spac")
     df52=albaniandailynews("ipo")
-    df53=albaniandailynews("fpo")
-    df54=albaniandailynews("spac")
-    df56=straittimes()
+    #df53=albaniandailynews("fpo")
+    #df54=albaniandailynews("spac")
+    #df56=straittimes()
     df57=financialpost("ipo")
-    df58=financialpost("fpo")
-    df59=financialpost("spac")
+    #df58=financialpost("fpo")
+    #df59=financialpost("spac")
     df60=nikkei("ipo")
-    df61=nikkei("fpo")
-    df62=nikkei("spac")
+    #df61=nikkei("fpo")
+    #df62=nikkei("spac")
     df63=albawaba("ipo")
-    df64=albawaba("fpo")
-    df65=albawaba("spac")
+    #df64=albawaba("fpo")
+    #df65=albawaba("spac")
     df66=theaustralianfinancialreview("ipo")
-    df67=theaustralianfinancialreview("fpo")
-    df68=theaustralianfinancialreview("spac")
+    #df67=theaustralianfinancialreview("fpo")
+    #df68=theaustralianfinancialreview("spac")
     df69=trendnewsagency("ipo")
-    df70=trendnewsagency("fpo")
-    df71=trendnewsagency("spac")
+    #df70=trendnewsagency("fpo")
+    #df71=trendnewsagency("spac")
     df72=globallegalchronicle("ipo")
-    df73=globallegalchronicle("fpo")
-    df74=globallegalchronicle("spac")
+    #df73=globallegalchronicle("fpo")
+    #df74=globallegalchronicle("spac")
     df75=ewnews("ipo")
-    df76=ewnews("fpo")
-    df77=ewnews("spac")
+    #df76=ewnews("fpo")
+    #df77=ewnews("spac")
     df78=dw("ipo")
-    df79=dw("fpo")
-    df80=dw("spac")
+    #df79=dw("fpo")
+    #df80=dw("spac")
     df81=uzdaily("ipo")
-    df82=uzdaily("fpo")
-    df83=uzdaily("spac")
+    #df82=uzdaily("fpo")
+    #df83=uzdaily("spac")
     
 
     df140=kedglobal("ipo")
-    df141=kedglobal("fpo")
-    df142=kedglobal("spac")
-    df143=pymnts("ipo")
-    df144=pymnts("fpo")
-    df145=pymnts("spac")
+    #df141=kedglobal("fpo")
+    #df142=kedglobal("spac")
+    #df143=pymnts("ipo")
+    ##df144=pymnts("fpo")
+    #df145=pymnts("spac")
     df146=timesofindia("ipo")
-    df147=timesofindia("fpo")
-    df148=timesofindia("spac")
+    #df147=timesofindia("fpo")
+    #df148=timesofindia("spac")
     df152=tradingcharts("ipo")
-    df153=tradingcharts("fpo")
-    df154=tradingcharts("spac")
+    #df153=tradingcharts("fpo")
+    #df154=tradingcharts("spac")
     df155=kontan("ipo")
-    df156=kontan("fpo")
-    df157=kontan("spac")
+    ##df156=kontan("fpo")
+    #df157=kontan("spac")
     df158=tagesschau("ipo")
-    df159=tagesschau("fpo")
-    df160=tagesschau("spac")
+    #df159=tagesschau("fpo")
+    #df160=tagesschau("spac")
     df161=afr("ipo")
-    df162=afr("fpo")
-    df163=afr("spac")
+    #df162=afr("fpo")
+    #df163=afr("spac")
     df164=asiainsurancereview("ipo")
-    df165=asiainsurancereview("fpo")
-    df166=asiainsurancereview("spac")
+    #df165=asiainsurancereview("fpo")
+    #df166=asiainsurancereview("spac")
     df167=swissinfo("ipo")
-    df168=swissinfo("fpo")
-    df169=swissinfo("spac")
+    #df168=swissinfo("fpo")
+    #df169=swissinfo("spac")
     df170=jamaicaobserver("ipo")
-    df171=jamaicaobserver("fpo")
-    df172=jamaicaobserver("spac")
+    #df171=jamaicaobserver("fpo")
+    #df172=jamaicaobserver("spac")
     df173=energyvoice("ipo")
-    df174=energyvoice("fpo")
-    df175=energyvoice("spac")
+    #df174=energyvoice("fpo")
+    #df175=energyvoice("spac")
     df176=african_markets("ipo")
-    df177=african_markets("fpo")
-    df178=african_markets("spac")
+    #df177=african_markets("fpo")
+    #df178=african_markets("spac")
     df179=newindianexpress("ipo")
-    df180=newindianexpress("fpo")
-    df181=newindianexpress("spac")
+    #df180=newindianexpress("fpo")
+    #df181=newindianexpress("spac")
     df182=ndtv("ipo")
-    df183=ndtv("fpo")
-    df184=ndtv("spac")
+    ##df183=ndtv("fpo")
+    #df184=ndtv("spac")
     df185=theepochtimes("ipo")
-    df186=theepochtimes("fpo")
-    df187=theepochtimes("spac")
+    #df186=theepochtimes("fpo")
+    #df187=theepochtimes("spac")
     df188=malaymail("ipo")
-    df189=malaymail("fpo")
-    df190=malaymail("spac")
+    #df189=malaymail("fpo")
+    #df190=malaymail("spac")
     df191=nbdpress("ipo")
-    df192=nbdpress("fpo")
-    df193=nbdpress("spac")
+    #df192=nbdpress("fpo")
+    #df193=nbdpress("spac")
     df194=gulftoday("ipo")
-    df195=gulftoday("fpo")
-    df196=gulftoday("spac")
+    #df195=gulftoday("fpo")
+    #df196=gulftoday("spac")
     df197=emirates247("ipo")
-    df198=emirates247("fpo")
-    df199=emirates247("spac")
+    ##df198=emirates247("fpo")
+    #df199=emirates247("spac")
     df200=manilabulletin("ipo")
-    df201=manilabulletin("fpo")
-    df202=manilabulletin("spac")
+    #df201=manilabulletin("fpo")
+    #df202=manilabulletin("spac")
     df203=moneycontrol("ipo")
     df204=businessoutreach("ipo")
-    df205=businessoutreach("fpo")
-    df206=businessoutreach("spac")
+    #df205=businessoutreach("fpo")
+    #df206=businessoutreach("spac")
     df207=gccbusinessnews("ipo")
-    df208=gccbusinessnews("fpo")
-    df209=gccbusinessnews("spac")
+    #df208=gccbusinessnews("fpo")
+    #df209=gccbusinessnews("spac")
     df210=saltwire("ipo")
-    df211=saltwire("fpo")
-    df212=saltwire("spac")
+    #df211=saltwire("fpo")
+    #df212=saltwire("spac")
     df213=manilastandard("ipo")
-    df214=manilastandard("fpo")
-    df215=manilastandard("spac")
+    #df214=manilastandard("fpo")
+    #df215=manilastandard("spac")
     df216=tradewindsnews("ipo")
-    df217=tradewindsnews("fpo")
-    df218=tradewindsnews("spac")
+    ##df217=tradewindsnews("fpo")
+    #df218=tradewindsnews("spac")
     df219=khaleejtimes("ipo")
-    df220=khaleejtimes("fpo")
-    df221=khaleejtimes("spac")
+    #df220=khaleejtimes("fpo")
+    #df221=khaleejtimes("spac")
     df222=albayan("ipo")
-    df223=albayan("fpo")
-    df224=albayan("spac")
+    #df223=albayan("fpo")
+    #df224=albayan("spac")
     df225=ipocentral("ipo")
-    df226=ipocentral("fpo")
-    df227=ipocentral("spac")
+    #df226=ipocentral("fpo")
+    #df227=ipocentral("spac")
     df228=kmib("ipo")
-    df229=kmib("fpo")
-    df230=kmib("spac")
+    #df229=kmib("fpo")
+    #df230=kmib("spac")
     df231=seoul("ipo")
-    df232=seoul("fpo")
-    df233=seoul("spac")
+    #df232=seoul("fpo")
+    #df233=seoul("spac")
     df234=headline_daily("ipo")
-    df235=headline_daily("fpo")
-    df236=headline_daily("spac")
+    #df235=headline_daily("fpo")
+    #df236=headline_daily("spac")
     df237=timesofoman("ipo")
-    df238=timesofoman("fpo")
-    df239=timesofoman("spac")
+    #df238=timesofoman("fpo")
+    #df239=timesofoman("spac")
     df240=aljazeera("ipo")
-    df241=aljazeera("fpo")
-    df242=aljazeera("spac")
+    #df241=aljazeera("fpo")
+    #df242=aljazeera("spac")
     df243=a_163("ipo")
-    df244=a_163("fpo")
-    df245=a_163("spac")
+    #df244=a_163("fpo")
+    #df245=a_163("spac")
     df246=montsame("ipo") 
-    df247=montsame("fpo") 
-    df248=montsame("spac")
+    #df247=montsame("fpo") 
+    #df248=montsame("spac")
     df249=omanobserver("ipo")
-    df250=omanobserver("fpo")
-    df251=omanobserver("spac") 
+    #df250=omanobserver("fpo")
+    #df251=omanobserver("spac") 
     df252=thearabianstories("ipo")
-    df253=thearabianstories("fpo")
-    df254=thearabianstories("spac")
+    #df253=thearabianstories("fpo")
+    #df254=thearabianstories("spac")
     df255=romania_insider("ipo")
-    df256=romania_insider("fpo")
-    df257=romania_insider("spac")
+    #df256=romania_insider("fpo")
+    #df257=romania_insider("spac")
     df258=ziarul("ipo")
-    df259=ziarul("fpo")
-    df260=ziarul("spac")
+    #df259=ziarul("fpo")
+    #df260=ziarul("spac")
     df261=vir("ipo")
-    df262=vir("fpo")
-    df263=vir("spac")
+    #df262=vir("fpo")
+    ##df263=vir("spac")
     df264=adgully("ipo")
-    df265=adgully("fpo")
-    df266=adgully("spac")
+    #df265=adgully("fpo")
+    #df266=adgully("spac")
     df257=theprint("ipo")
-    df258=theprint("fpo")
-    df259=theprint("spac")
+    #df258=theprint("fpo")
+    #df259=theprint("spac")
     df260=prnewswire("ipo")
-    df261=prnewswire("fpo")
-    df262=prnewswire("spac")
+    #df261=prnewswire("fpo")
+    #df262=prnewswire("spac")
     df263=pulsenews()
     df264=marketwatch("ipo")
-    df265=marketwatch("fpo")
-    df266=marketwatch("spac")
+    #df265=marketwatch("fpo")
+    #df266=marketwatch("spac")
     df267=futures_tradingcharts("ipo")
-    df268=futures_tradingcharts("fpo")
-    df269=futures_tradingcharts("spac")
+    #df268=futures_tradingcharts("fpo")
+    #df269=futures_tradingcharts("spac")
     df270=zawya("ipo")
-    df271=zawya("fpo")
-    df272=zawya("spac")
+    #df271=zawya("fpo")
+    #df272=zawya("spac")
     df273=businesstoday("ipo")
-    df274=businesstoday("fpo")
-    df275=businesstoday("spac")
-    df276=thebambooworks()
-    df277=newswire_ca("ipo")
-    df278=newswire_ca("fpo")
-    df279=newswire_ca("spac")
-    df280=marketscreener()
+    #df274=businesstoday("fpo")
+    #df275=businesstoday("spac")
 
 
 
 
-
-    df_final_1 = [ df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 ,df38, df39, df43, df44, df45, df46, df47, df48, df49, df50, df51, df52, df53, df54, df55, df56, df57, df58, df59, df60, df61, df62, df63, df64, df65, df66, df67, df68, df69, df70, df71, df72, df73, df74, df75, df76, df77, df78, df79, df80, df81, df82, df83,df84,df85,df86,df87,df88,df89,df90,df91,df92,df93,df94,df95,df96,df97,df98,df99,df100,df101,df102,df103,df104,df105,df106,df107,df108,df109,df110,df111,df112,df113,df114,df115,df116,df117,df118,df119,df120,df121,df122,df123,df124,df125,df126,df127,df128,df129,df130,df131,df132,df133,df136,df137,df138,df139,df140,df141,df142,df143,df144,df145,df146,df147,df148, df149,df150,df151, df152, df153 ,df154, df155, df156, df157, df158, df159, df160, df161, df162, df163, df164, df165, df166, df167, df168, df169, df170, df171, df172, df173, df174, df175, df176, df177, df178, df179, df180, df181, df182, df183, df184, df185, df186, df187, df40, df41, df42, df188, df189, df190, df191, df192, df193, df194, df195, df196, df197, df198, df199, df200, df201, df202, df203,df204,df205,df206, df207, df208, df209, df210, df211, df212, df213, df214, df215, df216, df217, df218, df219, df220, df221,df222,df223,df224,df225,df226,df227,df228,df229,df230,df231,df232,df233,df234,df235,df236,df237,df238,df239,df240,df241,df242,df243,df244,df245,df246,df247,df248,df249,df250,df251,df252,df253,df254,df255,df256,df257,df258,df259,df260,df261,df262,df263,df264,df265,df266,df257,df258,df259,df260,df261,df262,df263,df264,df265,df266,df267,df268,df269,df270,df271,df272,df273,df274,df275,df276,df277,df278,df279,df280]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273]
     
     
        
@@ -16898,7 +16465,7 @@ logging.info("last line of scraper")
 
 if __name__ == "__main__":
     x=time.time()
-    multilex_scraper("","")
+    multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\abc",r"C:\Users\ujwal\OneDrive\Desktop\abc")
     y=time.time()
     print()
     print()
