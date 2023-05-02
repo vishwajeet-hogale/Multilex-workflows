@@ -1364,10 +1364,10 @@ def multilex_scraper(input_dir, output_dir):
             print(f"Keyword: {keyword}")
             Errors["Google"]=[]
             options = webdriver.ChromeOptions() 
-            #options.headless = True
-            #options.add_argument('--no-sandbox')
-            #options.add_argument('--disable-dev-shm-usage')
-            #options.add_experimental_option('excludeSwitches', ['enable-logging']) 
+            options.headless = True
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
             service = ChromeService(executable_path=ChromeDriverManager().install())
             driver = webdriver.Chrome(service=service, options=options)
             try:
