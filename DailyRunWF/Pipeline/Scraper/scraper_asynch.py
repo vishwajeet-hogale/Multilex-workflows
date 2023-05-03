@@ -1382,6 +1382,7 @@ def multilex_scraper(input_dir, output_dir):
                 tools=driver.find_element(By.XPATH, '//*[@id="hdtb-tls"]')
                 tools.click()
                 
+                
                 time.sleep(0.8)
                 recent=driver.find_element(By.CLASS_NAME, "KTBKoe")
                 recent.click()
@@ -1462,7 +1463,6 @@ def multilex_scraper(input_dir, output_dir):
                         next_page=driver.find_element(By.ID, "pnnext")
                         next_page.click()    
                     except Exception as e:
-                        print(e)
                         try:
                             driver.quit()
                         except:
@@ -1996,10 +1996,10 @@ def multilex_scraper(input_dir, output_dir):
                 page = urlopen(req)
                 soup = BeautifulSoup(page, "html.parser")
 
-                x = soup.find("div", id="newsFilterV5")
-                x = x.ul.li.ul
+                x = soup.find("li", id="tf")
+                x = x.ul
                 for i in x.find_all("li"):
-                    if str(i.text) == "Past 24 hours":
+                    if "24" in str(i.text):
                         y = i.a.get('href')
 
                 time.sleep(0.4)
@@ -16852,23 +16852,27 @@ def multilex_scraper(input_dir, output_dir):
     #df149=bankok_post("ipo")
     #df150=bankok_post("fpo")
     #df151=bankok_post("spac")
+    df55=stock_eastmoney()
     
     search_list=[]
     
-    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "lising", "files for IPO", "plans to list"]
+    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "files for IPO", "plans to list"]
+    
+    for search in keywords_for_search_engines:
+        df14=google_news(search)
+        search_list.append(df14)
     
     for search in keywords_for_search_engines:
         df14=bing_search(search)
         search_list.append(df14)
-        df14=google_news(search)
-        search_list.append(df14)
+    
     
     df14=pd.concat(search_list)
     df14.drop_duplicates(subset=["link"])
     df14.drop_duplicates(subset=["title"])
     
     
-    df55=stock_eastmoney()
+    
     df1=korea()
     df2=proactive("ipo")
     df3=gulfbusiness("ipo")
