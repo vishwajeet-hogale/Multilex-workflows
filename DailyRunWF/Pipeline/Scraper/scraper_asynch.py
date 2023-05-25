@@ -1,7 +1,7 @@
 
 
 
-from newspaper import Article, Config
+#from newspaper import Article, Config
 import requests
 import nltk
 #nltk.download('punkt')                         # Please uncomment if you're running this program for first time
@@ -24,11 +24,11 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
-from newspaper import Article
+#from newspaper import Article
 import importlib.util
 import warnings
 import pytz
-from advertools import word_tokenize
+#from advertools import word_tokenize
 from urllib.request import Request as rs, urlopen
 import urllib3
 import urllib.parse
@@ -17395,7 +17395,7 @@ logging.info("last line of scraper")
 
 if __name__ == "__main__":
     x=time.time()
-    multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\abc",r"C:\Users\ujwal\OneDrive\Desktop\abc")
+    multilex_scraper(r"D:\Prathima\Multilex",r"D:\Prathima\Multilex")
     y=time.time()
     print()
     print()
