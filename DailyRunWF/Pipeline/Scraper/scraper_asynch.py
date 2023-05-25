@@ -17533,7 +17533,6 @@ logging.info("last line of scraper")
 if __name__ == "__main__":
     x=time.time()
     multilex_scraper(r"C:\Users\ujwal\OneDrive\Desktop\abc",r"C:\Users\ujwal\OneDrive\Desktop\abc")   
-    #multilex_scraper(r"D:\Prathima\Multilex",r"D:\Prathima\Multilex")
     y=time.time()
     print()
     print()
