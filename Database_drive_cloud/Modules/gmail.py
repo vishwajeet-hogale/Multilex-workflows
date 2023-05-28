@@ -5,6 +5,8 @@ from google.oauth2.credentials import Credentials
 import re
 from datetime import datetime
 import base64
+from io import BytesIO
+import pandas as pd
 #import pprint
 
 
@@ -66,6 +68,16 @@ def format_date(date_given):
         for match in regex.finditer(i):
             date_string = match.group()
             return datetime.strptime(date_string, formats[index]).strftime("%Y/%m/%d")
+
+
+def save_attachment(attachment, save_dir):
+            file_data = base64.urlsafe_b64decode(attachment['body']['data'])
+            file_path = os.path.join(save_dir, attachment['filename'])
+
+            with open(file_path, 'wb') as f:
+                f.write(file_data)
+
+            print(f'Saved attachment: {file_path}')
 
 
 ##############################################################################################################
@@ -193,27 +205,21 @@ def get_mail_html(sent_to="", recieved_from="", after="", before=""):
 
 
 def download_mail_attachments(sent_to="", recieved_from="", after="", before="", save_path=os.path.join(os.path.abspath(__file__), "..")):
+    
     msg = get_mails(sent_to, recieved_from, after, before)
+    
+    Scopes=['https://www.googleapis.com/auth/gmail.readonly']
+        
+    creds = Credentials.from_authorized_user_file(token, scopes=Scopes)
+    
+    service = build('gmail', 'v1', credentials=creds)
+    
     for message in msg:
-        def save_attachment(attachment, save_dir):
-            file_data = base64.urlsafe_b64decode(attachment['body']['data'])
-            file_path = os.path.join(save_dir, attachment['filename'])
-
-            with open(file_path, 'wb') as f:
-                f.write(file_data)
-
-            print(f'Saved attachment: {file_path}')
         
         # Extract and save attachments
         payload = message['payload']
         parts = payload.get('parts', [])
         
-        Scopes=['https://www.googleapis.com/auth/gmail.readonly']
-        
-        creds = Credentials.from_authorized_user_file(token, scopes=Scopes)
-        
-        service = build('gmail', 'v1', credentials=creds)
-
         for part in parts:
             if 'filename' in part:
                 filename = part['filename']
@@ -223,3 +229,53 @@ def download_mail_attachments(sent_to="", recieved_from="", after="", before="",
         
     print("All attachments downloaded")
 
+########################################################################################################################################
+
+
+def get_dataframes(sent_to="", recieved_from="", after="", before=""):
+    
+    """
+    
+    Returns a dictionary with values as list of dataframes
+    
+    """
+    
+    msg = get_mails(sent_to, recieved_from, after, before)
+    
+    Scopes=['https://www.googleapis.com/auth/gmail.readonly']
+        
+    creds = Credentials.from_authorized_user_file(token, scopes=Scopes)
+    
+    service = build('gmail', 'v1', credentials=creds)
+    
+    dataframes={}
+    
+    for message in msg:
+        
+        # Extract and save attachments
+        payload = message['payload']
+        parts = payload.get('parts', [])
+        
+        
+        for part in parts:
+            if 'filename' in part:
+                filename = part['filename']
+                if 'body' in part and 'attachmentId' in part['body']:
+                    attachment = service.users().messages().attachments().get(userId="me", id=part['body']['attachmentId']).execute()
+                    file_data = base64.urlsafe_b64decode(attachment['body']['data'])
+                    
+                    if attachment['filename'].endswith('.xlsx'):
+                        df = pd.read_excel(BytesIO(file_data))
+                    elif attachment['filename'].endswith('.csv'):
+                        df = pd.read_csv(BytesIO(file_data))
+                    else:
+                        df = None 
+                    if df is not None:
+                        try:
+                            dataframes[filename].append(df)
+                        except:
+                            dataframes[filename]=[df]
+            
+    return dataframes
+                    
+    
