@@ -10,7 +10,7 @@ import pandas as pd
 #import pprint
 
 
-database = os.path.abspath(os.path.join(os.path.realpath(__file__), "..", ".."))
+database = os.path.abspath(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 sys.path.append(database)
 
@@ -204,7 +204,7 @@ def get_mail_html(sent_to="", recieved_from="", after="", before=""):
 ######################################################################################################################################
 
 
-def download_mail_attachments(sent_to="", recieved_from="", after="", before="", save_path=os.path.join(os.path.abspath(__file__), "..")):
+def download_mail_attachments(sent_to="", recieved_from="", after="", before="", save_path=os.path.dirname(os.path.abspath(__file__))):
     
     msg = get_mails(sent_to, recieved_from, after, before)
     
@@ -224,7 +224,7 @@ def download_mail_attachments(sent_to="", recieved_from="", after="", before="",
             if 'filename' in part:
                 filename = part['filename']
                 if 'body' in part and 'attachmentId' in part['body']:
-                    attachment = service.users().messages().attachments().get(userId="me", id=part['body']['attachmentId']).execute()
+                    attachment = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=part['body']['attachmentId']).execute()
                     save_attachment(attachment, save_path)
         
     print("All attachments downloaded")
@@ -261,21 +261,23 @@ def get_dataframes(sent_to="", recieved_from="", after="", before=""):
             if 'filename' in part:
                 filename = part['filename']
                 if 'body' in part and 'attachmentId' in part['body']:
-                    attachment = service.users().messages().attachments().get(userId="me", id=part['body']['attachmentId']).execute()
-                    file_data = base64.urlsafe_b64decode(attachment['body']['data'])
-                    
-                    if attachment['filename'].endswith('.xlsx'):
-                        df = pd.read_excel(BytesIO(file_data))
-                    elif attachment['filename'].endswith('.csv'):
-                        df = pd.read_csv(BytesIO(file_data))
-                    else:
-                        df = None 
-                    if df is not None:
-                        try:
-                            dataframes[filename].append(df)
-                        except:
-                            dataframes[filename]=[df]
+                    attachment = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=part['body']['attachmentId']).execute()
+                    if 'body' in attachment and 'data' in attachment['body']: 
+                        
+                        file_data = base64.urlsafe_b64decode(attachment['body']['data'])
+                        
+                        if attachment['filename'].endswith('.xlsx'):
+                            df = pd.read_excel(BytesIO(file_data))
+                        elif attachment['filename'].endswith('.csv'):
+                            df = pd.read_csv(BytesIO(file_data))
+                        else:
+                            df = None 
+                        if df is not None:
+                            try:
+                                dataframes[filename].append(df)
+                            except:
+                                dataframes[filename]=[df]
             
     return dataframes
                     
-    
+print(get_dataframes(recieved_from="karthicknathan.l@exchange-data.in", after="25-05-2023"))

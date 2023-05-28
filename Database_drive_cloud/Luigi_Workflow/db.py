@@ -16,7 +16,7 @@ def update_refresh_token_gmail():
     This error occurs when refresh token has expired, which shouldn't happen.
     """
     
-    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'gmail_tokens')
+    directory=os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)) , 'Tokens'), 'gmail_tokens')
     
     scopes = ['https://www.googleapis.com/auth/gmail.readonly']
 
@@ -44,7 +44,7 @@ def update_refresh_token_drive():
         'https://www.googleapis.com/auth/spreadsheets'
     ]
     
-    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'drive_tokens')
+    directory=os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)) , 'Tokens'), 'drive_tokens')
 
     # Create the flow with offline access type
     flow = InstalledAppFlow.from_client_secrets_file(os.path.join(directory, 'client_secret_drive.json'), scopes=scopes)
@@ -59,7 +59,7 @@ def update_refresh_token_drive():
 
 class Update_token_drive(luigi.Task):
     
-    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'drive_tokens')
+    directory=os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)) , 'Tokens'), 'drive_tokens')
     
     def output(self):
         
@@ -106,7 +106,7 @@ class Update_token_drive(luigi.Task):
 
 class Update_token_gmail(luigi.Task):
     
-    directory=os.path.join(os.path.join(os.path.realpath(__file__),'..', 'Tokens'), 'gmail_tokens')
+    directory=os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Tokens'), 'gmail_tokens')
     
     def output(self):
         
