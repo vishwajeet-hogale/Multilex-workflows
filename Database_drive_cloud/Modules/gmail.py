@@ -286,4 +286,3 @@ def get_dataframes(sent_to="", recieved_from="", after="", before=""):
             
     return dataframes
                     
-download_mail_attachments(recieved_from="karthicknathan.l@exchange-data.in", after="26-05-2023")
