@@ -5,11 +5,61 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 import datetime
+from google_auth_oauthlib.flow import InstalledAppFlow
 
+
+def update_refresh_token_gmail(): 
+    
+    """
+    Use this only when you get this error: "raise exceptions.RefreshError(google.auth.exceptions.RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})"
+    Also make sure you give access by visiting the link.
+    This error occurs when refresh token has expired, which shouldn't happen.
+    """
+    
+    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'gmail_tokens')
+    
+    scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+
+    # Create the flow with offline access type
+    flow = InstalledAppFlow.from_client_secrets_file(os.path.join(directory, 'client_secret_gmail.json'), scopes=scopes)
+
+    # Start the authorization flow
+    credentials = flow.run_local_server(access_type='offline')
+
+    # Store the refresh token securely for future use
+    refresh_token = credentials.refresh_token
+    with open(os.path.join(directory, 'gmail_refresh_token.txt'), 'w') as f:
+        f.write(refresh_token)
+        
+def update_refresh_token_drive(): 
+    
+    """
+    Use this only when you get this error: "raise exceptions.RefreshError(google.auth.exceptions.RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})"
+    Also make sure you give access by visiting the link.
+    This error occurs when refresh token has expired, which shouldn't happen.
+    """
+    
+    scopes = [
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/spreadsheets'
+    ]
+    
+    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'drive_tokens')
+
+    # Create the flow with offline access type
+    flow = InstalledAppFlow.from_client_secrets_file(os.path.join(directory, 'client_secret_drive.json'), scopes=scopes)
+
+    # Start the authorization flow
+    credentials = flow.run_local_server(access_type='offline')
+
+    # Store the refresh token securely for future use
+    refresh_token = credentials.refresh_token
+    with open(os.path.join(directory, 'drive_refresh_token.txt'), 'w') as f:
+        f.write(refresh_token)
 
 class Update_token_drive(luigi.Task):
     
-    directory=os.path.join(os.path.join(os.getcwd(), 'Tokens'), 'drive_tokens')
+    directory=os.path.join(os.path.join(os.path.realpath(__file__), '..' , 'Tokens'), 'drive_tokens')
     
     def output(self):
         
@@ -56,7 +106,7 @@ class Update_token_drive(luigi.Task):
 
 class Update_token_gmail(luigi.Task):
     
-    directory=os.path.join(os.path.join(os.getcwd(), 'Tokens'), 'gmail_tokens')
+    directory=os.path.join(os.path.join(os.path.realpath(__file__),'..', 'Tokens'), 'gmail_tokens')
     
     def output(self):
         
@@ -109,3 +159,6 @@ class Database(luigi.Task):
     
     def run(self):
         print("abc")
+        
+#update_refresh_token_gmail()
+#update_refresh_token_drive()
