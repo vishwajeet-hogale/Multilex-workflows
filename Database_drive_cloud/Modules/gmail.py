@@ -72,12 +72,7 @@ def format_date(date_given):
 
 def save_attachment(attachment, save_dir):
             file_data = base64.urlsafe_b64decode(attachment['body']['data'])
-            file_path = os.path.join(save_dir, attachment['filename'])
-
-            with open(file_path, 'wb') as f:
-                f.write(file_data)
-
-            print(f'Saved attachment: {file_path}')
+            
 
 
 ##############################################################################################################
@@ -216,16 +211,26 @@ def download_mail_attachments(sent_to="", recieved_from="", after="", before="",
     
     for message in msg:
         
-        # Extract and save attachments
-        payload = message['payload']
-        parts = payload.get('parts', [])
-        
-        for part in parts:
-            if 'filename' in part:
-                filename = part['filename']
-                if 'body' in part and 'attachmentId' in part['body']:
-                    attachment = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=part['body']['attachmentId']).execute()
-                    save_attachment(attachment, save_path)
+        ms = service.users().messages().get(userId="me", id=message['id']).execute()
+            
+        for part in ms['payload']['parts']:
+            # Check if the part contains an attachment
+            if part.get('filename'):
+                # Decode the attachment data and save it to a file
+                if 'data' in part['body']:
+                    data = part['body']['data']
+                else:
+                    att_id = part['body']['attachmentId']
+                    att = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=att_id).execute()
+                    data = att['data']
+                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                    
+                file_path = os.path.join(save_path, part.get('filename'))
+
+                with open(file_path, 'wb') as f:
+                    f.write(file_data)
+
+                print(f'Saved attachment: {file_path}')
         
     print("All attachments downloaded")
 
@@ -252,32 +257,33 @@ def get_dataframes(sent_to="", recieved_from="", after="", before=""):
     
     for message in msg:
         
-        # Extract and save attachments
-        payload = message['payload']
-        parts = payload.get('parts', [])
-        
-        
-        for part in parts:
-            if 'filename' in part:
-                filename = part['filename']
-                if 'body' in part and 'attachmentId' in part['body']:
-                    attachment = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=part['body']['attachmentId']).execute()
-                    if 'body' in attachment and 'data' in attachment['body']: 
-                        
-                        file_data = base64.urlsafe_b64decode(attachment['body']['data'])
-                        
-                        if attachment['filename'].endswith('.xlsx'):
-                            df = pd.read_excel(BytesIO(file_data))
-                        elif attachment['filename'].endswith('.csv'):
-                            df = pd.read_csv(BytesIO(file_data))
-                        else:
-                            df = None 
-                        if df is not None:
-                            try:
-                                dataframes[filename].append(df)
-                            except:
-                                dataframes[filename]=[df]
+        ms = service.users().messages().get(userId="me", id=message['id']).execute()
+            
+        for part in ms['payload']['parts']:
+            # Check if the part contains an attachment
+            if part.get('filename'):
+                # Decode the attachment data and save it to a file
+                if 'data' in part['body']:
+                    data = part['body']['data']
+                else:
+                    att_id = part['body']['attachmentId']
+                    att = service.users().messages().attachments().get(userId="me", messageId=message['id'], id=att_id).execute()
+                    data = att['data']
+                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                filename=part.get('filename')
+                if filename.endswith('.xlsx'):
+                    df = pd.read_excel(BytesIO(file_data))
+                elif filename.endswith('.csv'):
+                    df = pd.read_csv(BytesIO(file_data))
+                else:
+                    df = None
+                
+                if df is not None:
+                    try:
+                        dataframes[filename].append(df)
+                    except:
+                        dataframes[filename]=df
             
     return dataframes
                     
-print(get_dataframes(recieved_from="karthicknathan.l@exchange-data.in", after="25-05-2023"))
+download_mail_attachments(recieved_from="karthicknathan.l@exchange-data.in", after="26-05-2023")
