@@ -68,10 +68,6 @@ def format_date(date_given):
         for match in regex.finditer(i):
             date_string = match.group()
             return datetime.strptime(date_string, formats[index]).strftime("%Y/%m/%d")
-
-
-def save_attachment(attachment, save_dir):
-            file_data = base64.urlsafe_b64decode(attachment['body']['data'])
             
 
 
@@ -285,4 +281,3 @@ def get_dataframes(sent_to="", recieved_from="", after="", before=""):
                         dataframes[filename]=df
             
     return dataframes
-                    
