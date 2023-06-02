@@ -668,6 +668,198 @@ class Database(luigi.Task):
                                     body=request_body
                                 ).execute()
                         time.sleep(6.1)
+        
+        def Database_Of_Files_Recieved_Rejected():
+            dataframes=get_dataframes(recieved_from="karthicknathan.l@exchange-data.in", after=after, before=before)
+            
+            creds = Credentials.from_authorized_user_file(drive_token)
+            sheets_service = build('sheets', 'v4', credentials=creds)
+            
+
+            folder_name = 'Database'
+            file_name = 'Database_Of_Files_Recieved_Rejected'
+
+
+            worksheet_name = 'Sheet1'
+
+            spreadsheet_id = get_sheet_id(folder_name=folder_name, file_name=file_name)
+
+            range_name = f"{worksheet_name}!A:AW"
+            
+            for key in reversed(dataframes.keys()):
+                if "Data" in key:
+                    date = dataframes[key][1]
+                    df = dataframes[key][0]
+                    df=df[df['Status'] != 'Yes']
                         
+                    if len(df)>1:
+                        num_rows = df.shape[0]
+                        values = [[date] + [None] * (df.shape[1] - 1)] * num_rows
+                        
+                        num_rows_to_insert = num_rows
+
+                        insert_index = 1
+                        
+                        # Get the sheet ID by name
+                        sheets = sheets_service.spreadsheets()
+                        sheet_metadata = sheets.get(spreadsheetId=spreadsheet_id).execute()
+                        sheets_list = sheet_metadata.get('sheets', [])
+                        sheet_id = sheets_list[0]['properties']['sheetId']  # Assuming Sheet1 is the first sheet (index: 0)
+                        
+                        requests = [
+                            {
+                                'insertRange': {
+                                    'range': {
+                                        'sheetId': sheet_id,
+                                        'startRowIndex': insert_index,
+                                        'endRowIndex': insert_index + num_rows_to_insert
+                                    },
+                                    'shiftDimension': 'ROWS'
+                                }
+                            }
+                        ]
+
+                        # Execute the batch update request
+                        sheets_service.spreadsheets().batchUpdate(
+                            spreadsheetId=spreadsheet_id,
+                            body={'requests': requests}
+                        ).execute()
+                        
+                        range_name = f"{worksheet_name}!A2:A{num_rows + 1}"
+                        
+                        request_body = {
+                                        'valueInputOption': 'RAW',
+                                        'data': [{
+                                            'range': range_name,
+                                            'values': values
+                                        }]
+                                    }
+                        sheets_service.spreadsheets().values().batchUpdate(
+                                    spreadsheetId=spreadsheet_id,
+                                    body=request_body
+                                ).execute()
+                        
+                        
+
+                        # Build the request body to merge cells
+                        merge_request_body = {
+                            'requests': [{
+                                'mergeCells': {
+                                    'range': {
+                                        'sheetId': sheet_id,
+                                        'startRowIndex': 1,  # Start from the second row (index: 1)
+                                        'endRowIndex': num_rows + 1,  # Include all rows (including header)
+                                        'startColumnIndex': 0,  # Column A (index: 0)
+                                        'endColumnIndex': 1  # Column A (index: 1)
+                                    },
+                                    'mergeType': 'MERGE_ALL'
+                                }
+                            }]
+                        }
+
+                        # Send the request to merge cells in the received_date column
+                        sheets_service.spreadsheets().batchUpdate(
+                            spreadsheetId=spreadsheet_id,
+                            body=merge_request_body
+                        ).execute()
+                        
+                        align_request_body = {
+                                'requests': [{
+                                    'updateCells': {
+                                        'rows': [
+                                            {
+                                                'values': [
+                                                    {
+                                                        'userEnteredFormat': {
+                                                            'verticalAlignment': 'MIDDLE'
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        'range': {
+                                            'sheetId': sheet_id,
+                                            'startRowIndex': 1,
+                                            'endRowIndex': num_rows + 1,
+                                            'startColumnIndex': 0,
+                                            'endColumnIndex': 1
+                                        },
+                                        'fields': 'userEnteredFormat.verticalAlignment'
+                                    }
+                                }]
+                            }
+                        
+                        sheets_service.spreadsheets().batchUpdate(
+                            spreadsheetId=spreadsheet_id,
+                            body=align_request_body
+                        ).execute()
+
+                        # Set the border color to dark gray
+                        border_color = {
+                            'red': 0.2,
+                            'green': 0.2,
+                            'blue': 0.2
+                        }
+
+                        # Build the request body to update the border format
+                        border_request_body = {
+                            'requests': [{
+                                'updateBorders': {
+                                    'range': {
+                                        'sheetId': sheet_id,
+                                        'startRowIndex': 1,
+                                        'endRowIndex': num_rows + 1,
+                                        'startColumnIndex': 0,
+                                        'endColumnIndex': 48
+                                    },
+                                    'top': {
+                                        'style': 'SOLID',
+                                        'width': 2,
+                                        'color': border_color
+                                    },
+                                    'bottom': {
+                                        'style': 'SOLID',
+                                        'width': 2,
+                                        'color': border_color
+                                    },
+                                    'left': {
+                                        'style': 'SOLID',
+                                        'width': 2,
+                                        'color': border_color
+                                    },
+                                    'right': {
+                                        'style': 'SOLID',
+                                        'width': 2,
+                                        'color': border_color
+                                    },
+                                }
+                            }]
+                        }
+
+                        # Send the request to update the border format
+                        sheets_service.spreadsheets().batchUpdate(
+                            spreadsheetId=spreadsheet_id,
+                            body=border_request_body
+                        ).execute()
+                        
+                        
+  
+                        values=[[str(cell) if pd.notnull(cell) else '' for cell in row] for row in df.values]
+                        range_name = f"{worksheet_name}!B2:BA{num_rows + 1}"
+                        
+                        request_body = {
+                                        'valueInputOption': 'RAW',
+                                        'data': [{
+                                            'range': range_name,
+                                            'values': values
+                                        }]
+                                    }
+                        sheets_service.spreadsheets().values().batchUpdate(
+                                    spreadsheetId=spreadsheet_id,
+                                    body=request_body
+                                ).execute()
+                        time.sleep(6.1)
+        
+        Database_Of_Files_Recieved_Rejected()                
         Database_of_files_recieved_accepted()
         Database_Of_Files_Recieved()
