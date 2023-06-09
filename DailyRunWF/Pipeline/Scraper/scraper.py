@@ -18178,7 +18178,7 @@ def multilex_scraper(input_dir, output_dir):
     
     search_list=[]
     
-    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "files for IPO", "plans to list"]
+    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "files for IPO"]
     
     for search in keywords_for_search_engines:
         df14=google_news(search)
