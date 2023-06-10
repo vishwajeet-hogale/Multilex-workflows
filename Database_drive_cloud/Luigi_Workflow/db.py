@@ -22,7 +22,7 @@ def update_refresh_token_gmail():
     
     directory=os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)) , 'Tokens'), 'gmail_tokens')
     
-    scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+    scopes = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.modify']
 
     # Create the flow with offline access type
     flow = InstalledAppFlow.from_client_secrets_file(os.path.join(directory, 'client_secret_gmail.json'), scopes=scopes)
