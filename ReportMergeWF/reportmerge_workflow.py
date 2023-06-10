@@ -4,17 +4,17 @@ from datetime import date
 
 class MorningFile_check(luigi.Task):
     dat = str(date.today().strftime("%Y-%m-%d"))
-    output_dir = luigi.Parameter(default="./Output/")
+    output_dir = luigi.Parameter(default="./DailyRunWF/Output/")
     def output(self):
         return luigi.LocalTarget(self.output_dir + "FinalReport_"+self.dat+".csv")
 class EveningFile_check(luigi.Task):
     dat = str(date.today().strftime("%Y-%m-%d"))
-    output_dir = luigi.Parameter(default="./Output/")
+    output_dir = luigi.Parameter(default="./DailyRunWF/Output/")
     def output(self):
         return luigi.LocalTarget(self.output_dir + "FinalReport_"+self.dat+"_1.csv")
 class Reportmerge_workflow(luigi.Task):
-    input_dir = luigi.Parameter(default="./Output/")
-    output_dir = luigi.Parameter(default="./Output/")
+    input_dir = luigi.Parameter(default="./DailyRunWF/Output/")
+    output_dir = luigi.Parameter(default="./ReportMergeWF/Output/")
     dat = str(date.today().strftime("%Y-%m-%d"))
     def output(self):
         return luigi.LocalTarget(self.output_dir + "PREIPO_Final_Report_"+self.dat+".csv")
