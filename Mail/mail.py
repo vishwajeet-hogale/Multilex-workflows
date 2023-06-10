@@ -1,13 +1,35 @@
-import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import date,datetime
-from time import strftime
-from decouple import config 
+from time import strftime 
 import pymysql
 import pandas as pd
+import os
+import sys
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+import base64
+
+mail_api = os.path.abspath(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+sys.path.append(mail_api)
+
+from Database_drive_cloud.Luigi_Workflow.db import Update_token_gmail
+
+sys.path.remove(mail_api)
+update_token = Update_token_gmail()
+update_token.run()
+token_folder=os.path.join(mail_api, "Database_drive_cloud", "Luigi_Workflow", "Tokens", "gmail_tokens")
+
+files = os.listdir(token_folder)
+
+for file in files:
+    if file.startswith('token_gmail_api'):
+        token=os.path.join(token_folder, file)
+
+
 def check_if_present(company):
   try:
     conn = setup_connection()
@@ -57,62 +79,37 @@ def remove_duplicates(df):
 
 
 def sendemail(to,cc,body,subject,attachment_filepath):
-    password = config('PASSWORD')
-    fromaddr = config('EMAIL')
-    toaddr = [to] + cc 
+    Scopes = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.modify']
+    creds = Credentials.from_authorized_user_file(token, scopes=Scopes) #allow read only access
+
+    service = build('gmail', 'v1', credentials=creds)
+    message = MIMEMultipart()
+    message['to'] = to
+    message['cc'] = ', '.join(list(cc))
+    message['subject'] = subject
+
+    message.attach(MIMEText(body))
     
-    # instance of MIMEMultipart
-    msg = MIMEMultipart()
+    if os.path.isfile(attachment_filepath):
+            attachment = MIMEBase('application', 'octet-stream')
+            with open(attachment_filepath, 'rb') as file:
+                attachment.set_payload(file.read())
+            encoders.encode_base64(attachment)
+            attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(attachment_filepath))
+            message.attach(attachment)
+    else:
+            print(f"Attachment file '{attachment_filepath}' not found.")
+
+    raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
     
-    # storing the senders email address  
-    msg['From'] = fromaddr
+    message = (service.users().messages().send(userId='me', body={'raw': raw_message})
+                   .execute())
+    print(f"Message sent. Message ID: {message['id']}")
     
-    # storing the receivers email address 
-    msg['To'] = to
-    # msg["Cc"] = cc
-    # msg["body"] = body
-    # storing the subject 
-    msg['Subject'] = subject
-    # body = "Hello , this mail was sent from python for tetsing purposes."
+
     
-    # attach the body with the msg instance
-    msg.attach(MIMEText(body, 'plain'))
     
-    # open the file to be sent 
-    filename = attachment_filepath
-    attachment = open(attachment_filepath, "rb")
     
-    # instance of MIMEBase and named as p
-    p = MIMEBase('application', 'octet-stream')
-    
-    # To change the payload into encoded form
-    p.set_payload((attachment).read())
-    
-    # encode into base64
-    encoders.encode_base64(p)
-    
-    p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-    
-    # attach the instance 'p' to instance 'msg'
-    msg.attach(p)
-    
-    # creates SMTP session
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    
-    # start TLS for security
-    s.starttls()
-    # Authentication
-    s.login(fromaddr, password)
-    
-    # Converts the Multipart msg into a string
-    text = msg.as_string()
-    
-    # sending the mail
-    s.sendmail(fromaddr, toaddr, text)
-    print("Message sent")
-    
-    # terminating the session
-    s.quit()
 def find_and_update_unique(df):
   drop_index = []
   try:
@@ -134,5 +131,5 @@ def run_feature12(df,to,cc,body,subject):
     sendemail(to,cc,body,subject,"PREIPO_Final_Report"+curdate + ".csv")
 
 if __name__ == "__main__":
-  sendemail("sharikavallambatlapes@gmail.com","vishwajeethogale307@gmail.com","Today's report","Report for 20th June","Cleaned_csv.csv")
-    
+  sendemail("sharikavallambatlapes@gmail.com",["vishwajeethogale307@gmail.com", "ujwalujwalc@gmail.com"],"Today's report","Trial RUn",r"C:\Users\ujwal\OneDrive\Desktop\Projects\Multilex-workflows\ReportMergeWF\Output\PREIPO_Final_Report_2023-01-27.csv")
+  

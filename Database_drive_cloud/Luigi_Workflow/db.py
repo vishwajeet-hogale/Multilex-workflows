@@ -133,7 +133,7 @@ class Update_token_gmail(luigi.Task):
                 'client_secret': client_secrets['installed']['client_secret'],
                 'refresh_token': refresh_token,
             },
-            scopes=['https://www.googleapis.com/auth/gmail.readonly']
+            scopes=['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.modify']
         )
         
         # check if the credentials have expired
