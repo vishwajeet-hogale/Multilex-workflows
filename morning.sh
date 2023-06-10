@@ -1,2 +1,2 @@
-cd /home/ubuntu/Multilex-workflows
-/home/ubuntu/anaconda3/bin/python3.9 -m luigi --module morning MorningPipeline --local-scheduler
+cd /home/rishika/Multilex-workflows
+python3 -m luigi --module morning MorningPipeline --local-scheduler
