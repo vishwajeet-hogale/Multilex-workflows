@@ -24,7 +24,7 @@ class Fetch_clean_log_workflow(luigi.Task):
                 f.write(i+"\n")
     def requires(self):
         return [EveningFile_check(output_dir = self.input_dir)]
-""
+
 
 # class Log_workflow(luigi.Task):
 #     input_dir = luigi.Parameter(default="E:/MultilexDash/Pipeline/Scraper/")
