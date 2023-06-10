@@ -2,10 +2,10 @@ import luigi
 from DailyRunWF.run_workflow import *
 from DailyRunWF.Pipeline.DataPreprocess import datapreprocess
 import os
-root = "E:\\luigi\\"
+root = "/home/rishika/Multilex-workflows/"
 class MorningPipeline(luigi.Task):
-    input_dir = luigi.Parameter(default=root + "DailyRunWF\\Output\\")
-    output_dir = luigi.Parameter(default=root + "DailyRunWF\\Output\\")
+    input_dir = luigi.Parameter(default=root + "DailyRunWF/Output/")
+    output_dir = luigi.Parameter(default=root + "DailyRunWF/Output/")
     dat = str(date.today().strftime("%Y-%m-%d"))
     dat = str(date.today().strftime("%Y-%m-%d"))
     file_name = "FinalReport_"+dat+".csv"
@@ -15,7 +15,7 @@ class MorningPipeline(luigi.Task):
     def requires(self):
         return Predict(input_dir = self.output_dir,output_dir = self.output_dir)
     def run(self):
-        datapreprocess.cleanedReport(self.file_name1,input_dir=self.output_dir[0:-1],output_dir=self.output_dir[0:-1])
+        datapreprocess.CleanedReport(self.file_name1,input_dir=self.output_dir[0:-1],output_dir=self.output_dir[0:-1])
         if os.path.isfile(self.output_dir + "todays_report.csv"):
             os.remove(self.output_dir + "todays_report.csv")
         if os.path.isfile(self.output_dir + self.file_name1):
