@@ -90,62 +90,72 @@ def get_jurisdiction_info(lei):
                 return ""
         
 def generate_final_file(df):
-        driver = webdriver.Chrome(ChromeDriverManager().install())
-        la,oa,lei,comnum,incopdat,comtyp,jurs,ra = [],[],[],[],[],[],[],[]
-        for i,row in df.iterrows():
-                company = row["Companies"]
-                if "," in row["Companies"]:
-                        company = row["Companies"].strip().split(",")[0]
-                print(company)
-                word_length = len(company.split())
-                if word_length > 2:
-                        company = " ".join(company.strip().split()[:-1])
-                data = company_info1(company,row["Country"].strip())
-                f = 0
-                try:
-                        data1 = opencorporates(company,driver)
-                except:
-                        f = 1
-                if row["Country"] == data["country"] and not f:
-                        la.append(data["legalAddress"])
-                        oa.append(data["officeAddress"])
-                        lei.append(data["LEI"])
-                        comnum.append("")
-                        incopdat.append("")
-                        comtyp.append("")
-                        jurs.append("")
-                        ra.append("")
-                else:
-                        try:
-                                la.append("")
-                                oa.append("")
-                                lei.append("")
-                                comnum.append(data1["Company Number"])
-                                incopdat.append(data1["Incorporation Date"])
-                                comtyp.append(data1["Company Type"])
-                                jurs.append(data1["Jurisdiction"])
-                                ra.append(data1["Registered Address"])
-                        except:
-                                la = la[:-1]
-                                oa = oa[:-1]
-                                lei = lei[:-1]
-                                comnum = comnum[:-1]
-                                incopdat = incopdat[:-1]
-                                comtyp = comtyp[:-1]
-                                jurs = jurs[:-1]
-                                ra = ra[:-1]
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    la, oa, lei, comnum, incopdat, comtyp, jurs, ra = [], [], [], [], [], [], [], []
+    for i, row in df.iterrows():
+        company = row["Companies"]
+        if "," in row["Companies"]:
+            company = row["Companies"].strip().split(",")[0]
+        print(company)
+        word_length = len(company.split())
+        if word_length > 2:
+            company = " ".join(company.strip().split()[:-1])
+        data = company_info1(company, row["Country"].strip())
+        f = 0
+        try:
+            data1 = opencorporates(company, driver)
+        except:
+            f = 1
+        if row["Country"] == data["country"] and not f:
+            la.append(data["legalAddress"])
+            oa.append(data["officeAddress"])
+            lei.append(data["LEI"])
+            comnum.append("")
+            incopdat.append("")
+            comtyp.append("")
+            jurs.append("")
+            ra.append("")
+        else:
+            if not f:
+                la.append("")
+                oa.append("")
+                lei.append("")
+                comnum.append(data1.get("Company Number", "null"))
+                incopdat.append(data1.get("Incorporation Date", "null"))
+                comtyp.append(data1.get("Company Type", "null"))
+                jurs.append(data1.get("Jurisdiction", "null"))
+                ra.append(data1.get("Registered Address", "null"))
+            else:
+                la.append("")
+                oa.append("")
+                lei.append("")
+                comnum.append("null")
+                incopdat.append("null")
+                comtyp.append("null")
+                jurs.append("null")
+                ra.append("null")
 
+    # Pad the lists with empty strings to match the length of the DataFrame
+    list_length = len(df)
+    la += [""] * (list_length - len(la))
+    oa += [""] * (list_length - len(oa))
+    lei += [""] * (list_length - len(lei))
+    comnum += [""] * (list_length - len(comnum))
+    incopdat += [""] * (list_length - len(incopdat))
+    comtyp += [""] * (list_length - len(comtyp))
+    jurs += [""] * (list_length - len(jurs))
+    ra += [""] * (list_length - len(ra))
 
-        df["LegalAddress"] = la
-        df["OfficeAddress"] = oa
-        df["LEI"] = lei
-        df["Comapny Number"] = comnum
-        df["Incorporation Date"] = incopdat
-        df["Company Type"] = comtyp
-        df["Jurisdiction"] = jurs
-        df["Registered Address"] = ra
-        df.to_csv("FinalFile.csv",index=False)
-        return df
+    df["LegalAddress"] = la
+    df["OfficeAddress"] = oa
+    df["LEI"] = lei
+    df["Comapny Number"] = comnum
+    df["Incorporation Date"] = incopdat
+    df["Company Type"] = comtyp
+    df["Jurisdiction"] = jurs
+    df["Registered Address"] = ra
+    df.to_csv("FinalFile.csv", index=False)
+    return df
 
 
 #company_info("ABB E-mobility")
