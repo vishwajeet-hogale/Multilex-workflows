@@ -18318,6 +18318,311 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("cryptopolitan")
             print("cryptopolitan not working")
 
+    def gulf_times():
+        try:
+            print("gulf-times")
+            Errors["gulf-times"]=[]
+            
+            
+            
+            url = f"https://www.gulf-times.com/search?query=ipo"
+            domain_url = "https://www.gulf-times.com/"
+            
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            section_class = "archive"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            main_class="site-main"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content"]
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("gulf-times not working")
+                not_working_functions.append('gulf-times')
+                err = "Main link did not load: " + url
+                Errors["gulf-times"].append(err)
+                return
+            
+            
+            try:
+                
+                all_divs = soup.find_all("h2", {"class": "article-title"})
+
+                for x in all_divs:
+                         links.append(x.a["href"])
+            except:
+                if len(links)==0:
+                    print("gulf-times not working")
+                    not_working_functions.append('gulf-times')
+                    Errors["gulf-times"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "gulf-times"
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["gulf-times"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("h1", {"class":"title-article"})
+                    title_text = title_ele.text
+                    title_text = title_text. strip("\n ")
+                    data.append(title_text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                   date_ele = l_soup.find("time",{"class":"publishing-date"})
+                   date_text = date_ele.text[61:-56]
+                   date_text=date_text.replace("/","-")
+                   data.append(date_text)
+                   
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    div_with_class = l_soup.find('div',{"class":'article-body'})
+
+#p_tags = div_with_class.find('p')
+                    para_text = div_with_class.get_text(strip=True)
+#para_text = para_text.strip("\n ")
+                    data.append(para_text)# Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["gulf-times"].append(err)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("gulf-times", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("gulf-times")
+            print("gulf-times not working")
+
+    def rediff():
+        try:
+            print("rediff")
+            Errors["rediff"]=[]
+            
+            
+            
+            url = f"https://www.rediff.com/search/ipo?src=hp_in_pc"
+            domain_url = "https://www.rediff.com/"
+            
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            section_class = "archive"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            main_class="site-main"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content"]
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("rediff not working")
+                not_working_functions.append('rediff')
+                err = "Main link did not load: " + url
+                Errors["rediff"].append(err)
+                return
+            
+            
+            try:
+                
+                all_divs = soup.find_all("div", {"class": "cell first"})
+
+                for div in all_divs:
+                    links.append(div.h5.a["href"])
+            except:
+                if len(links)==0:
+                    print("rediff not working")
+                    not_working_functions.append('rediff')
+                    Errors["rediff"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "rediff"
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["rediff"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("h1",{"class":"arti_heading","itemprop":"headline"})
+                    title_text = title_ele.text
+                    title_text = title_text. strip("\n ")
+                    data.append(title_text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("div",{"class":"floatR sm1 grey1"})
+                    date_text = date_ele.text
+                    date_text=date_text.replace("/","-")
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    div_with_class = l_soup.find('div', class_='arti_contentbig')
+
+                    p_tags = div_with_class.find('p')
+                    para_text = p_tags.text
+                    para_text = para_text.strip("\n ")
+                    data.append(para_text) # Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["rediff"].append(err)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("rediff", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("rediff")
+            print("rediff not working")
+
 
     
     ################################################################################################
@@ -18653,10 +18958,12 @@ def multilex_scraper(input_dir, output_dir):
     df296 = madrastribune("ipo")
     df297 = dailyexcelsior("ipo")
     df298=cryptopolitan("ipo")
+    df299 = gulf_times()
+    df300 =rediff()
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300]
     
     
        
