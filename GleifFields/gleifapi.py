@@ -162,7 +162,7 @@ def generate_final_file(df):
 if __name__ == "__main__":
         df = pd.read_excel("PREIPO_2023-01-02.xlsx")
         print(generate_final_file(df))
-        driver.quit()
+        #driver.quit()
         # get_company_info("DIVGI TORQTRANSFER SYSTEMS LIMITED","IN")
         # "335800N9OHIPOMBP7C30"
         # print(company_info1("Dar Al Arkan","UAE"))
