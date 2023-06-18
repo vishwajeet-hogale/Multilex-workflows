@@ -18897,6 +18897,160 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("dailysabah")
             print("dailysabah not working")
+    
+    
+    def arvopaperi(arvopaperi="IPO"):
+        try:
+            print("arvopaperi")
+            Errors['arvopaperi']=[]
+
+            url = f"https://www.arvopaperi.fi/listautumiset"
+            domain_url = "https://www.arvopaperi.fi"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    'sec-fetch-site': 'none',
+                    'sec-fetch-mode': 'navigate',
+                    'sec-fetch-user': '?1',
+                    'sec-fetch-dest': 'document',
+                    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("arvopaperi not working")
+                not_working_functions.append('arvopaperi')
+                err = "Main link did not load: " + url
+                Errors["arvopaperi"].append(err)
+                return
+            
+            try:
+                for i in soup.find("div", class_="sc-9j30fl-0 bjJNEh").find_all("a", class_="sc-pek81u-0 gaa-DNB sc-mzr2r-0 iMdguU"):
+                    link = i["href"]  # Gets the link
+                    link = domain_url + link
+                    links.append(link)
+
+            except:
+                if len(links)==0:
+                    print("arvopaperi not working")
+                
+                    not_working_functions.append('arvopaperi')
+                    Errors["arvopaperi"].append("Extraction of link not working.")
+                    return
+            
+            # Remove duplicates
+            links = list(set(links))
+            print(len(links))
+
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "arvopaperi"
+
+
+            def getarticles(link):
+                
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["arvopaperi"].append(err)
+                    return
+
+                data = []
+
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+
+                try:
+                    title_ele = l_soup.find("h1", class_="sc-nwx7kx-2 fgVpie")
+                    title_text = title_ele.text
+                    title=translatedeep(title_text.strip())
+                    
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    title = "-"
+                    flag=1
+                    # drops the complete data if there is an error
+                # Adding the link to data
+                
+
+                # Scraping the published date
+                try:
+
+                    date_ele = l_soup.find("span", {'class' : 'sc-1uuafvy-0 kSfUkP'}).time
+                    date_text = date_ele.get("datetime")
+                    l="-".join(date_text.split("T")[0].split("-")[::-1])
+                    
+                
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    l="-"
+                    flag=1
+                # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                
+
+                # Scraping the paragraph
+
+                try:
+                    para_ele = l_soup.find("p", {'class' : 'sc-wpntry-0 cHGlB'})
+                    para_text = para_ele.text
+                    para_text = para_text.strip("\n ")
+                    para = translatedeep(para_text)
+                    # Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    para = "-"
+                    flag=1
+                    # drops the complete data if there is an error
+                # Adding data to a collection
+
+                if flag==1:
+                    Errors["arvopaperi"].append(err)
+                
+                data.append(title)
+                data.append(link)
+                data.append(l)
+                data.append(cur_date)
+                data.append(para)
+                
+                collection.append(data)
+
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+
+            for thread in thread_list:
+                thread.start()
+
+            for thread in thread_list:
+                thread.join()
+
+            df = pd.DataFrame(collection, columns=[
+                                'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            # print(df) # For debugging. To check if df is created
+            # print(Errors) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("arvopaperi", df)
+            # df  = link_correction(df)
+
+            return df
+
+        except:
+            not_working_functions.append("arvopaperi")
+            print("arvopaperi not working")
 
 
     
@@ -18907,6 +19061,7 @@ def multilex_scraper(input_dir, output_dir):
     #df150=bankok_post("fpo")
     #df151=bankok_post("spac")
     df55=stock_eastmoney()
+    df303=arvopaperi()
     
     search_list=[]
     
@@ -19240,7 +19395,7 @@ def multilex_scraper(input_dir, output_dir):
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303]
     
     
        
