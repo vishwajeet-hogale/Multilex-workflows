@@ -1365,40 +1365,22 @@ def multilex_scraper(input_dir, output_dir):
             print("Google")
             print(f"Keyword: {keyword}")
             Errors["Google"]=[]
-            options = webdriver.ChromeOptions() 
-            options.headless = True
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_experimental_option('excludeSwitches', ['enable-logging']) 
-            service = ChromeService(executable_path=ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=options)
+            url = f"https://www.google.com/search?q={keyword}&tbm=nws&source=lnt&tbs=qdr:d&sa=X"
+            website = "https://www.google.com"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
             try:
-                keyword = urllib.parse.quote(keyword)
-                url = f"https://www.google.com/search?q={keyword}"
-                website="https://www.google.com"
-                driver.get(url)
-                news=driver.find_element(By.XPATH, '//*[@id="hdtb-msb"]/div[1]/div/div[2]/a')
-                time.sleep(2)
-                news.click()
-                time.sleep(0.6)
-                tools=driver.find_element(By.XPATH, '//*[@id="hdtb-tls"]')
-                tools.click()
-                
-                
-                time.sleep(0.8)
-                recent=driver.find_element(By.CLASS_NAME, "KTBKoe")
-                recent.click()
-                
-                time.sleep(0.9)
-                past_24_hours=driver.find_element(By.XPATH, '//*[@id="lb"]/div/g-menu/g-menu-item[3]/div/a')
-                past_24_hours.click()
-                
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, 'html.parser')  
             except:
                 print("Google not working")
-                try:
-                    driver.quit()
-                except:
-                    pass
                 not_working_functions.append('Google')
                 err = "Error in Module "
                 Errors["Google"].append(err)
@@ -1407,71 +1389,29 @@ def multilex_scraper(input_dir, output_dir):
             links=[]
             titles=[]
             texts=[]
-            
             page_number=0
             try:
                 while True:
-                    try:
-                        flag=0
-                        page=BeautifulSoup(driver.page_source, "html.parser")
-                        articles=page.find("div", {"class": "MjjYud"}).div.findChildren("div")
-                        for i in range(len(articles)):
-                            try:
-                                link=articles[i].find("a", class_="WlydOe").get("href")
-                                try:
-                                    if link!=links[-1]:
-                                        links.append(link)
-                                except:
-                                    links.append(link)
-                                try:
-                                    title=translatedeep(articles[i].find("div", class_="n0jPhd ynAwRc MBeuO nDgy9d").text)
-                                    try:
-                                        if title!=titles[-1]:
-                                            if title:
-                                                titles.append(title)
-                                            else:
-                                                titles.append("-")
-                                    except:
-                                        if title:
-                                            titles.append(title)
-                                        else:
-                                            titles.append("-")
-                                except:
-                                    titles.append("-")
-                                try:
-                                    text=translatedeep(articles[i].find("div", class_="GI74Re nDgy9d").text)
-                                    try:
-                                        if text!=texts[-1]:
-                                            if text:
-                                                texts.append(text)
-                                            else:
-                                                texts.append("-")
-                                    except:
-                                        if text:
-                                            texts.append(text)
-                                        else:
-                                            texts.append("-")
-                                except:
-                                    texts.append("-")
-                                
-                            except:
-                                continue
-                        page_number+=1
-                        print(f"Finished page number: {page_number}")
-                        print(f"Numbers of articles collected: {len(links)}")
-                        print(f"Number of titles collected: {len(titles)}")
-                        print(f"Number of texts collected: {len(texts)}")
-                        time.sleep(round(random.uniform(0.5, 1.1), 2))
-                        next_page=driver.find_element(By.ID, "pnnext")
-                        next_page.click()    
-                    except Exception as e:
-                        try:
-                            driver.quit()
-                        except:
-                            ""
-                        break
+                    page_number+=1
+                    print(f"page number: {page_number}")
+                    articles = soup.find_all("div", class_="SoaBEf")
+                    print(f"total number of articles in this page: {len(articles)}")
+                    for article in articles:
+                        a=article.find("a")["href"]
+                        b=article.find("div", class_="n0jPhd ynAwRc MBeuO nDgy9d").text
+                        c=article.find("div", class_="GI74Re nDgy9d").text
+                        if a and b:
+                            links.append(a)
+                            titles.append(b)
+                            texts.append(c)
                     
-                
+                    next_page = soup.find("a", id="pnnext")["href"]
+                    time.sleep(round(random.uniform(0.5, 1), 2))
+                    if next_page:
+                        page = requests.get(website+str(next_page), headers=headers)
+                        soup = BeautifulSoup(page.content, 'html.parser')
+                    else:
+                        break
             except:
                 if len(links)==0:
                             print("Google not working")
@@ -1482,12 +1422,18 @@ def multilex_scraper(input_dir, output_dir):
             final_links = []
             title, text, pub_date, scraped_date = [], [], [], []
             today = date.today()
+            session = requests.Session()
+            adapter = requests.adapters.HTTPAdapter(pool_connections=5, pool_maxsize=5)
+            session.mount('http://', adapter)
+            session.mount('https://', adapter)
             
             def getartciles(link, a, b):
                     today=date.today()
+                    m=translatedeep(a)
+                    n=translatedeep(b)
                     final_links.append(link)
-                    title.append(a)
-                    text.append(b)
+                    title.append(m)
+                    text.append(n)
                     scraped_date.append(str(today))
                     pub_date.append(str(today))
 
@@ -1503,6 +1449,7 @@ def multilex_scraper(input_dir, output_dir):
             for thread in thread_list:
                 thread.join()
             
+            session.close()
             df = pd.DataFrame({"text": text, "link": final_links,
                                 "publish_date": pub_date, "scraped_date": scraped_date, "title": title})
             
