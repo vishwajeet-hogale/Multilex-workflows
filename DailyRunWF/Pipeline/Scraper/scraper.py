@@ -19782,6 +19782,142 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("globalprimenews")
             print("globalprimenews not working")
 
+    def bisnis_indonesia(keyword):
+        try:
+            scrapper_name = 'bisinis_indonesia'
+            print(scrapper_name)
+            Errors[scrapper_name]=[]
+                
+            url = f'https://search.bisnis.com/?q={keyword}'
+            domain_url = 'https://www.bisnis.com/'
+            headers = {
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    'sec-fetch-site': 'none',
+                    'sec-fetch-mode': 'navigate',
+                    'sec-fetch-user': '?1',
+                    'sec-fetch-dest': 'document',
+                    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                }
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print(scrapper_name," not working")
+                not_working_functions.append(scrapper_name)
+                err = "Main link did not load: " + url
+                Errors[scrapper_name].append(err)          
+                return
+            # Debugging - if soup is working correctly
+            
+            
+            links = []
+            try:
+                for divtag in soup.find_all("div", {"class": 'col-sm-8'}):
+                    link = divtag.find("a")['href']   # Gets the link
+                    # Checking the link if it is a relative link
+                    links.append(link)
+            except:
+                if len(links)==0:
+                    print(scrapper_name," not working")
+                    not_working_functions.append(scrapper_name)
+                    Errors[scrapper_name].append("Extraction of link not working.")
+                    return
+                
+            # Remove duplicates
+            links = list(set(links))
+            
+            collection = []
+            
+            def getarticle(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors[scrapper_name].append(err)
+                    return
+                    
+                data = []
+                
+                # Scraping the heading
+                            
+                try:
+                    title_ele = l_soup.find('h1' , {'class': 'title-only'})
+                    title_text = translatedeep(title_ele.text)
+                    data.append(title_text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                
+                # Adding the link to data
+                data.append(link)
+                
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("div", {"class":'new-description'})
+                    date_text = translatedeep(date_ele.find("span").text)
+                    date_text = date_text.split(' WIB')[0]
+                    date_text = (datetime.strptime(date_text,"%d %B %Y | %H:%M")).strftime("%Y-%m-%d %H:%M:%S")   
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+                
+                # Adding the scraped date to data
+                cur_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                data.append(cur_date)
+                
+                # Scraping the paragraph
+                try:
+                    para_ele = l_soup.find('div' , {'class': 'description'})
+                    para_ele = para_ele.find_all("p")
+                    para_text =""
+                    for p in para_ele:
+                        para_text = para_text + translatedeep(p.text.strip("\n "))
+                    data.append(para_text)  
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                # drops the complete data if there is an error
+                # Adding data to a collection
+                    
+                if flag==1:
+                    Errors[scrapper_name].append(err)              
+                
+                collection.append(data)
+            
+            
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticle, args=(links[i], )))
+            
+        
+            for thread in thread_list:
+                thread.start()
+                
+            for thread in thread_list:
+                thread.join()
+                
+            df = pd.DataFrame(collection, columns=[
+                                'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            df = FilterFunction(df)
+            emptydataframe(scrapper_name, df)
+            return df
+            
+        except:
+            not_working_functions.append(scrapper_name)
+            print(scrapper_name," not working")
+
     
     ################################################################################################
     
@@ -20126,10 +20262,11 @@ def multilex_scraper(input_dir, output_dir):
     df306 = theedge_malaysia("ipo")
     df307 = coinspeaker("ipo")
     df308 = globalprimenews('ipo')
+    df309 = bisnis_indonesia('ipo')
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df176,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309]
     
     
        
