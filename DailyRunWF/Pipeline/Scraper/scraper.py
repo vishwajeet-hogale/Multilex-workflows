@@ -16172,25 +16172,31 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("thebambooworks")
             print("thebambooworks not working")
+    
     def newswire_ca(keyword):
         try:
             print("newswire_ca")
             Errors["newswire_ca"]=[]
-
-
-            url = f"https://www.newswire.ca/search/all/?keyword={keyword}"
-            domain_url = "https://www.newswire.ca/"
+            
+            
+            
+            url = f"https://www.newswire.ca/search/news/?keyword={keyword}"
+            domain_url = "https://www.newswire.ca"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 'sec-fetch-site': 'none',
                 'sec-fetch-mode': 'navigate',
                 'sec-fetch-user': '?1',
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-
-
+            div_class = "_2g9tm"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            title_h1_itemprop = "headline"
+            date_span_class = ["_2xetH"]
+            para_div_class = ["_1665V _2q-Vk"]
             links=[]
             try:
                 page = requests.get(url, headers=headers)
@@ -16201,30 +16207,30 @@ def multilex_scraper(input_dir, output_dir):
                 err = "Main link did not load: " + url
                 Errors["newswire_ca"].append(err)
                 return
-
-
+            
+            
             try:
-
+                
                 all_divs = soup.find_all("a",{"class":"news-release"})
                 for div in all_divs:
-                    links.append("https:"+div["href"])
-
+                
+                
+                    links.append(domain_url+div["href"])
             except:
                 if len(links)==0:
                     print("newswire_ca not working")
                     not_working_functions.append('newswire_ca')
                     Errors["newswire_ca"].append("Extraction of link not working.")
                     return
-
+                        
             # Remove duplicates
             links = list(set(links))
-
+            
             # links # Debugging - if link array is generated
             collection = []
             scrapper_name = "newswire_ca"
-
+            
             def getarticles(link):
-
                 flag=0
                 err=err_dict()
                 try:
@@ -16234,16 +16240,17 @@ def multilex_scraper(input_dir, output_dir):
                     err["link"]="Link not working: "+link
                     Errors["newswire_ca"].append(err)
                     return
-
+                
                 data = []
-
+                
                 # Scraping the heading
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
-
+                
                 try:
-                    title_ele =l_soup.find("h1")
-                    title_text = title_ele.text
+                    title_ele =l_soup.find('h1')
 
+                    title_text = title_ele.text
+                    title_text = title_text. strip("\n ")
                     data.append(title_text)
                 except:
                     err["link"]=link
@@ -16255,13 +16262,17 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-
+                    
                     date_ele = l_soup.find("p",{"class":"mb-no"})
+                    date_text=date_ele.text
                     date_text = date_ele.text
-                    l=date_text.split(" ")
-                    date_text=l[1].strip(",")+"-"+l[0]+"-"+l[2].strip(",")
+                    date_text=date_text.replace("/","-")
                     data.append(date_text)
                     
+                    #date_text = (date_text.split('/'))[-1]
+                    #date_text = date_text.replace(" Updated: ", "")
+                    # The date_text could be further modified to represent a proper date format
+                    #data.append(date_text)
                 except:
                     err["link"]=link
                     err['published_date']="Error"
@@ -16273,13 +16284,11 @@ def multilex_scraper(input_dir, output_dir):
                 cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
-
                 try:
-                   para_ele = (l_soup.findAll("div",{"class":"col-lg-10 col-lg-offset-1"}))[-1]
-                   para_text = para_ele.text
-                   para_text = para_text.strip("\n ")
-                   data.append(para_text)
-                    # Need to make this better
+                    para_ele = l_soup.find("div",{"class":"col-lg-10 col-lg-offset-1"})
+                    para_text = para_ele.text
+                    para_text = para_text.strip("\n ")
+                    data.append(para_text)  # Need to make this better
                 except:
                     err["link"]=link
                     err['text']="Error"
@@ -16287,39 +16296,38 @@ def multilex_scraper(input_dir, output_dir):
                     flag=1
                   # drops the complete data if there is an error
                 # Adding data to a collection
-
+                
                 if flag==1:
                     Errors["newswire_ca"].append(err)
-
+                
                 collection.append(data)
-
-
+                
             thread_list=[]
             length=len(links)
             for i in range(length):
                 thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
-
+            
             for thread in thread_list:
                 thread.start()
-
+            
             for thread in thread_list:
                 thread.join()
-
+            
             df = pd.DataFrame(collection, columns=[
                               'title', 'link', 'publish_date', 'scraped_date', 'text'])
-
-
+            
+            
             # print(df) # For debugging. To check if df is created
             # print(err_logs) # For debugging - to check if any errors occoured
             df = FilterFunction(df)
             emptydataframe("newswire_ca", df)
             # df  = link_correction(df)
-
             return df
-
+        
         except:
             not_working_functions.append("newswire_ca")
             print("newswire_ca not working")
+            
     def marketscreener():
         try:
             print("marketscreener")
