@@ -15699,24 +15699,34 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("futures_tradingcharts")
             print("futures_tradingcharts not working")
 
-    def zawya(keyword):
+    def zawya():
         try:
             print("zawya")
             Errors["zawya"]=[]
             
-          
-            url = f"https://www.zawya.com/en/search?q={keyword}"
-            domain_url = "https://www.zawya.com/"
+            
+            
+            url = f"https://www.zawya.com/en/search?q=ipo"
+            domain_url = "https://www.zawya.com/"           
+            
+
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 'sec-fetch-site': 'none',
                 'sec-fetch-mode': 'navigate',
                 'sec-fetch-user': '?1',
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-            
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            section_class = "archive"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            main_class="site-main"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content"]
             links=[]
             try:
                 page = requests.get(url, headers=headers)
@@ -15728,23 +15738,13 @@ def multilex_scraper(input_dir, output_dir):
                 Errors["zawya"].append(err)
                 return
             
-            # print(url)
+            
             try:
-                div_id = soup.find_all("h2",{"class": "teaser-title"})
-                for div in div_id :
-                    a_link= div.find("a")
-                    link=a_link['href']
-                                            # Checking the link if it is a relative link
-                    if link[0] == '/':
-                        link = domain_url + link
-
-                    #                         # Filtering advertaisment links
-                    # link_start = domain_url
-                    # if link.startswith(link_start):
-                    links.append(link)
-                                    # Remove duplicates
-                links = list(set(links))
                 
+                for divtag in soup.find_all("h2",{"class":"teaser-title"}):
+                    a_a=divtag.find("a")
+                    
+                    links.append(a_a["href"])
             except:
                 if len(links)==0:
                     print("zawya not working")
@@ -15752,14 +15752,14 @@ def multilex_scraper(input_dir, output_dir):
                     Errors["zawya"].append("Extraction of link not working.")
                     return
                         
+            # Remove duplicates
+            links = list(set(links))
             
             # links # Debugging - if link array is generated
             collection = []
             scrapper_name = "zawya"
             
             def getarticles(link):
-
-                # print(link)
                 flag=0
                 err=err_dict()
                 try:
@@ -15769,41 +15769,35 @@ def multilex_scraper(input_dir, output_dir):
                     err["link"]="Link not working: "+link
                     Errors["zawya"].append(err)
                     return
-                
                 data = []
+                
+                
                 
                 # Scraping the heading
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
                 
                 try:
-                    title_ele = l_soup.find("title")
+                    title_ele =l_soup.find('h1', class_='article-title')
+
                     title_text = title_ele.text
-                    # print(title_text)
+                    title_text = title_text. strip("\n ")
                     data.append(title_text)
-                
                 except:
                     err["link"]=link
                     err['title']="Error"
                     data.append("-")
                     flag=1
+                    print("hello")
                  # drops the complete data if there is an error
                 # Adding the link to data
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_ele =l_soup.find("div",{"class":"article-date"})
+                    date_ele = l_soup.find("div",{"class":"jsx-2170174440 article-date article-date-overridden"}).find("span")
+                    date_text=date_ele.text
                     date_text = date_ele.text
-                   
-                    # print(date_text)
-
-
-                    # Convert datetime object to desired date format
-                    date_obj = datetime.strptime(date_text, '%B %d, %Y')
-                    formatted_date = date_obj.strftime('%d-%m-%Y')
-
-                    # print(formatted_date)
-
-                    data.append(formatted_date)
+                    date_text=date_text.replace("/","-")
+                    data.append(date_text)
                 except:
                     err["link"]=link
                     err['published_date']="Error"
@@ -15815,16 +15809,11 @@ def multilex_scraper(input_dir, output_dir):
                 cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
-              
                 try:
-                    article_body = l_soup.find("script", {"type": "application/ld+json"}).string
-                    # print(article_body)
-                    article_body = json.loads(article_body)
-                    article_body = article_body["articleBody"]
-
-                    # print(article_body)
-                                     
-                    data.append(article_body)  # Need to make this better
+                    para_ele = l_soup.find("div",{"class":"article-body"})
+                    para_text = para_ele.text
+                    para_text = para_text.strip("\n ")
+                    data.append(para_text) # Need to make this better
                 except:
                     err["link"]=link
                     err['text']="Error"
@@ -15838,10 +15827,6 @@ def multilex_scraper(input_dir, output_dir):
                 
                 collection.append(data)
                 
-                # for x in data:
-                #     print(x)
-                # print()
-           
             thread_list=[]
             length=len(links)
             for i in range(length):
@@ -15862,7 +15847,6 @@ def multilex_scraper(input_dir, output_dir):
             df = FilterFunction(df)
             emptydataframe("zawya", df)
             # df  = link_correction(df)
-            
             return df
         
         except:
@@ -19670,7 +19654,7 @@ def multilex_scraper(input_dir, output_dir):
     df267=futures_tradingcharts("ipo")
     #df268=futures_tradingcharts("fpo")
     #df269=futures_tradingcharts("spac")
-    df270=zawya("ipo")
+    df270=zawya()
     #df271=zawya("fpo")
     #df272=zawya("spac")
     df273=businesstoday("ipo")
