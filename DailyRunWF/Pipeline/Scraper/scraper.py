@@ -15699,14 +15699,14 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("futures_tradingcharts")
             print("futures_tradingcharts not working")
 
-    def zawya():
+    def zawya(keyword):
         try:
             print("zawya")
             Errors["zawya"]=[]
             
             
             
-            url = f"https://www.zawya.com/en/search?q=ipo"
+            url = f"https://www.zawya.com/en/search?q={keyword}"
             domain_url = "https://www.zawya.com/"           
             
 
@@ -16327,7 +16327,7 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("newswire_ca")
             print("newswire_ca not working")
-            
+
     def marketscreener():
         try:
             print("marketscreener")
@@ -19807,7 +19807,7 @@ def multilex_scraper(input_dir, output_dir):
     df267=futures_tradingcharts("ipo")
     #df268=futures_tradingcharts("fpo")
     #df269=futures_tradingcharts("spac")
-    df270=zawya()
+    df270=zawya("ipo")
     #df271=zawya("fpo")
     #df272=zawya("spac")
     df273=businesstoday("ipo")
