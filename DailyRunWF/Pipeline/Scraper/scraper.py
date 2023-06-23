@@ -12388,56 +12388,57 @@ def multilex_scraper(input_dir, output_dir):
 
     def khaleejtimes(keyword):
         try:
-            print("khaleejtimes")
-            Errors["khaleejtimes"]=[]
-            
-          
-            url = f"https://www.khaleejtimes.com/search?q={keyword}"
-            domain_url = "https://www.khaleejtimes.com/"
+            scrapper_name = 'khaleejtimes'
+            print(scrapper_name)
+            Errors[scrapper_name]=[]
+                
+            url = f'https://www.khaleejtimes.com/search?q={keyword}'
+            domain_url = 'https://www.khaleejtimes.com/'
             headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                'sec-fetch-site': 'none',
-                'sec-fetch-mode': 'navigate',
-                'sec-fetch-user': '?1',
-                'sec-fetch-dest': 'document',
-                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-            }
-           
-            
-            links=[]
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                    'sec-fetch-site': 'none',
+                    'sec-fetch-mode': 'navigate',
+                    'sec-fetch-user': '?1',
+                    'sec-fetch-dest': 'document',
+                    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                }
             try:
                 page = requests.get(url, headers=headers)
                 soup = BeautifulSoup(page.content, "html.parser")
             except:
-                print("khaleejtimes not working")
-                not_working_functions.append('khaleejtimes')
+                print(scrapper_name," not working")
+                not_working_functions.append(scrapper_name)
                 err = "Main link did not load: " + url
-                Errors["khaleejtimes"].append(err)
+                Errors[scrapper_name].append(err)          
                 return
+            # Debugging - if soup is working correctly
             
             
+            links = []
             try:
-                
-                all_divs = soup.find_all("article",{"class":"post left-image-right-content-subsection"})
-                for div in all_divs:
-                    links.append(div.a["href"])
+                for divtag in soup.find_all("h2", {"class": 'post-title'}):
+                    link = divtag.find("a")['href']   # Gets the link
+                    # Checking the link if it is a relative link
+                    if link[0] == '/':
+                        link = domain_url + link[1:]
+                    # Filtering advertisment links
+                    link_start = domain_url
+                    if link.startswith(link_start):
+                        links.append(link)
             except:
                 if len(links)==0:
-                    print("khaleejtimes not working")
-                    not_working_functions.append('khaleejtimes')
-                    Errors["khaleejtimes"].append("Extraction of link not working.")
+                    print(scrapper_name," not working")
+                    not_working_functions.append(scrapper_name)
+                    Errors[scrapper_name].append("Extraction of link not working.")
                     return
-                        
+                
             # Remove duplicates
             links = list(set(links))
             
-            # links # Debugging - if link array is generated
             collection = []
-            scrapper_name = "khaleejtimes"
             
-            def getarticles(link):
-                
+            def getarticle(link):
                 flag=0
                 err=err_dict()
                 try:
@@ -12445,94 +12446,87 @@ def multilex_scraper(input_dir, output_dir):
                     l_soup = BeautifulSoup(l_page.content, 'html.parser')
                 except:
                     err["link"]="Link not working: "+link
-                    Errors["khaleejtimes"].append(err)
+                    Errors[scrapper_name].append(err)
                     return
-                
+                    
                 data = []
                 
                 # Scraping the heading
-                #h1_ele = l_soup.find("h1", {"class": h1_class})
-                
+                            
                 try:
-                    title_ele =l_soup.find("h1")
-                    title_text = title_ele.text
-                    
-                    data.append(title_text)
+                    title_ele = l_soup.find('h1')
+                    data.append(title_ele.text)
                 except:
                     err["link"]=link
                     err['title']="Error"
                     data.append("-")
                     flag=1
-                 # drops the complete data if there is an error
+                
                 # Adding the link to data
                 data.append(link)
+                
                 # Scraping the published date
                 try:
-                    date_ele = l_soup.find("div",{"class":"article-top-author-nw-nf-right"})
+                    date_ele = l_soup.find("div", {"class":'article-top-author-nw-nf-right'})
                     date_text = date_ele.text
-                    date_text=date_text.strip("\n")
-                    date_text=date_text.strip(" ")
-                    l=date_text.split(" ")
-                    date_text=l[2]+"-"+l[3]+"-"+l[4].strip(",")
-                    
+                    date_text = date_text.split("\nLast updated:")[0]
+                    date_text = date_text.split("Published: ")[1]
+                    date_text = datetime.strptime(date_text,"%a %d %b %Y, %I:%M %p").strftime("%d-%m-%Y %H:%M:%S")
                     data.append(date_text)
                 except:
                     err["link"]=link
                     err['published_date']="Error"
                     data.append("-")
                     flag=1
-              # drops the complete data if there is an error
+                
                 # Adding the scraped date to data
-                today = date.today()
-                cur_date = str(today)
+                cur_date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
                 data.append(cur_date)
+                
                 # Scraping the paragraph
-              
                 try:
-                   para_ele = (l_soup.find("div",{"class":"article-paragraph-wrapper"}))
-                   para_text = para_ele.text
-                   
-                   data.append(para_text)  # Need to make this better
+                    para_ele = l_soup.find_all('p')
+                    para_text = ""
+                    for p in para_ele:
+                        para_text = para_text + p.text
+                        para_text = para_text.strip('\n')
+                
+                    data.append(para_text)  
                 except:
                     err["link"]=link
                     err['text']="Error"
                     data.append("-")
                     flag=1
-                  # drops the complete data if there is an error
+                # drops the complete data if there is an error
                 # Adding data to a collection
-                
+                    
                 if flag==1:
-                    Errors["khaleejtimes"].append(err)
+                    Errors[scrapper_name].append(err)              
                 
                 collection.append(data)
-                
-           
+            
+            
             thread_list=[]
             length=len(links)
             for i in range(length):
-                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+                thread_list.append(threading.Thread(target=getarticle, args=(links[i], )))
             
+        
             for thread in thread_list:
                 thread.start()
-            
+                
             for thread in thread_list:
                 thread.join()
-            
+                
             df = pd.DataFrame(collection, columns=[
-                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
-            
-            
-            # print(df) # For debugging. To check if df is created
-            # print(err_logs) # For debugging - to check if any errors occoured
+                                'title', 'link', 'publish_date', 'scraped_date', 'text'])
             df = FilterFunction(df)
-            emptydataframe("khaleejtimes", df)
-            # df  = link_correction(df)
-            
+            emptydataframe(scrapper_name, df)
             return df
-        
+            
         except:
-            not_working_functions.append("khaleejtimes")
-            print("khaleejtimes not working")
+            not_working_functions.append(scrapper_name)
+            print(scrapper_name," not working")
 
     def albayan(keyword):
         try:
