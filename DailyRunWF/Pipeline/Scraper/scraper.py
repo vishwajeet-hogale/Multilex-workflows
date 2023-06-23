@@ -8341,11 +8341,11 @@ def multilex_scraper(input_dir, output_dir):
             print("timesofindia")
             Errors["timesofindia"]=[]
             
-            url = f"https://timesofindia.indiatimes.com/topic/{keyword}/news"
+            url = f"https://timesofindia.indiatimes.com/topic/{keyword}"
             domain_url = "https://timesofindia.indiatimes.com"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 'sec-fetch-site': 'none',
                 'sec-fetch-mode': 'navigate',
                 'sec-fetch-user': '?1',
@@ -8371,7 +8371,7 @@ def multilex_scraper(input_dir, output_dir):
             
             try:
                 
-                for divtag in soup.find_all("div", {"class": div_class}):
+                for divtag in soup.find_all("div", {"class":"uwU81"}):
                     for a in divtag.find_all("a", href=True):
                         link = a["href"]  # Gets the link
                         if link[0] == '/':
@@ -8414,7 +8414,7 @@ def multilex_scraper(input_dir, output_dir):
                 #h1_ele = l_soup.find("h1", {"class": h1_class})
                 
                 try:
-                    title_ele = l_soup.find("h1", {"class": h1_class})
+                    title_ele = l_soup.find("h1", {"class":"HNMDR"})
                     data.append(title_ele.text)
                 except:
                     err["link"]=link
@@ -8426,24 +8426,11 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(link)
                 # Scraping the published date
                 try:
-                    date_ele = l_soup.find("div",{"class":date_div_class})
-                    date_text = date_ele.text
+                    date_ele = l_soup.find("div",{"class":"xf8Pm byline"})
+                    date_text = date_ele.span.text
                     l=date_text.split(" ")
                     date_text=l[-4].strip(",")+"-"+l[-5]+"-"+l[-3].strip(",")
 
-                    
-                    
-                    
-
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                     #date_text = (date_text.split('/'))[-1]
                     #date_text = date_text.replace(" Updated: ", "")
                     # The date_text could be further modified to represent a proper date format
@@ -8460,7 +8447,7 @@ def multilex_scraper(input_dir, output_dir):
                 data.append(cur_date)
                 # Scraping the paragraph
                 try:
-                    para_ele = (l_soup.findAll("div", {"class": para_div_class}))[-1]
+                    para_ele = (l_soup.findAll("div",{"class":"_s30J clearfix"}))[-1]
                     data.append(para_ele.text)  # Need to make this better
                 except:
                     err["link"]=link
@@ -8500,7 +8487,6 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("timesofindia")
             print("timesofindia not working")
-
 
 
     def bankok_post(param):
