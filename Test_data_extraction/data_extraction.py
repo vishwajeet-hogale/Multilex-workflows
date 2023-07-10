@@ -110,6 +110,11 @@ def get_text(path_to_csv):
             text = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'results-text'))).text
             if text:
                 text_extraction[link] = [text, 1]
+            time.sleep(round(random.uniform(1, 2), 2))
+            button = driver.find_element(By.CLASS_NAME, "bx--btn--tertiary")
+            button.click()
+            time.sleep(round(random.uniform(0.5, 1), 2))
+            
             driver.quit()
         except:
             driver.quit()
