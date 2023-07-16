@@ -23,7 +23,7 @@ This script is used to extract text from the links provided in the csv file.
 
 
 def get_text(path_to_csv):
-    df = pd.read_csv(path_to_csv) #Converting given csv file to pands 
+    df = pd.read_excel(path_to_csv) #Converting given csv file to pands 
     
     """
     Initialising Selenium Webdriver
@@ -355,9 +355,9 @@ def get_text(path_to_csv):
     
     
 
-
-    df.to_csv(path_to_csv)
+    path_to_csv=path_to_csv.replace(".csv", ".xlsx")
+    df.to_excel(path_to_csv)
 
 if __name__ == "__main__":
-    path_to_csv = r"C:\Users\ujwal\Downloads\PREIPO_Final_Report_2023-07-11.csv"
+    path_to_csv = r"C:\Users\ujwal\Downloads\PREIPO_Final_Report_2023-07-12 (1).xlsx"
     get_text(path_to_csv)
