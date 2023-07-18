@@ -149,7 +149,7 @@ def generate_final_file(df):
     df["LegalAddress"] = la
     df["OfficeAddress"] = oa
     df["LEI"] = lei
-    df["Comapny Number"] = comnum
+    df["Company Number"] = comnum
     df["Incorporation Date"] = incopdat
     df["Company Type"] = comtyp
     df["Jurisdiction"] = jurs
