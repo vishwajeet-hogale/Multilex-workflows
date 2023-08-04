@@ -22318,9 +22318,7 @@ def multilex_scraper(input_dir, output_dir):
     
     search_list=[]
     
-    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "files for IPO","План по листингу","Планы по листингу","Листинг на бирже","Листинг IPO","Файлы для IPO","Дата листинга","Дата листинга","Последние новости об IPO","Компания по приобретению специального назначения","Oferta Pública Inicial","Planeja listar","Listagem na Bolsa","Listagem de IPO","Pedido para IPO","Próxima IPO","Notícias recentes de IPO","Supervisão da IPO","Empresa de Aquisição de Propósito Específico","Börsengang","Kotierungsplan","IPO Kotierung","Unterlagen für den Börsengang","kommender Börsengang","Letzte IPO Nachrichten","IPO-Überwachung","Zweckgesellschaft für Akquisition","الطرح العام الأولي","الطرح",
-                                 "خطط لإدراج","إدراج الأسهم في البورصة","المستندات الرئيسية للطرح العام الأولي","الطرح العام الأولي المقبل","أخبار الطرح العام الأولي الحديثة","تتبع اخبارالطرح العام الأولي","شركة الاستحواذ ذات الأغراض الخاصة","Oferta pública inicial","OPI","Planes para cotizar","Listado OPI","Solicitud de OPI","Próxima salida a Bolsa","Noticias recientes sobre OPI","Supervisión de la OPI","Sociedad de adquisición de propósito especial","Offre publique initiale","Plan d'inscription","Introductions en bourse","IPO a venir","Nouvelles récentes sur les introductions en bourse","Surveillance de l'introduction en bourse","Societe d'acquisition a vocation speciale"]
-    
+    keywords_for_search_engines=["首次公开上市", "IPO", "FPO", "SPAC", "新規株式公開", "eyes for IPO", "Planning for IPO", "files for IPO","План по листингу","листинг на бирже","Oferta Pública Inicial","Listagem de IPO","Börsengang","Kotierungsplan","الطرح العام الأولي","خطط لإدراج","Oferta pública inicial","Planes para cotizar","Offre publique initiale","Plan d'inscription"]
     for search in keywords_for_search_engines:
         df14=google_news(search)
         search_list.append(df14)
