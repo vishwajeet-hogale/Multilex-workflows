@@ -6446,9 +6446,10 @@ def multilex_scraper(input_dir, output_dir):
             
             return df
                 
-        except:
+        except Exception as e:
             not_working_functions.append("stock_eastmoney")
             print("stock_eastmoney not working")
+            print(e)
             
                 
     
