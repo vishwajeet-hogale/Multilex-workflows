@@ -22591,6 +22591,153 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append("zolmax")
             print("zolmax not working")  
     
+    def newswire(keyword):
+        try:
+            print("newswire")
+            Errors["newswire"]=[]
+            
+            url = f"https://www.newswire.ca/search/news/?keyword={keyword}"
+            
+            domain_url = "https://www.newswire.ca"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            
+
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("newswire not working")
+                not_working_functions.append('newswire')
+                err = "Main link did not load: " + url
+                Errors["newswire"].append(err)
+                return
+            
+            
+            try:
+                
+                for story_tabs in soup.find_all("div", class_="col-lg-9"):
+                    try:
+                        links.append(domain_url+story_tabs.h3.a.get("href"))
+                    except:
+                        pass
+                    
+            except:
+                if len(links)==0:
+                    print("newswire not working")
+                    not_working_functions.append('newswire')
+                    Errors["newswire"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "newswire"
+            
+            
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["newswire"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele = l_soup.find("div", class_="col-sm-8").h1.text
+                    
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    title_ele ="-"
+                    flag=1
+
+                
+                
+                
+                # Scraping the published date
+                try:
+                    date_text = l_soup.find("p", class_="mb-no").text.strip()[:12].lower().split()
+                    date_text = date_text[1].replace(",", "")+ " "+ date_text[0] + ", " + date_text[2]
+
+                    
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    date_text = "-"
+                    flag=1
+            
+                # Scraping the paragraph
+                try:
+                    para_ele = " ".join([i.text.strip() for i in l_soup.find("div", class_="col-lg-10").find_all("p")]).strip()
+                      # Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    para_ele = "-"
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                today = date.today()
+                cur_date = str(today)
+                               
+                if flag==1:
+                    Errors["newswire"].append(err)
+                    
+                
+                data.append(title_ele)
+                data.append(link)
+                data.append(date_text)
+                data.append(cur_date)
+                data.append(para_ele)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("newswire", df)
+            # df  = link_correction(df)
+            return df
+        
+        except Exception as e:
+            not_working_functions.append("newswire")
+            print("newswire not working")
     ################################################################################################
     
     #                                  Final
@@ -22952,10 +23099,11 @@ def multilex_scraper(input_dir, output_dir):
     df325 = businessmirror_philippines("ipo")
     df326 = thefinancialexpress_bd("ipo")
     df327 = zolmax("ipo")
+    df328 = newswire("ipo")
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327,df328]
     
     
        
