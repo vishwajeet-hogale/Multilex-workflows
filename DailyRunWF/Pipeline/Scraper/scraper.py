@@ -22896,6 +22896,153 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("inc42")
             print("inc42 not working")
+
+    def kalkinemedia(keyword):
+        try:
+            print("kalkinemedia")
+            Errors["kalkinemedia"]=[]
+            
+            url = f"https://kalkinemedia.com/search?param={keyword}"
+            domain_url = "https://kalkinemedia.com/in"
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+           
+            section_class = "archive"  
+            main_class="site-main"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content"]
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("kalkinemedia not working")
+                not_working_functions.append('kalkinemedia')
+                err = "Main link did not load: " + url
+                Errors["kalkinemedia"].append(err)
+                return
+            
+            
+            try:
+                
+                all_divs = soup.find_all("div", {"class": "col-md-12 mt-5"})
+                for x in all_divs:
+                    links.append(x.a["href"])
+                 
+            except:
+                if len(links)==0:
+                    print("kalkinemedia not working")
+                    not_working_functions.append('kalkinemedia')
+                    Errors["kalkinemedia"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "kalkinemedia"
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["kalkinemedia"].append(err)
+                    return
+                
+                data = []
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                  title_ele = l_soup.find("h1",{"post_title"})
+                  title_text = title_ele.text
+                  title_text = title_text. strip("\n ")
+                  data.append(title_text)
+
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("small",{"class":"text-muted"})
+                    date_text = date_ele.text[:-26]
+                    date_text=date_text.replace(",","").strip()
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    div_with_class = l_soup.find('div', class_='entry-content')
+
+                    para_ele = l_soup.find("div",{"class":"post_content"})
+                    p_elements = para_ele.find_all('p')
+                    merged_text = ' '.join(p.get_text() for p in p_elements)
+                    data.append(merged_text)
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["kalkinemedia"].append(err)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("kalkinemedia", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("kalkinemedia")
+            print("kalkinemedia not working")
     ################################################################################################
     
     #                                  Final
@@ -23259,10 +23406,11 @@ def multilex_scraper(input_dir, output_dir):
     df327 = zolmax("ipo")
     df328 = newswire("ipo")
     df329 = inc42("ipo")
+    df330 = kalkinemedia("ipo")
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327,df328,df329]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df18, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52,  df55, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295,df296,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327,df328,df329,df330]
     
     
        
