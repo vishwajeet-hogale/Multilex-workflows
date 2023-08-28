@@ -6035,7 +6035,7 @@ def multilex_scraper(input_dir, output_dir):
                 'sec-fetch-dest': 'document',
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
-            article_class="story-card story-card--summary"# Class name of div containing the a tag
+            article_class="story-card story-card--summary story-card"# Class name of div containing the a tag
             #h1_class = "_1Y-96"
             #h1_div_class = "col-xs-12"
             title_h1_class= "article__heading"
