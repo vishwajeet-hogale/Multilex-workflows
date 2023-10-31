@@ -17387,7 +17387,7 @@ def multilex_scraper(input_dir, output_dir):
             domain_url = 'https://www.koreatimes.co.kr/'
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 'sec-fetch-site': 'none',
                 'sec-fetch-mode': 'navigate',
                 'sec-fetch-user': '?1',
@@ -17473,7 +17473,7 @@ def multilex_scraper(input_dir, output_dir):
             
                 # Scraping the paragraph
                 try:
-                    para_ele = l_soup.find('div' , {'id': 'startts'})
+                    para_ele = l_soup.find('p' , {'class': 'editor-p'})
                     para_text = para_ele.text.strip("\n ")
                     data.append(para_text)  
                 except:
@@ -17512,7 +17512,7 @@ def multilex_scraper(input_dir, output_dir):
             not_working_functions.append(scrapper_name)
             print(scrapper_name," not working")
 
-
+            
     def ipohub():
         try:
             scrapper_name = 'ipohub'
@@ -22602,9 +22602,166 @@ def multilex_scraper(input_dir, output_dir):
         except:
             not_working_functions.append("caixinglobal")
             print("caixinglobal not working")
-    
-    
 
+    def borneobulletin(keyword):
+        try:
+            print("borneobulletin")
+            Errors["borneobulletin"]=[]
+            
+            
+            
+            url = f"https://borneobulletin.com.bn/?s={keyword}"
+            domain_url = "https://borneobulletin.com.bn/"          
+            
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'sec-fetch-site': 'none',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            }
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            section_class = "archive"  # Class name of div containing the a tag
+            #h1_class = "_1Y-96"
+            #h1_div_class = "col-xs-12"
+            main_class="site-main"
+            date_time_class= ["entry-date published"]
+            para_div_class=["entry-content"]
+            links=[]
+            try:
+                page = requests.get(url, headers=headers)
+                soup = BeautifulSoup(page.content, "html.parser")
+            except:
+                print("borneobulletin not working")
+                not_working_functions.append('borneobulletin')
+                err = "Main link did not load: " + url
+                Errors["borneobulletin"].append(err)
+                return
+            
+            
+            try:
+                
+                for divtag in soup.find_all("h3",{"class":"entry-title td-module-title"}):
+                    #a_a=divtag.find("a")
+                    links.append(divtag.a["href"])
+            except:
+                if len(links)==0:
+                    print("borneobulletin not working")
+                    not_working_functions.append('borneobulletin')
+                    Errors["borneobulletin"].append("Extraction of link not working.")
+                    return
+                        
+            # Remove duplicates
+            links = list(set(links))
+            
+            # links # Debugging - if link array is generated
+            collection = []
+            scrapper_name = "borneobulletin"
+            
+            def getarticles(link):
+                flag=0
+                err=err_dict()
+                try:
+                    l_page = requests.get(link, headers=headers)
+                    l_soup = BeautifulSoup(l_page.content, 'html.parser')
+                except:
+                    err["link"]="Link not working: "+link
+                    Errors["borneobulletin"].append(err)
+                    return
+                data = []
+                
+                
+                
+                # Scraping the heading
+                #h1_ele = l_soup.find("h1", {"class": h1_class})
+                
+                try:
+                    title_ele =l_soup.find('h1', class_='tdb-title-text')
+
+                    title_text = title_ele.text
+                    title_text = title_text. strip("\n ")
+                    data.append(title_text)
+                except:
+                    err["link"]=link
+                    err['title']="Error"
+                    data.append("-")
+                    flag=1
+                    print("hello")
+                 # drops the complete data if there is an error
+                # Adding the link to data
+                data.append(link)
+                # Scraping the published date
+                try:
+                    date_ele = l_soup.find("time",{"class":"entry-date updated td-module-date"})
+                    date_text=date_ele.text
+                    date_text = date_ele.text
+                    date_text=date_text.replace("/","-")
+                    '''date_text=date_text.replace(" ", "").replace("\r\n", "")
+                    #date_text=translate(date_text)
+
+                    result = date_text.split("|")[0]
+                    result=result.replace("\xa0","")'''
+                    data.append(date_text)
+                except:
+                    err["link"]=link
+                    err['published_date']="Error"
+                    data.append("-")
+                    flag=1
+              # drops the complete data if there is an error
+                # Adding the scraped date to data
+                today = date.today()
+                cur_date = str(today)
+                data.append(cur_date)
+                # Scraping the paragraph
+                try:
+                    para_ele = l_soup.find_all("p",{"style":"text-align: left;"})
+                    merged_text = '\n'.join(p.get_text().strip() for p in para_ele)
+
+                    
+                    data.append(merged_text)# Need to make this better
+                except:
+                    err["link"]=link
+                    err['text']="Error"
+                    data.append("-")
+                    flag=1
+                  # drops the complete data if there is an error
+                # Adding data to a collection
+                
+                if flag==1:
+                    Errors["borneobulletin"].append(err)
+                
+                collection.append(data)
+                
+            thread_list=[]
+            length=len(links)
+            for i in range(length):
+                thread_list.append(threading.Thread(target=getarticles, args=(links[i], )))
+            
+            for thread in thread_list:
+                thread.start()
+            
+            for thread in thread_list:
+                thread.join()
+            
+            df = pd.DataFrame(collection, columns=[
+                              'title', 'link', 'publish_date', 'scraped_date', 'text'])
+            
+            
+            # print(df) # For debugging. To check if df is created
+            # print(err_logs) # For debugging - to check if any errors occoured
+            df = FilterFunction(df)
+            emptydataframe("borneobulletin", df)
+            # df  = link_correction(df)
+            return df
+        
+        except:
+            not_working_functions.append("borneobulletin")
+            print("borneobulletin not working")
+    
     
     ################################################################################################
     
@@ -22969,10 +23126,11 @@ def multilex_scraper(input_dir, output_dir):
     df325 = businessmirror_philippines("ipo")
     df326 = dailynewsegypt("ipo")
     df327 = caixinglobal("ipo")
+    df328 = borneobulletin("ipo")
 
 
 
-    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295 ,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327]
+    df_final_1 = [df170, df1, df2, df3, df4, df5, df6, df7, df11, df12, df13, df14, df15, df16, df17, df19, df20 , df21, df22, df23, df24, df25, df26, df27, df28, df29, df30, df31, df32, df33, df34, df35, df36, df37 , df43,  df46, df49, df52, df57,  df60,  df63,  df66,  df69,  df72,  df75,  df78,  df81, df140,df146, df152,  df155,  df158,  df161,  df164,  df167,  df173,  df179,  df182,  df185,  df40,  df188,  df191,  df194,  df197,  df200,  df203, df207,  df210,  df213,  df216,  df219, df222,df225,df228,df231,df234,df237,df240,df243,df246,df249,df252,df255,df257,df258,df260,df261,df263,df264,df257,df258,df260,df261,df263,df264,df267,df270,df273,df276,df277,df280,df281,df284,df287,df288,df289,df292,df293,df294,df295 ,df297,df298,df299,df300,df301,df302, df303,df304,df305,df306,df307,df308,df309,df310,df311,df312,df313,df314,df315,df316,df317,df318,df319,df320,df321,df322,df323,df324,df325,df326,df327,df328]
     
     
        
