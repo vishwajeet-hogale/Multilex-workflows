@@ -6638,7 +6638,7 @@ def multilex_scraper(input_dir, output_dir):
             print("financialpost")
             Errors["financialpost"]=[]
             
-            url = f"https://financialpost.com/search/?search_text={keyword}"
+            url = f"https://financialpost.com/search/?search_text={keyword}&date_range=-365d&sort=desc"
             domain_url = "https://financialpost.com/"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -6650,11 +6650,9 @@ def multilex_scraper(input_dir, output_dir):
                 'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
             }
             div_class="row"# Class name of div containing the a tag
-            #h1_class = "_1Y-96"
-            #h1_div_class = "col-xs-12"
             title_h1_class= "article-title"
             date_span_class= ["published-date__since"]
-            para_section_class=["article-content__content-group"]
+            para_section_class=["article-content__content-group article-content__content-group--story"]
 
             links=[]
             try:
@@ -6667,19 +6665,18 @@ def multilex_scraper(input_dir, output_dir):
                 Errors["financialpost"].append(err)
                 return
             
-            
-            try:
-                
-                for h2_tag in soup.find_all("div", {"class": div_class}):
-                    for a in h2_tag.find_all("a", href=True):
-                        link = a["href"]  # Gets the link
-                        # Checking the link if it is a relative link
-                        if link[0] == '/':
-                            link = domain_url + link[1:]
-                        # Filtering advertaisment links
-                        link_start = domain_url
-                        if link.startswith(link_start):
-                            links.append(link)
+            try:   
+                for a_tag in soup.find_all("a",class_="article-card__link"):
+                    
+                    link = a_tag["href"]  # Gets the link
+                    # Checking the link if it is a relative link
+                    if link[0] == '/':
+                        link = domain_url + link[1:]
+                    # Filtering advertaisment links
+                    link_start = domain_url
+                    if link.startswith(link_start):
+                        links.append(link)
+
             except:
                 if len(links)==0:
                     print("financialpost not working")
@@ -6708,8 +6705,6 @@ def multilex_scraper(input_dir, output_dir):
                 data = []
                 
                 # Scraping the heading
-                #h1_ele = l_soup.find("h1", {"class": h1_class})
-                
                 try:
                     title_ele = l_soup.find("h1",{"class":title_h1_class})
                     data.append(title_ele.text)
@@ -6742,9 +6737,17 @@ def multilex_scraper(input_dir, output_dir):
                 cur_date = str(today)
                 data.append(cur_date)
                 # Scraping the paragraph
-                try:
-                    para_ele = (l_soup.findAll("section", {"class": para_section_class}))[-1]
-                    data.append(para_ele.text)  # Need to make this better
+                try:    
+                    # para_ele = (l_soup.findAll("section", {"class": para_section_class}))[-1]
+                    # data.append(para_ele.text)  # Need to make this better
+                    sections = l_soup.find_all("section", {"class": para_section_class})
+                    # print(sections)
+                    if sections:
+                        for section in sections:
+                            paragraph_elements = section.find_all('p')
+                            para_text = "".join([para.text for para in paragraph_elements])
+                            data.append(para_text)
+
                 except:
                     err["link"]=link
                     err['text']="Error"
